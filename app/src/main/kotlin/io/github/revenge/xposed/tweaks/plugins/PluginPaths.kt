@@ -1,19 +1,20 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.plugins.PluginPaths
+import io.github.revenge.plugins.PluginStatesStore
 import java.io.File
+import okio.FileSystem
+import okio.Path.Companion.toPath
 
-private const val PLUGINS_DIR = "files/revenge/plugins/dist"
-private const val PLUGIN_STORAGE_DIR = "files/revenge/plugins/storage"
+/** Core paths on the real filesystem. Tests build their own on a `FakeFileSystem`. */
+internal fun pluginPaths(dataDir: String) = PluginPaths(FileSystem.SYSTEM, dataDir.toPath())
 
-internal fun externalPluginsRoot(dataDir: String): File = File(dataDir, PLUGINS_DIR)
+internal fun externalPluginsRoot(dataDir: String): File = pluginPaths(dataDir).dist.toFile()
 
 /** Per-slot plugin storage root for the active slot. */
 internal fun pluginStorageRoot(dataDir: String): File =
-    File(dataDir, PLUGIN_STORAGE_DIR).resolve(PluginStatesStore.activeSlotId)
+    pluginPaths(dataDir).storageFor(PluginStatesStore.activeSlotId).toFile()
 
 /** A plugin's storage in every slot. */
 internal fun pluginStorageDirsOfAllSlots(dataDir: String, pluginId: String): List<File> =
-    File(dataDir, PLUGIN_STORAGE_DIR).listFiles()
-        ?.filter { it.isDirectory }
-        ?.map { it.resolve(pluginId) }
-        .orEmpty()
+    pluginPaths(dataDir).storageDirsOfAllSlots(pluginId).map { it.toFile() }

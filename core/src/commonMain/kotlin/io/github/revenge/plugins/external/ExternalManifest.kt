@@ -1,19 +1,19 @@
-package io.github.revenge.xposed.tweaks.plugins.external
+package io.github.revenge.plugins.external
 
 import io.github.revenge.plugins.PluginDependency
 import io.github.revenge.plugins.PluginManifest
+import io.github.revenge.plugins.RESERVED_DEPENDENCY_IDS
 import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.VersionRange
-import io.github.revenge.xposed.tweaks.plugins.internal.RESERVED_DEPENDENCY_IDS
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-internal const val MANIFEST_FILE = "manifest.json"
+const val MANIFEST_FILE = "manifest.json"
 
-internal const val MANIFEST_FORMAT = 1
+const val MANIFEST_FORMAT = 1
 
 @Serializable
-internal data class ExternalManifest(
+data class ExternalManifest(
     /** Manifest format version. Only [MANIFEST_FORMAT] is accepted. */
     val format: Int,
     val id: String,
@@ -46,7 +46,7 @@ internal data class ExternalManifest(
 }
 
 @Serializable
-internal data class ExternalDependency(
+data class ExternalDependency(
     /** Version range. `null` (empty object in JSON) means `"*"`. */
     val version: String? = null,
     /** Optional dependencies won't block the dependent. */
@@ -54,13 +54,13 @@ internal data class ExternalDependency(
 )
 
 @Serializable
-internal data class ExternalDist(
+data class ExternalDist(
     val script: String? = null,
     val android: ExternalAndroidDist? = null,
 )
 
 @Serializable
-internal data class ExternalAndroidDist(
+data class ExternalAndroidDist(
     val path: String,
     @SerialName("class") val className: String,
 )
@@ -74,13 +74,13 @@ private val URI_SCHEME_REGEX = Regex("^[A-Za-z][A-Za-z0-9+.-]*:")
  * Icons are either a packaged asset name or a size-capped `data:` URL.
  * Anything else is stripped. Icons are never fetched over the network.
  */
-internal fun validatedPluginIcon(icon: String): String? = when {
+fun validatedPluginIcon(icon: String): String? = when {
     icon.startsWith("data:") -> icon.takeIf { it.length <= MAX_ICON_DATA_URL_LENGTH }
     URI_SCHEME_REGEX.containsMatchIn(icon) -> null
     else -> icon
 }
 
-internal fun ExternalManifest.validate() {
+fun ExternalManifest.validate() {
     require(format == MANIFEST_FORMAT) {
         "Plugin '$id' has unsupported manifest format $format (supported: $MANIFEST_FORMAT)"
     }
@@ -104,7 +104,7 @@ internal fun ExternalManifest.validate() {
 private val PLUGIN_ID_REGEX = Regex("[a-zA-Z0-9.-]+")
 
 /** Matches `[a-zA-Z0-9.-]`, with no consecutive dots or leading dot. */
-internal fun requireValidPluginId(id: String) {
+fun requireValidPluginId(id: String) {
     require(PLUGIN_ID_REGEX.matches(id) && ".." !in id && !id.startsWith(".")) {
         "Invalid plugin ID: $id"
     }

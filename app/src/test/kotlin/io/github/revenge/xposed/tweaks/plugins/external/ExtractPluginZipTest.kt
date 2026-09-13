@@ -1,25 +1,32 @@
 package io.github.revenge.xposed.tweaks.plugins.external
 
-
-import io.github.revenge.xposed.tweaks.plugins.PluginErrorCodes
-import io.github.revenge.xposed.tweaks.plugins.PluginSystemError
-import java.io.ByteArrayInputStream
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginPaths
+import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.external.stagePluginZip
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Files
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.test.*
+import okio.FileSystem
+import okio.Path.Companion.toPath
 
+/**
+ * The staging pipeline against the real filesystem, with ZIPs built by the JVM writer plugin authors use.
+ */
 class ExtractPluginZipTest {
-    private val root: File = Files.createTempDirectory("revenge-zip-test").toFile()
+    private val dataDir: File = Files.createTempDirectory("revenge-zip-test").toFile()
+    private val paths = PluginPaths(FileSystem.SYSTEM, dataDir.absolutePath.toPath())
+    private val root: File get() = paths.dist.toFile()
 
     @AfterTest
     fun cleanup() {
-        root.deleteRecursively()
+        dataDir.deleteRecursively()
     }
 
-    private fun zipOf(vararg entries: Pair<String, String>): ByteArrayInputStream {
+    private fun zipOf(vararg entries: Pair<String, String>): ByteArray {
         val bytes = ByteArrayOutputStream()
         ZipOutputStream(bytes).use { zip ->
             for ((name, content) in entries) {
@@ -28,8 +35,10 @@ class ExtractPluginZipTest {
                 zip.closeEntry()
             }
         }
-        return ByteArrayInputStream(bytes.toByteArray())
+        return bytes.toByteArray()
     }
+
+    private fun stage(bytes: ByteArray) = stagePluginZip(paths, ".test") { it.write(bytes) }
 
     private val validManifest = """
         {
@@ -43,16 +52,17 @@ class ExtractPluginZipTest {
 
     @Test
     fun `a valid plugin ZIP extracts and parses`() {
-        val staged = extractPluginZip(zipOf("manifest.json" to validManifest), root, ".test")
+        val staged = stage(zipOf("manifest.json" to validManifest, "index.js" to "code"))
 
         assertEquals("com.example.zip", staged.manifest.id)
-        assertTrue(File(staged.dir, "manifest.json").isFile)
+        assertTrue(File(staged.dir.toFile(), "manifest.json").isFile)
+        assertEquals("code", File(staged.dir.toFile(), "index.js").readText())
     }
 
     @Test
     fun `a ZIP without a manifest fails with a clear message without extracting`() {
         val e = assertFailsWith<PluginSystemError> {
-            extractPluginZip(zipOf("readme.txt" to "hello"), root, ".test")
+            stage(zipOf("readme.txt" to "hello"))
         }
 
         assertEquals(PluginErrorCodes.INSTALL_INVALID_ZIP, e.code)
@@ -63,7 +73,7 @@ class ExtractPluginZipTest {
     @Test
     fun `an invalid manifest aborts before anything is extracted and leaves root clean`() {
         val e = assertFailsWith<PluginSystemError> {
-            extractPluginZip(zipOf("manifest.json" to "{}", "index.js" to "code"), root, ".test")
+            stage(zipOf("manifest.json" to "{}", "index.js" to "code"))
         }
 
         assertEquals(PluginErrorCodes.MANIFEST_INVALID, e.code)
@@ -72,8 +82,16 @@ class ExtractPluginZipTest {
 
     @Test
     fun `success leaves no spool file behind`() {
-        extractPluginZip(zipOf("manifest.json" to validManifest), root, ".test")
+        stage(zipOf("manifest.json" to validManifest))
 
         assertTrue(!File(root, ".test.zip").exists(), "spooled ZIP should be deleted")
+    }
+
+    @Test
+    fun `bytes that are not a ZIP are rejected`() {
+        val e = assertFailsWith<PluginSystemError> { stage("not a zip".toByteArray()) }
+
+        assertEquals(PluginErrorCodes.INSTALL_INVALID_ZIP, e.code)
+        assertEquals(emptyList(), root.listFiles()?.map { it.name }.orEmpty())
     }
 }

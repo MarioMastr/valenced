@@ -1,6 +1,5 @@
 package io.github.revenge.xposed.tweaks.plugins
 
-import io.github.revenge.logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,5 +15,3 @@ internal val pluginRegistry = PluginRegistry()
 
 /** Scope for work that outlives a bridge call: flag persistence, JS events, installs. */
 internal val pluginJobScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-internal val pluginLog = logger("plugins")

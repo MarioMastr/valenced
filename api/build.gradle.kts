@@ -9,12 +9,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkLibrary.get().toInt()
-
-        buildConfigField("String", "API_VERSION", "\"${libs.versions.apiVersion.get()}\"")
-    }
-
-    buildFeatures {
-        buildConfig = true
     }
 
     sourceSets {
@@ -40,6 +34,8 @@ android {
 }
 
 dependencies {
+    api(project(":core"))
+
     compileOnly(libs.xposed.api)
     compileOnly(libs.kotlinx.coroutines.android)
 }

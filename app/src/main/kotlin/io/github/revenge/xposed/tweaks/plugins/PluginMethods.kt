@@ -1,11 +1,20 @@
 package io.github.revenge.xposed.tweaks.plugins
 
 import io.github.revenge.bridge.asDelegate
+import io.github.revenge.core.RevengeJson
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginFlags
+import io.github.revenge.plugins.PluginStatesStore
+import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.external.requireValidPluginId
+import io.github.revenge.plugins.pluginLog
+import io.github.revenge.plugins.repos.SourcesStore
+import io.github.revenge.plugins.toJSPayload
 import io.github.revenge.xposed.tweak
-import io.github.revenge.xposed.tweaks.plugins.external.requireValidPluginId
 import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
-import io.github.revenge.xposed.tweaks.plugins.repos.SourcesStore
 import java.io.File
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 
 val pluginMethods by tweak {
     pluginSystemMethod("revenge.plugins.getConstants") {
@@ -16,7 +25,7 @@ val pluginMethods by tweak {
     }
 
     pluginSystemMethod("revenge.plugins.list") {
-        val sources = SourcesStore.ensureLoaded(appInfo.dataDir)
+        val sources = SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
         pluginRegistry.factories.values.map { factory ->
             factory.toJSPayload(
                 pluginRegistry.loaded[factory.manifest.id],
@@ -89,7 +98,7 @@ val pluginMethods by tweak {
         // Delete data from all slots.
         File(externalPluginsRoot(appInfo.dataDir), pluginId).deleteRecursively()
         for (dir in pluginStorageDirsOfAllSlots(appInfo.dataDir, pluginId)) dir.deleteRecursively()
-        PluginStatesStore.removePluginFromAllSlots(appInfo.dataDir, pluginId)
+        PluginStatesStore.removePluginFromAllSlots(pluginPaths(appInfo.dataDir), pluginId)
         runCatching { SourcesStore.remove(pluginId) }
             .onFailure { pluginLog.e("Failed to remove plugin source for $pluginId", it) }
 
@@ -112,7 +121,7 @@ val pluginMethods by tweak {
             if (problems.isNotEmpty()) throw PluginSystemError(
                 PluginErrorCodes.DEPENDENCIES_UNSATISFIED,
                 unsatisfiedDependenciesMessage(pluginId, problems),
-                details = mapOf("problems" to problems),
+                details = buildJsonObject { put("problems", RevengeJson.encodeToJsonElement(problems)) },
             )
 
             val requiredByUser = requiredByUser == true
@@ -141,7 +150,7 @@ val pluginMethods by tweak {
         val held = args.getOrNull(1) as? Boolean
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a boolean")
 
-        SourcesStore.ensureLoaded(appInfo.dataDir)
+        SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 
         val factory = pluginRegistry.factories[pluginId]
             ?: throw PluginSystemError(PluginErrorCodes.NOT_FOUND, "Unknown plugin: '$pluginId'")

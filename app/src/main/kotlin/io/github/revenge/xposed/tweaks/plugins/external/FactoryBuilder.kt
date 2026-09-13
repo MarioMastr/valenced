@@ -1,12 +1,16 @@
 package io.github.revenge.xposed.tweaks.plugins.external
 
+import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
+import io.github.revenge.plugins.external.ExternalManifest
+import io.github.revenge.plugins.external.MANIFEST_FILE
+import io.github.revenge.plugins.external.unsatisfiedDependencyReason
+import io.github.revenge.plugins.external.validate
 import io.github.revenge.plugins.plugin
+import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.RevengeJson
 import io.github.revenge.xposed.requireInside
 import io.github.revenge.xposed.tweaks.plugins.PluginFactory
-import io.github.revenge.xposed.tweaks.plugins.PluginSystemError
-import io.github.revenge.xposed.tweaks.plugins.pluginLog
 import java.io.File
 
 /** Parses and validates a `<id>/manifest.json`. */

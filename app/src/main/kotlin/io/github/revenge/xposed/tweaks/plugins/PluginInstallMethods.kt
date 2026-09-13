@@ -1,13 +1,29 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginFlags
+import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
+import io.github.revenge.plugins.external.validatedPluginIcon
+import io.github.revenge.plugins.pluginLog
+import io.github.revenge.plugins.repos.INTERNAL_REPO_URL
+import io.github.revenge.plugins.repos.InstallPlan
+import io.github.revenge.plugins.repos.PluginSource
+import io.github.revenge.plugins.repos.REPO_CHANNEL_LATEST
+import io.github.revenge.plugins.repos.RepoStore
+import io.github.revenge.plugins.repos.ResolveRequest
+import io.github.revenge.plugins.repos.SourcesStore
+import io.github.revenge.plugins.repos.parseRepoInstallAction
+import io.github.revenge.plugins.repos.repoInstallMutex
+import io.github.revenge.plugins.repos.resolveInstall
+import io.github.revenge.plugins.toJSPayload
+import io.github.revenge.plugins.toPluginError
 import io.github.revenge.xposed.api.HostScope
 import io.github.revenge.xposed.api.callJSMethod
 import io.github.revenge.xposed.tweak
 import io.github.revenge.xposed.tweaks.plugins.external.InstallResult
 import io.github.revenge.xposed.tweaks.plugins.external.confirmPluginInstall
 import io.github.revenge.xposed.tweaks.plugins.external.promptInstallPlugin
-import io.github.revenge.xposed.tweaks.plugins.external.validatedPluginIcon
 import io.github.revenge.xposed.tweaks.plugins.repos.*
 import kotlinx.coroutines.sync.withLock
 
@@ -92,8 +108,8 @@ val pluginInstallMethods by tweak {
             throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a list of repository URLs or null")
         }
 
-        RepoStore.ensureLoaded(appInfo.dataDir)
-        SourcesStore.ensureLoaded(appInfo.dataDir)
+        RepoStore.ensureLoaded(pluginPaths(appInfo.dataDir))
+        SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 
         val repos =
             RepoStore.list().filter { it.enabled && (filteredRepos?.contains(it.url) ?: true) }.mapNotNull { repo ->
@@ -141,8 +157,8 @@ val pluginInstallMethods by tweak {
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected an install plan")
         val actions = (planMap["actions"] as? List<*>).orEmpty().map(::parseRepoInstallAction)
 
-        RepoStore.ensureLoaded(appInfo.dataDir)
-        SourcesStore.ensureLoaded(appInfo.dataDir)
+        RepoStore.ensureLoaded(pluginPaths(appInfo.dataDir))
+        SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 
         repoInstallMutex.withLock {
             // An overlapping plan may have already satisfied some of these actions.
@@ -222,8 +238,8 @@ val pluginInstallMethods by tweak {
         val url = args.firstOrNull() as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a repository URL")
 
-        RepoStore.ensureLoaded(appInfo.dataDir)
-        SourcesStore.ensureLoaded(appInfo.dataDir)
+        RepoStore.ensureLoaded(pluginPaths(appInfo.dataDir))
+        SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 
         // Internal plugins update with the loader itself, never through repos.
         if (url == INTERNAL_REPO_URL) return@pluginSystemAsyncMethod emptyList<Any?>()

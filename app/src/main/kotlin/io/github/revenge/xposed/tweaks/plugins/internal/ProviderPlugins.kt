@@ -1,17 +1,15 @@
 package io.github.revenge.xposed.tweaks.plugins.internal
 
+import io.github.revenge.core.hostVersion
 import io.github.revenge.plugins.*
 
-/**
- * Reserved dependency IDs that are provided by internal provider plugins.
- *
- * These are injected with [VersionRange.ANY][io.github.revenge.plugins.VersionRange.ANY] into every internal plugin at registration,
- * and MUST be declared by external plugins.
- */
-internal val RESERVED_DEPENDENCY_IDS: Set<String> = setOf(API_DEPENDENCY_ID, DISCORD_DEPENDENCY_ID)
+/** The version of the host Discord app, kept in `:core` so shared code resolves the `discord` dependency. */
+internal var DISCORD_VERSION: Version
+    get() = hostVersion
+    set(value) {
+        hostVersion = value
+    }
 
-/** The version of the host Discord app. */
-internal lateinit var DISCORD_VERSION: Version
 
 /**
  * Provider plugin representing Revenge's API, providing the Revenge module's class loader

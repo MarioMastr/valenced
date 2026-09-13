@@ -1,11 +1,19 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.core.toNativeMap
+import io.github.revenge.plugins.PluginError
+import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.PluginManifest
+import io.github.revenge.plugins.PluginPayload
 import io.github.revenge.plugins.PluginScope
-import io.github.revenge.xposed.tweaks.plugins.external.DiscoveryFailure
-import io.github.revenge.xposed.tweaks.plugins.external.MANIFEST_FORMAT
+import io.github.revenge.plugins.SourcePayload
+import io.github.revenge.plugins.external.DiscoveryFailure
+import io.github.revenge.plugins.pluginLog
+import io.github.revenge.plugins.repos.PluginSource
+import io.github.revenge.plugins.toJSPayload
+import io.github.revenge.plugins.toPayload
+import io.github.revenge.plugins.toPluginError
 import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
-import io.github.revenge.xposed.tweaks.plugins.repos.PluginSource
 import java.io.File
 
 internal fun PluginFactory.toJSPayload(
@@ -13,50 +21,46 @@ internal fun PluginFactory.toJSPayload(
     bootError: PluginError? = null,
     /* `null` = sideloaded */
     source: PluginSource? = null,
-): Map<String, Any?> = mapOf(
-    "manifest" to manifest.toMap(),
-    "script" to readScript(),
-    "internal" to (InternalPluginFlags.INTERNAL in internalFlags),
-    "essential" to (InternalPluginFlags.ESSENTIAL in internalFlags),
-    "enabledByDefault" to (InternalPluginFlags.ENABLED_BY_DEFAULT in internalFlags),
-    "api" to (InternalPluginFlags.API in internalFlags),
-    "source" to source?.toJSPayload(),
-    "unsatisfiedOptionalDependencies" to unsatisfiedOptionalDependencies.toList(),
-    // Errors the native side has already hit (e.g. at boot, before JS was up).
-    "errors" to buildList {
-        bootError?.apply { add(toJSPayload()) }
-        loaded?.apply {
-            addAll(scope.errorsJSPayload)
-        }
+): Map<String, Any?> = PluginPayload(
+    manifest = manifest.toPayload(),
+    script = readScript(),
+    internal = InternalPluginFlags.INTERNAL in internalFlags,
+    essential = InternalPluginFlags.ESSENTIAL in internalFlags,
+    enabledByDefault = InternalPluginFlags.ENABLED_BY_DEFAULT in internalFlags,
+    api = InternalPluginFlags.API in internalFlags,
+    source = source?.toPayload(),
+    unsatisfiedOptionalDependencies = unsatisfiedOptionalDependencies.toList(),
+    errors = buildList {
+        bootError?.let(::add)
+        loaded?.let { addAll(it.scope.pluginErrors) }
     },
-)
+).toNativeMap()
+
+/** Everything the plugin has thrown so far this session. */
+val PluginScope.pluginErrors: List<PluginError>
+    get() = errors.replayCache.map { it.toPluginError(PluginErrorCodes.PLUGIN_ERROR) }
 
 val PluginScope.errorsJSPayload
-    get() = errors.replayCache.map {
-        it.toPluginError(PluginErrorCodes.PLUGIN_ERROR).toJSPayload()
-    }
+    get() = pluginErrors.map { it.toJSPayload() }
 
 internal fun DiscoveryFailure.toJSPayload(
     manifest: PluginManifest,
     source: PluginSource? = null,
-): Map<String, Any?> = mapOf(
-    "manifest" to manifest.toMap(),
-    "script" to null,
-    "internal" to false,
-    "essential" to false,
-    "enabledByDefault" to false,
-    "api" to false,
-    "failed" to true,
-    "source" to source?.toJSPayload(),
-    "unsatisfiedOptionalDependencies" to emptyList<String>(),
-    "errors" to errors.map { it.toJSPayload() },
-)
+): Map<String, Any?> = PluginPayload(
+    manifest = manifest.toPayload(),
+    script = null,
+    internal = false,
+    essential = false,
+    enabledByDefault = false,
+    api = false,
+    source = source?.toPayload(),
+    errors = errors,
+    failed = true,
+).toNativeMap()
 
-internal fun PluginSource.toJSPayload(): Map<String, Any?> = mapOf(
-    "repo" to repo,
-    "channel" to channel,
-    "held" to held,
-)
+internal fun PluginSource.toPayload(): SourcePayload = SourcePayload(repo = repo, channel = channel, held = held)
+
+internal fun PluginSource.toJSPayload(): Map<String, Any?> = toPayload().toNativeMap()
 
 /** Read the plugin's `dist.script` source (if any) for JS to evaluate. */
 private fun PluginFactory.readScript(): String? = scriptPath?.let { path ->
@@ -67,17 +71,3 @@ private fun PluginFactory.readScript(): String? = scriptPath?.let { path ->
         null
     }
 }
-
-internal fun PluginManifest.toMap(): Map<String, Any?> = mapOf(
-    // Anything that reaches runtime already passed format validation.
-    "format" to MANIFEST_FORMAT,
-    "id" to id,
-    "name" to name,
-    "description" to description,
-    "author" to author,
-    "icon" to icon,
-    "dependencies" to dependencies.mapValues { (_, dep) ->
-        mapOf("version" to dep.version.toString(), "optional" to dep.optional)
-    },
-    "version" to mapOf("nums" to version.nums, "label" to version.label),
-)

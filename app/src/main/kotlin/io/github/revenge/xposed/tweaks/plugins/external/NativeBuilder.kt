@@ -2,9 +2,10 @@ package io.github.revenge.xposed.tweaks.plugins.external
 
 import dalvik.system.DexClassLoader
 import io.github.revenge.plugins.PluginBuilder
+import io.github.revenge.plugins.external.ExternalAndroidDist
+import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.CompositeClassLoader
 import io.github.revenge.xposed.requireInside
-import io.github.revenge.xposed.tweaks.plugins.pluginLog
 import java.io.File
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.Member

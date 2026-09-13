@@ -8,11 +8,12 @@ import android.os.Build
 import android.widget.Toast
 import io.github.revenge.plugins.API_VERSION
 import io.github.revenge.plugins.PluginManifest
+import io.github.revenge.plugins.PluginStatesStore
 import io.github.revenge.reloadApp
 import io.github.revenge.xposed.RevengeConstants
 import io.github.revenge.xposed.api.registerNativeMethod
 import io.github.revenge.xposed.tweaks.RevengeUpdater
-import io.github.revenge.xposed.tweaks.plugins.PluginStatesStore
+import io.github.revenge.xposed.tweaks.plugins.pluginPaths
 import io.github.revenge.xposed.versionCode
 import io.github.revenge.xposed.versionName
 import java.io.File
@@ -86,7 +87,7 @@ fun showRecoveryAlert(context: Context) {
 
                 1 -> {
                     PluginStatesStore.setActiveSlot(
-                        context.dataDir.absolutePath,
+                        pluginPaths(context.dataDir.absolutePath),
                         PluginStatesStore.DEFAULTS_SLOT,
                         oneShot = true,
                     )

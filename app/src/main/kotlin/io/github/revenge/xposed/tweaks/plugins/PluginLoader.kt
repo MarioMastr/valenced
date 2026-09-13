@@ -1,5 +1,9 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginStatesStore
+import io.github.revenge.plugins.pluginLog
+import io.github.revenge.plugins.toPluginError
 import io.github.revenge.xposed.tweak
 import io.github.revenge.xposed.tweaks.plugins.external.discoverExternalPlugins
 import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
@@ -9,7 +13,7 @@ val pluginLoader by tweak {
     val errors = mutableListOf<String>()
 
     // Load states before anything reads or writes a slot.
-    PluginStatesStore.ensureLoaded(appInfo.dataDir)
+    PluginStatesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 
     val discovery = discoverExternalPlugins(
         appInfo.dataDir,

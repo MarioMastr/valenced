@@ -1,20 +1,20 @@
-package io.github.revenge.xposed.tweaks.plugins.repos
+package io.github.revenge.plugins.repos
 
-import io.github.revenge.Logger
+import io.github.revenge.core.Logger
+import io.github.revenge.core.RevengeJson
 import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.VersionRange
-import io.github.revenge.xposed.RevengeJson
-import io.github.revenge.xposed.tweaks.plugins.external.ExternalDependency
-import io.github.revenge.xposed.tweaks.plugins.external.requireValidPluginId
-import io.github.revenge.xposed.tweaks.plugins.external.validatedPluginIcon
+import io.github.revenge.plugins.external.ExternalDependency
+import io.github.revenge.plugins.external.requireValidPluginId
+import io.github.revenge.plugins.external.validatedPluginIcon
 import kotlinx.serialization.Serializable
 
 /** The supported repository index format version. */
-internal const val REPO_INDEX_FORMAT = 1
+const val REPO_INDEX_FORMAT = 1
 
 // The URL is its identity.
 @Serializable
-internal data class RepoIndex(
+data class RepoIndex(
     /** Only [REPO_INDEX_FORMAT] is accepted. */
     val format: Int,
     val name: String,
@@ -26,7 +26,7 @@ internal data class RepoIndex(
 )
 
 @Serializable
-internal data class RepoPlugin(
+data class RepoPlugin(
     val name: String,
     val description: String = "",
     val author: String = "",
@@ -44,7 +44,7 @@ internal data class RepoPlugin(
 
 /** A published plugin version. */
 @Serializable
-internal data class RepoVersion(
+data class RepoVersion(
     /** Absolute URL of the plugin ZIP artifact. */
     val url: String,
     /** Lowercase hex SHA-256 digest of the artifact. */
@@ -61,7 +61,7 @@ internal data class RepoVersion(
 )
 
 /** The default channel used for installs and update checks. */
-internal const val REPO_CHANNEL_LATEST = "latest"
+const val REPO_CHANNEL_LATEST = "latest"
 
 private val SHA256_HEX_REGEX = Regex("^[0-9a-f]{64}$")
 
@@ -77,7 +77,7 @@ private fun isAbsoluteHttpUrl(url: String) = url.startsWith("https://") || url.s
  * - Channel pointers naming a missing/dropped version are dropped with a warning.
  * - Plugins with an invalid ID or no remaining versions are dropped with a warning.
  */
-internal fun parseRepoIndex(json: String, repoUrl: String, log: Logger): RepoIndex {
+fun parseRepoIndex(json: String, repoUrl: String, log: Logger): RepoIndex {
     val raw = RevengeJson.decodeFromString<RepoIndex>(json)
     require(raw.format == REPO_INDEX_FORMAT) {
         "Repository '$repoUrl' has unsupported index format ${raw.format} (supported: $REPO_INDEX_FORMAT)"

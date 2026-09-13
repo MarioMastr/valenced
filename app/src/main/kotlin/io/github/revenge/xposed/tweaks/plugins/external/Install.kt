@@ -2,33 +2,33 @@ package io.github.revenge.xposed.tweaks.plugins.external
 
 import android.app.Activity
 import android.content.Intent
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
+import io.github.revenge.plugins.external.ExternalManifest
+import io.github.revenge.plugins.external.StagedPlugin
+import io.github.revenge.plugins.external.applyStagedPlugin
+import io.github.revenge.plugins.external.discardStagedPlugin
+import io.github.revenge.plugins.external.stagePluginZip
+import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.*
 import io.github.revenge.xposed.api.HostScope
 import io.github.revenge.xposed.tweaks.plugins.*
+import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.InputStream
-import java.util.*
-import java.util.zip.ZipFile
+import okio.source
 
 private const val PICK_ZIP_REQUEST_CODE = 0x5256
 
 /** Prefix of the temp directory holding a staged install until the user answers. */
 private const val CONFIRM_TMP_PREFIX = ".confirm-"
 
-/** Largest decompressed size of a plugin ZIP (1 GiB). */
-private const val MAX_EXTRACTED_ZIP_BYTES: Long = 1L shl 30
-
 @Volatile
 private var pickZipHooked = false
 
 @Volatile
 private var pendingPick: ((Activity, android.net.Uri) -> Unit)? = null
-
-/** An extracted and validated plugin ZIP that hasn't replaced the existing yet. */
-internal class StagedPlugin(val dir: File, val manifest: ExternalManifest)
 
 internal class InstallPrompt(
     val token: String,
@@ -84,19 +84,18 @@ internal fun promptInstallPlugin(
 
     pendingPick = { activity, uri ->
         pluginJobScope.launch(Dispatchers.IO) {
-            val result = runCatching {
-                discardPendingInstalls()
+            val paths = pluginPaths(host.appInfo.dataDir)
 
-                val root = externalPluginsRoot(host.appInfo.dataDir).apply { mkdirs() }
-                if (!root.isDirectory || !root.canWrite()) throw PluginSystemError(
-                    PluginErrorCodes.STORAGE_FAILED,
-                    "Plugin directory is not writable: $root",
-                )
+            val result = runCatching {
+                discardPendingInstalls(host.appInfo.dataDir)
 
                 val token = UUID.randomUUID().toString()
-                val staged = activity.contentResolver.openInputStream(uri)
-                    ?.use { extractPluginZip(it, root, "$CONFIRM_TMP_PREFIX$token") }
+                val input = activity.contentResolver.openInputStream(uri)
                     ?: throw PluginSystemError(PluginErrorCodes.STORAGE_FAILED, "Unable to open $uri")
+
+                val staged = input.use { stream ->
+                    stagePluginZip(paths, "$CONFIRM_TMP_PREFIX$token") { it.writeAll(stream.source()) }
+                }
 
                 pendingInstalls[token] = staged
                 InstallPrompt(token, staged.manifest, replaces = installedVersion(staged.manifest.id))
@@ -130,116 +129,29 @@ internal fun confirmPluginInstall(
     knownVersions: Map<String, Version>,
     isUpdate: (String) -> Boolean,
 ): InstallResult? {
+    val paths = pluginPaths(dataDir)
     val staged = pendingInstalls.remove(token)
     if (staged == null || !accepted) {
-        staged?.dir?.deleteRecursively()
+        staged?.let { discardStagedPlugin(paths, it) }
         return null
     }
 
-    val root = externalPluginsRoot(dataDir)
     val dir = try {
-        applyStagedPlugin(staged, root)
+        applyStagedPlugin(paths, staged)
     } catch (e: Throwable) {
-        staged.dir.deleteRecursively()
+        discardStagedPlugin(paths, staged)
         throw e
     }
 
     return if (isUpdate(staged.manifest.id)) {
         InstallResult.Updated(staged.manifest, Version.parse(staged.manifest.version))
     } else {
-        InstallResult.New(readExternalPluginDir(dir, knownVersions))
+        InstallResult.New(readExternalPluginDir(dir.toFile(), knownVersions))
     }
 }
 
-private fun discardPendingInstalls() {
-    for (staged in pendingInstalls.values) staged.dir.deleteRecursively()
+private fun discardPendingInstalls(dataDir: String) {
+    val paths = pluginPaths(dataDir)
+    for (staged in pendingInstalls.values) discardStagedPlugin(paths, staged)
     pendingInstalls.clear()
-}
-
-/**
- * Extracts a plugin ZIP into `<root>/<tmpName>/`, then parses and validates its manifest.
- *
- * The manifest is checked before full extraction. Extraction stops at [MAX_EXTRACTED_ZIP_BYTES] decompressed bytes.
- */
-internal fun extractPluginZip(input: InputStream, root: File, tmpName: String): StagedPlugin {
-    val tmp = File(root, tmpName).apply {
-        deleteRecursively()
-        if (!mkdirs()) throw PluginSystemError(
-            PluginErrorCodes.STORAGE_FAILED,
-            "Unable to create install directory: $this",
-        )
-    }
-    val spool = File(root, "$tmpName.zip")
-
-    try {
-        // We can only read [input] once, so we need to copy it.
-        spool.outputStream().use(input::copyTo)
-
-        ZipFile(spool).use { zip ->
-            val manifestEntry = zip.getEntry(MANIFEST_FILE)
-                ?: throw PluginSystemError(
-                    PluginErrorCodes.INSTALL_INVALID_ZIP,
-                    "Not a Revenge plugin ZIP: missing $MANIFEST_FILE",
-                )
-
-            val manifest = try {
-                RevengeJson.decodeFromString(
-                    ExternalManifest.serializer(),
-                    zip.getInputStream(manifestEntry).use { it.readBytes().decodeToString() },
-                ).also { it.validate() }
-            } catch (e: PluginSystemError) {
-                throw e
-            } catch (e: Throwable) {
-                throw PluginSystemError(
-                    PluginErrorCodes.MANIFEST_INVALID,
-                    "Invalid $MANIFEST_FILE: ${e.message}",
-                    e,
-                )
-            }
-
-            var budget = MAX_EXTRACTED_ZIP_BYTES
-            for (entry in zip.entries()) {
-                val out = File(tmp, entry.name)
-                out.requireInside(tmp, "ZIP entry", entry.name)
-
-                if (entry.isDirectory) {
-                    out.mkdirs()
-                } else {
-                    out.parentFile?.mkdirs()
-                    out.outputStream().use { dest ->
-                        zip.getInputStream(entry).use { src ->
-                            budget -= src.copyToCapped(dest, budget) {
-                                throw PluginSystemError(
-                                    PluginErrorCodes.INSTALL_INVALID_ZIP,
-                                    "Plugin ZIP expands past the $MAX_EXTRACTED_ZIP_BYTES-byte limit",
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            return StagedPlugin(tmp, manifest)
-        }
-    } catch (e: Throwable) {
-        tmp.deleteRecursively()
-        throw e
-    } finally {
-        spool.delete()
-    }
-}
-
-/**
- * Creates or replaces `<root>/<id>/` with a staged plugin.
- *
- * The running session keeps running the code it already loaded. The new files will take effect on the next boot.
- */
-internal fun applyStagedPlugin(staged: StagedPlugin, root: File): File {
-    val dest = File(root, staged.manifest.id)
-    dest.deleteRecursively()
-    if (!staged.dir.renameTo(dest)) {
-        staged.dir.copyRecursively(dest, overwrite = true)
-        staged.dir.deleteRecursively()
-    }
-    return dest
 }

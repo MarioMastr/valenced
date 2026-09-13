@@ -1,30 +1,32 @@
-package io.github.revenge.xposed.tweaks.plugins
+package io.github.revenge.plugins
 
-import java.io.File
-import java.nio.file.Files
-import kotlin.test.*
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 
 /**
  * Slot model: the boot slot is what runs, the active slot is what the user edits.
  */
 class PluginStateSlotsTest {
-    private val dataDir: File = Files.createTempDirectory("revenge-slots-test").toFile()
-    private val statesDir = File(dataDir, "files/revenge/plugins/states")
-    private val slotsDir = File(statesDir, "slots")
+    private val paths = PluginPaths(FakeFileSystem(), "/data".toPath())
 
     @BeforeTest
     fun reset() = PluginStatesStore.resetForTests()
 
     @AfterTest
-    fun cleanup() {
-        PluginStatesStore.resetForTests()
-        dataDir.deleteRecursively()
-    }
+    fun cleanup() = PluginStatesStore.resetForTests()
 
-    private fun load() = PluginStatesStore.ensureLoaded(dataDir.absolutePath)
+    private fun load() = PluginStatesStore.ensureLoaded(paths)
 
     private fun bootIntoDefaults() {
-        PluginStatesStore.setActiveSlot(dataDir.absolutePath, PluginStatesStore.DEFAULTS_SLOT, oneShot = true)
+        PluginStatesStore.setActiveSlot(paths, PluginStatesStore.DEFAULTS_SLOT, oneShot = true)
         PluginStatesStore.resetForTests()
         load()
     }
@@ -68,7 +70,7 @@ class PluginStateSlotsTest {
         load()
         PluginStatesStore.active.write("com.example.plugin", setOf(PluginFlags.ENABLED, PluginFlags.REQUIRED_BY_USER))
 
-        assertTrue(File(slotsDir, PluginStatesStore.PRIMARY_SLOT).exists())
+        assertTrue(paths.fs.exists(paths.slots / PluginStatesStore.PRIMARY_SLOT))
 
         PluginStatesStore.resetForTests()
         load()
@@ -76,6 +78,20 @@ class PluginStateSlotsTest {
         assertEquals(
             setOf(PluginFlags.ENABLED, PluginFlags.REQUIRED_BY_USER),
             PluginStatesStore.active.entryFlags("com.example.plugin"),
+        )
+    }
+
+    @Test
+    fun `a plugin id outside the BMP survives the states codec`() {
+        load()
+        PluginStatesStore.active.write("com.example.\uD83D\uDE00", setOf(PluginFlags.ENABLED))
+
+        PluginStatesStore.resetForTests()
+        load()
+
+        assertEquals(
+            setOf(PluginFlags.ENABLED),
+            PluginStatesStore.active.entryFlags("com.example.\uD83D\uDE00"),
         )
     }
 
@@ -152,13 +168,13 @@ class PluginStateSlotsTest {
 
     @Test
     fun `a one-shot is consumed before any plugin loads`() {
-        PluginStatesStore.setActiveSlot(dataDir.absolutePath, PluginStatesStore.DEFAULTS_SLOT, oneShot = true)
-        assertTrue(File(statesDir, "next").exists())
+        PluginStatesStore.setActiveSlot(paths, PluginStatesStore.DEFAULTS_SLOT, oneShot = true)
+        assertTrue(paths.fs.exists(paths.nextSlotFile))
 
         PluginStatesStore.resetForTests()
         load()
         assertEquals(PluginStatesStore.DEFAULTS_SLOT, PluginStatesStore.bootSlotId)
-        assertFalse(File(statesDir, "next").exists(), "deleted before any plugin loads")
+        assertFalse(paths.fs.exists(paths.nextSlotFile), "deleted before any plugin loads")
 
         // Next boot is normal again, so a crash loop cannot trap the user
         PluginStatesStore.resetForTests()
@@ -169,9 +185,9 @@ class PluginStateSlotsTest {
     @Test
     fun `an internal slot can never be made sticky`() {
         assertFailsWith<PluginSystemError> {
-            PluginStatesStore.setActiveSlot(dataDir.absolutePath, PluginStatesStore.DEFAULTS_SLOT, oneShot = false)
+            PluginStatesStore.setActiveSlot(paths, PluginStatesStore.DEFAULTS_SLOT, oneShot = false)
         }
-        assertFalse(File(statesDir, "active").exists())
+        assertFalse(paths.fs.exists(paths.activeSlotFile))
     }
 
     @Test
@@ -188,8 +204,7 @@ class PluginStateSlotsTest {
 
     @Test
     fun `the active slot survives a reload`() {
-        Files.createDirectories(statesDir.toPath())
-        PluginStatesStore.setActiveSlot(dataDir.absolutePath, "work", oneShot = false)
+        PluginStatesStore.setActiveSlot(paths, "work", oneShot = false)
 
         PluginStatesStore.resetForTests()
         load()
@@ -199,20 +214,35 @@ class PluginStateSlotsTest {
     }
 
     @Test
+    fun `getSlots lists the slots on disk`() {
+        load()
+        PluginStatesStore.active.write("com.example.plugin", setOf(PluginFlags.ENABLED))
+        PluginStatesStore.setActiveSlot(paths, "work", oneShot = false)
+        PluginStatesStore.resetForTests()
+        load()
+        PluginStatesStore.active.write("com.example.plugin", emptySet())
+
+        assertEquals(
+            listOf(PluginStatesStore.PRIMARY_SLOT, "work"),
+            PluginStatesStore.persistentSlotIds(paths).sorted(),
+        )
+    }
+
+    @Test
     fun `uninstall drops the plugin from a slot this boot never loaded`() {
         load()
         PluginStatesStore.active.write("com.example.plugin", setOf(PluginFlags.ENABLED))
         PluginStatesStore.resetForTests()
 
         // A second setup the user isn't in, so nothing loads it this boot.
-        PluginStatesStore.setActiveSlot(dataDir.absolutePath, "work", oneShot = false)
+        PluginStatesStore.setActiveSlot(paths, "work", oneShot = false)
         load()
         PluginStatesStore.active.write("com.example.plugin", setOf(PluginFlags.ENABLED))
 
-        PluginStatesStore.removePluginFromAllSlots(dataDir.absolutePath, "com.example.plugin")
+        PluginStatesStore.removePluginFromAllSlots(paths, "com.example.plugin")
 
         PluginStatesStore.resetForTests()
-        PluginStatesStore.setActiveSlot(dataDir.absolutePath, PluginStatesStore.PRIMARY_SLOT, oneShot = false)
+        PluginStatesStore.setActiveSlot(paths, PluginStatesStore.PRIMARY_SLOT, oneShot = false)
         load()
 
         assertFalse(
@@ -229,12 +259,10 @@ class PluginStateSlotsTest {
 
         val payload = PluginStatesStore.toJSPayload()
 
-        @Suppress("UNCHECKED_CAST")
-        val primary = payload[PluginStatesStore.PRIMARY_SLOT] as Map<String, Map<String, Any>>
-        assertEquals(true, primary["com.example.plugin"]?.get("enabled"))
-
-        @Suppress("UNCHECKED_CAST")
-        val defaults = payload[PluginStatesStore.DEFAULTS_SLOT] as Map<String, Any>
-        assertTrue(defaults.isEmpty(), "JS must agree with native or it runs plugins native skipped")
+        assertEquals(true, payload[PluginStatesStore.PRIMARY_SLOT]?.get("com.example.plugin")?.get("enabled"))
+        assertTrue(
+            payload[PluginStatesStore.DEFAULTS_SLOT]!!.isEmpty(),
+            "JS must agree with native or it runs plugins native skipped",
+        )
     }
 }

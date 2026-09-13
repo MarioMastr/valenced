@@ -3,6 +3,7 @@ package io.github.revenge.xposed.tweaks.plugins.internal
 import io.github.revenge.plugins.PluginBuilder
 import io.github.revenge.plugins.PluginDependency
 import io.github.revenge.plugins.PluginManifest
+import io.github.revenge.plugins.RESERVED_DEPENDENCY_IDS
 import io.github.revenge.plugins.plugin
 import io.github.revenge.xposed.tweaks.plugins.PluginFactory
 

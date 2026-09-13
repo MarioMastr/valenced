@@ -1,10 +1,10 @@
 package io.github.revenge.xposed.tweaks.plugins.external
 
-
 import io.github.revenge.plugins.API_DEPENDENCY_ID
 import io.github.revenge.plugins.DISCORD_DEPENDENCY_ID
+import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.Version
-import io.github.revenge.xposed.tweaks.plugins.PluginErrorCodes
+import io.github.revenge.plugins.external.DiscoveryFailure
 import io.github.revenge.xposed.tweaks.plugins.externalPluginsRoot
 import java.io.File
 import java.nio.file.Files
@@ -74,8 +74,9 @@ class DiscoveryFailureTest {
         assertTrue(discovery.factories.isEmpty())
         val failure = discovery.failures["com.example.broken"]
         assertNotNull(failure)
-        assertNotNull(failure.manifest)
-        assertEquals("com.example.broken", failure.manifest.id)
+        val manifest = failure.manifest
+        assertNotNull(manifest)
+        assertEquals("com.example.broken", manifest.id)
         val error = failure.errors.single()
         assertEquals(PluginErrorCodes.DEPENDENCY_MISSING, error.code)
         assertTrue("missing dependency 'com.example.gone'" in error.message)

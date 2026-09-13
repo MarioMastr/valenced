@@ -1,12 +1,13 @@
 package io.github.revenge.xposed.tweaks.plugins.repos
 
-import android.util.AtomicFile
-import androidx.core.util.writeBytes
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.repos.RepoIndex
+import io.github.revenge.plugins.repos.RepoStore
+import io.github.revenge.plugins.repos.parseRepoIndex
 import io.github.revenge.xposed.ETagFetchResult
 import io.github.revenge.xposed.getWithETag
 import io.github.revenge.xposed.httpClient
-import io.github.revenge.xposed.tweaks.plugins.PluginErrorCodes
-import io.github.revenge.xposed.tweaks.plugins.PluginSystemError
 
 private const val REFRESH_TIMEOUT = 10_000L
 
@@ -25,13 +26,9 @@ internal suspend fun refreshRepo(url: String): RepoIndex {
         "Unknown repository: '$url'"
     )
 
-    val indexUrl = url.trimEnd('/') + "/" + INDEX_PATH
-    val indexFile = RepoStore.cachedIndexFile(url)
-    val etagFile = RepoStore.cachedETagFile(url)
-
     val result = httpClient.getWithETag(
-        url = indexUrl,
-        etag = if (etagFile.isFile && indexFile.isFile) etagFile.readText() else null,
+        url = url.trimEnd('/') + "/" + INDEX_PATH,
+        etag = RepoStore.cachedETag(url),
         timeoutMillis = REFRESH_TIMEOUT,
     )
 
@@ -44,11 +41,10 @@ internal suspend fun refreshRepo(url: String): RepoIndex {
                 )
 
         is ETagFetchResult.Fetched -> {
-            val index = parseRepoIndex(result.bytes.decodeToString(), url, RepoStore.log)
+            val text = result.bytes.decodeToString()
+            val index = parseRepoIndex(text, url, RepoStore.log)
 
-            RepoStore.cacheDirFor(url).mkdirs()
-            AtomicFile(indexFile).writeBytes(result.bytes)
-            result.etag?.let(etagFile::writeText) ?: etagFile.delete()
+            RepoStore.writeCachedIndex(url, text, result.etag)
 
             index
         }

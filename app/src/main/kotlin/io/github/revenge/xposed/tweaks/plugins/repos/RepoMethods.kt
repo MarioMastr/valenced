@@ -1,6 +1,13 @@
 package io.github.revenge.xposed.tweaks.plugins.repos
 
+import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.PluginManifest
+import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.repos.INTERNAL_REPO_URL
+import io.github.revenge.plugins.repos.REPO_CHANNEL_LATEST
+import io.github.revenge.plugins.repos.RepoStore
+import io.github.revenge.plugins.repos.SourcesStore
+import io.github.revenge.plugins.repos.UserRepo
 import io.github.revenge.xposed.tweak
 import io.github.revenge.xposed.tweaks.plugins.*
 import io.github.revenge.xposed.tweaks.plugins.internal.internalPlugins
@@ -21,8 +28,8 @@ internal sealed class RepoState(val value: String) {
  */
 val pluginRepos by tweak {
     val dataDir = appInfo.dataDir
-    RepoStore.ensureLoaded(dataDir)
-    SourcesStore.ensureLoaded(dataDir)
+    RepoStore.ensureLoaded(pluginPaths(dataDir))
+    SourcesStore.ensureLoaded(pluginPaths(dataDir))
 
     fun emitRepoState(url: String, state: RepoState) = emitPluginEvent(
         PluginEvents.REPO_STATE_UPDATE,

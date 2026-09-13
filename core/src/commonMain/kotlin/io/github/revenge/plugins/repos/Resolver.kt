@@ -1,18 +1,18 @@
-package io.github.revenge.xposed.tweaks.plugins.repos
+package io.github.revenge.plugins.repos
 
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.VersionRange
-import io.github.revenge.xposed.tweaks.plugins.PluginErrorCodes
-import io.github.revenge.xposed.tweaks.plugins.PluginSystemError
 
-internal data class InstallPlan(
+data class InstallPlan(
     val actions: List<PlannedAction>,
     /** Non-blocking problems (skipped optionals, dependent-range conflicts). */
     val warnings: List<String>,
 )
 
 /** One plugin to download and install. */
-internal data class PlannedAction(
+data class PlannedAction(
     val id: String,
     val version: Version,
     /** Absolute artifact URL from the index. */
@@ -27,14 +27,14 @@ internal data class PlannedAction(
 )
 
 /** A request to install (or update/downgrade) one root plugin. */
-internal data class ResolveRequest(
+data class ResolveRequest(
     val id: String,
     /** Exact version to install; overrides [channel]. `null` = follow the channel. */
     val version: String? = null,
     val channel: String = REPO_CHANNEL_LATEST,
 )
 
-internal class PluginSystemResolveException(message: String) :
+class PluginSystemResolveException(message: String) :
     PluginSystemError(PluginErrorCodes.RESOLVE_FAILED, message)
 
 /**
@@ -50,7 +50,7 @@ internal class PluginSystemResolveException(message: String) :
  * - Unresolvable optional dependencies produce a warning.
  * - A planned version that breaks an installed dependent's range produces a warning.
  */
-internal fun resolveInstall(
+fun resolveInstall(
     request: ResolveRequest,
     repos: List<Pair<String, RepoIndex>>,
     installed: Map<String, Version>,

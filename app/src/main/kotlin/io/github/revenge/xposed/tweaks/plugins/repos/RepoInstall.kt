@@ -1,28 +1,24 @@
 package io.github.revenge.xposed.tweaks.plugins.repos
 
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
+import io.github.revenge.plugins.external.validate
+import io.github.revenge.plugins.repos.ArtifactRequest
+import io.github.revenge.plugins.repos.DownloadedArtifact
+import io.github.revenge.plugins.repos.RepoInstallAction
+import io.github.revenge.plugins.repos.installBegin
+import io.github.revenge.plugins.repos.installSubmit
 import io.github.revenge.xposed.httpClient
 import io.github.revenge.xposed.tweaks.plugins.*
-import io.github.revenge.xposed.tweaks.plugins.external.StagedPlugin
-import io.github.revenge.xposed.tweaks.plugins.external.applyStagedPlugin
-import io.github.revenge.xposed.tweaks.plugins.external.extractPluginZip
 import io.github.revenge.xposed.tweaks.plugins.external.readExternalPluginDir
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.sync.Mutex
 
 private const val DOWNLOAD_TIMEOUT = 60_000L
-
-private const val REPO_INSTALL_TMP_PREFIX = ".repo-install-"
-
-/**
- * Queue up concurrent `installFromRepo` calls. Each execution re-validates at dequeue time,
- * so overlapping plans' already-satisfied actions no-op and the end state equals sequential calls.
- */
-internal val repoInstallMutex = Mutex()
 
 internal class InstallPlanResult(
     /** Brand-new plugins to be loaded in order. */
@@ -32,18 +28,6 @@ internal class InstallPlanResult(
      * Nothing running was touched, these can load at next boot.
      */
     val pending: List<RepoInstallAction>,
-)
-
-internal class RepoInstallAction(
-    val id: String,
-    val version: Version,
-    val url: String,
-    val sha256: String,
-    val size: Long,
-    /** Repository provenance recorded on success. */
-    val repo: String,
-    /** Channel followed for future update checks. */
-    val channel: String,
 )
 
 internal class DownloadProgress(
@@ -56,36 +40,8 @@ internal class DownloadProgress(
     val count: Int,
 )
 
-internal fun parseRepoInstallAction(raw: Any?): RepoInstallAction {
-    val map = raw as? Map<*, *>
-        ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a plan action object")
-
-    fun string(key: String) = map[key] as? String
-        ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Plan action is missing '$key'")
-    return RepoInstallAction(
-        id = string("id"),
-        version = Version.parse(string("version")),
-        url = string("url"),
-        sha256 = string("sha256"),
-        size = (map["size"] as? Number)?.toLong()
-            ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Plan action is missing 'size'"),
-        repo = string("repo"),
-        channel = (map["channel"] as? String) ?: REPO_CHANNEL_LATEST,
-    )
-}
-
 /**
- * Executes an install plan: download, verify, extract, then apply.
- *
- * - Every artifact's size and SHA-256 are verified against the plan before `dist/` is touched.
- * - Each artifact's `manifest.json` is then parsed and validated. A manifest whose ID or version differs
- *   from the plan aborts the whole plan with `dist/` untouched.
- * - The on-disk swap ([applyStagedPlugin]) never disturbs running code, all updates require a reload:
- *   - [isUpdate] IDs (already installed) are applied on disk only, see [InstallPlanResult.pending].
- *   - New IDs whose required deps are all live load immediately ([InstallPlanResult.fresh]),
- *     dependencies before dependents so class-loader chaining finds them.
- *   - New IDs requiring a pending dep (in-plan or [isPendingReload]) are deferred too,
- *     loading them against the running old dependency would link stale code.
+ * Downloads an install plan's artifacts, then hands them to core to verify, extract and apply.
  *
  * [knownVersions] must contain the currently registered plugin versions.
  * Planned versions are added on top so intra-plan dependencies validate.
@@ -100,61 +56,22 @@ internal suspend fun executeInstallPlan(
 ): InstallPlanResult {
     if (actions.isEmpty()) return InstallPlanResult(emptyList(), emptyList())
 
-    val root = externalPluginsRoot(dataDir).apply { mkdirs() }
-    if (!root.isDirectory || !root.canWrite()) throw PluginSystemError(
-        PluginErrorCodes.STORAGE_FAILED,
-        "Plugin directory is not writable: $root"
-    )
-
-    val staged = mutableListOf<Pair<RepoInstallAction, StagedPlugin>>()
-    try {
-        // Download + verify + extract + manifest cross-check.
-        for ((i, action) in actions.withIndex()) {
-            val emit = throttledProgress(action, i + 1, actions.size, onProgress)
-            emit(0)
-            val bytes = downloadAndVerify(httpClient, action, emit)
-            emit(action.size)
-
-            val plugin = extractPluginZip(bytes.inputStream(), root, "$REPO_INSTALL_TMP_PREFIX$i")
-            staged += action to plugin
-
-            // The manifest is authoritative, any mismatch with the plan aborts the whole plan.
-            if (plugin.manifest.id != action.id || Version.parse(plugin.manifest.version) != action.version) {
-                throw PluginSystemError(
-                    PluginErrorCodes.INSTALL_MISMATCH,
-                    "Artifact manifest (${plugin.manifest.id}@${plugin.manifest.version}) does not match " +
-                            "the plan (${action.id}@${action.version}); aborting the install plan",
-                )
-            }
-        }
-
-        // Apply, dependencies before dependents
-        val effectiveVersions = knownVersions + actions.associate { it.id to it.version }
-        val fresh = mutableListOf<PluginFactory>()
-        val pending = mutableListOf<RepoInstallAction>()
-        val pendingIds = mutableSetOf<String>()
-        for ((action, plugin) in orderStagedByDependencies(staged)) {
-            val dir = applyStagedPlugin(plugin, root)
-            runCatching {
-                SourcesStore.record(action.id, repo = action.repo, channel = action.channel)
-            }.onFailure { pluginLog.e("Failed to record plugin source for ${action.id}", it) }
-
-            val deferred = isUpdate(action.id) || plugin.manifest.dependencies.any { (depId, dep) ->
-                !dep.optional && (depId in pendingIds || isPendingReload(depId))
-            }
-            if (deferred) {
-                pendingIds += action.id
-                pending += action
-                pluginLog.i("Applied ${action.id}@${action.version} from ${action.repo} (pending reload)")
-            } else {
-                fresh += readExternalPluginDir(dir, effectiveVersions)
-                pluginLog.i("Installed ${action.id}@${action.version} from ${action.repo}")
-            }
-        }
-        return InstallPlanResult(fresh, pending)
-    } finally {
-        for ((_, plugin) in staged) plugin.dir.deleteRecursively()
+    val requests = installBegin(actions)
+    val downloads = requests.mapIndexed { i, request ->
+        val emit = throttledProgress(request.action, i + 1, requests.size, onProgress)
+        emit(0)
+        val bytes = download(httpClient, request, emit)
+        emit(request.size)
+        DownloadedArtifact(request.action, bytes)
     }
+
+    val applied = installSubmit(pluginPaths(dataDir), downloads, isUpdate, isPendingReload)
+
+    val effectiveVersions = knownVersions + actions.associate { it.id to it.version }
+    return InstallPlanResult(
+        fresh = applied.filterNot { it.deferred }.map { readExternalPluginDir(it.dir.toFile(), effectiveVersions) },
+        pending = applied.filter { it.deferred }.map { it.action },
+    )
 }
 
 /** Milliseconds between progress ticks per artifact. */
@@ -185,13 +102,13 @@ private fun throttledProgress(
     }
 }
 
-/** Downloads one artifact and verifies its size and SHA-256 against the plan. */
-private suspend fun downloadAndVerify(
+/** Downloads one artifact. Core verifies its size and digest before anything reaches `dist/`. */
+private suspend fun download(
     client: HttpClient,
-    action: RepoInstallAction,
+    request: ArtifactRequest,
     onReceived: (Long) -> Unit,
 ): ByteArray {
-    val response = client.get(action.url) {
+    val response = client.get(request.url) {
         // expectSuccess true (our defaults) would throw on 3xx instead of following the redirect.
         expectSuccess = false
         timeout { requestTimeoutMillis = DOWNLOAD_TIMEOUT }
@@ -200,49 +117,9 @@ private suspend fun downloadAndVerify(
     if (response.status != HttpStatusCode.OK) {
         throw PluginSystemError(
             PluginErrorCodes.INSTALL_FAILED,
-            "Failed to download ${action.id}@${action.version}: ${response.status}",
+            "Failed to download ${request.action.id}@${request.action.version}: ${response.status}",
         )
     }
 
-    val bytes: ByteArray = response.body()
-    if (bytes.size.toLong() != action.size) {
-        throw PluginSystemError(
-            PluginErrorCodes.INSTALL_VERIFY_FAILED,
-            "Artifact for ${action.id}@${action.version} is ${bytes.size} bytes; the plan says ${action.size}",
-        )
-    }
-    val digest = sha256Hex(bytes)
-    if (digest != action.sha256) {
-        throw PluginSystemError(
-            PluginErrorCodes.INSTALL_VERIFY_FAILED,
-            "Artifact digest mismatch for ${action.id}@${action.version} (got $digest)",
-        )
-    }
-    return bytes
-}
-
-/**
- * Orders staged plugins so dependencies apply before dependents.
- * A dep cycle will apply by input order and the post-apply load can report whatever fails.
- */
-private fun orderStagedByDependencies(
-    staged: List<Pair<RepoInstallAction, StagedPlugin>>,
-): List<Pair<RepoInstallAction, StagedPlugin>> {
-    val remaining = staged.associateBy { it.first.id }.toMutableMap()
-    val ordered = mutableListOf<Pair<RepoInstallAction, StagedPlugin>>()
-
-    while (remaining.isNotEmpty()) {
-        val ready = remaining.values.filter { (action, plugin) ->
-            plugin.manifest.dependencies.keys.none { it != action.id && it in remaining }
-        }
-        if (ready.isEmpty()) {
-            ordered += remaining.values // Cycle, use input order.
-            break
-        }
-        for (entry in ready) {
-            ordered += entry
-            remaining.remove(entry.first.id)
-        }
-    }
-    return ordered
+    return response.body()
 }

@@ -1,8 +1,8 @@
-package io.github.revenge.xposed.tweaks.plugins.repos
+package io.github.revenge.plugins.repos
 
 import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.VersionRange
-import io.github.revenge.xposed.tweaks.plugins.external.ExternalDependency
+import io.github.revenge.plugins.external.ExternalDependency
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

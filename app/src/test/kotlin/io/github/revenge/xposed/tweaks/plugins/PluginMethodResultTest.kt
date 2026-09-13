@@ -1,9 +1,17 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.plugins.PluginError
+import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.toJSPayload
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.addJsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.putJsonArray
 
 class PluginMethodResultTest {
     @Test
@@ -42,7 +50,9 @@ class PluginMethodResultTest {
         val payload = PluginSystemError(
             PluginErrorCodes.DEPENDENCIES_UNSATISFIED,
             "Unsatisfied dependencies",
-            details = mapOf("problems" to listOf(mapOf("id" to "a.b"))),
+            details = buildJsonObject {
+                putJsonArray("problems") { addJsonObject { put("id", JsonPrimitive("a.b")) } }
+            },
         ).toJSPayload()
 
         @Suppress("UNCHECKED_CAST")

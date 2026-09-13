@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+kotlin {
+    jvmToolchain(libs.versions.javaVersion.get().toInt())
+}
+
 android {
     namespace = "io.github.revenge.xposed"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -25,7 +29,10 @@ android {
         debug {
             isDebuggable = true
             isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
+
         release {
             isDebuggable = false
             isMinifyEnabled = false
@@ -35,10 +42,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
         targetCompatibility = JavaVersion.toVersion(libs.versions.javaVersion.get())
-    }
-
-    kotlin {
-        jvmToolchain(libs.versions.javaVersion.get().toInt())
     }
 
     buildFeatures {

@@ -1,5 +1,8 @@
 package io.github.revenge.xposed.tweaks.plugins
 
+import io.github.revenge.plugins.PluginFlags
+import io.github.revenge.plugins.pluginLog
+import io.github.revenge.plugins.toJSPayload
 import io.github.revenge.xposed.api.HostScope
 import io.github.revenge.xposed.api.callJSMethod
 import kotlinx.coroutines.launch

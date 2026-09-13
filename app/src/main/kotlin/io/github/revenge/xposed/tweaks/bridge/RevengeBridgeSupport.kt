@@ -186,10 +186,17 @@ object RevengeBridgeRegistry : RevengeBridge {
         else deferred.complete(result)
     }
 
-    internal fun Any?.toNativeObject(): Any? = argumentsMakeNativeObject!!.invoke(
-        argumentsInstance,
-        if (this == Unit) null else this,
-    )
+    /**
+     * Converts a value to React's native object graph.
+     *
+     * Without the host bridge there is nothing to convert to, so the value passes through. That only
+     * happens off-device, since a bridge call cannot arrive before [setReflectiveMethods].
+     */
+    internal fun Any?.toNativeObject(): Any? {
+        val value = if (this == Unit) null else this
+        val makeNativeObject = argumentsMakeNativeObject ?: return value
+        return makeNativeObject.invoke(argumentsInstance, value)
+    }
 }
 
 
