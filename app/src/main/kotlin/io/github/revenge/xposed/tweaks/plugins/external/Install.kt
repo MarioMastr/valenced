@@ -3,6 +3,7 @@ package io.github.revenge.xposed.tweaks.plugins.external
 import android.app.Activity
 import android.content.Intent
 import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginManifest
 import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.external.ExternalManifest
@@ -126,7 +127,7 @@ internal fun confirmPluginInstall(
     token: String,
     accepted: Boolean,
     dataDir: String,
-    knownVersions: Map<String, Version>,
+    knownManifests: Map<String, PluginManifest>,
     isUpdate: (String) -> Boolean,
 ): InstallResult? {
     val paths = pluginPaths(dataDir)
@@ -146,7 +147,7 @@ internal fun confirmPluginInstall(
     return if (isUpdate(staged.manifest.id)) {
         InstallResult.Updated(staged.manifest, Version.parse(staged.manifest.version))
     } else {
-        InstallResult.New(readExternalPluginDir(dir.toFile(), knownVersions))
+        InstallResult.New(readExternalPluginDir(dir.toFile(), knownManifests))
     }
 }
 

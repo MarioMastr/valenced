@@ -1,16 +1,13 @@
 package io.github.revenge.xposed.tweaks.plugins.external
 
+import io.github.revenge.plugins.PluginDependencyGraph
 import io.github.revenge.plugins.PluginError
 import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.PluginManifest
-import io.github.revenge.plugins.Version
-import io.github.revenge.plugins.VersionRange
 import io.github.revenge.plugins.external.DiscoveryFailure
-import io.github.revenge.plugins.external.ExternalDependency
 import io.github.revenge.plugins.external.ExternalManifest
 import io.github.revenge.plugins.external.MANIFEST_FILE
 import io.github.revenge.plugins.external.ParsedPlugin
-import io.github.revenge.plugins.external.orderByDependencies
 import io.github.revenge.plugins.external.sessionSkip
 import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.tweaks.plugins.*
@@ -29,12 +26,11 @@ internal class ExternalDiscovery(
  * Reads installed plugins in `<dataDir>/files/revenge/plugins/dist`.
  * Each plugin has its own `<id>/` directory with a [MANIFEST_FILE] and `dist` artifacts.
  *
- * Plugins with missing or unsatisfying required dependencies are skipped, cascading to its dependents.
- * Dependencies always load first, so a plugin can link against the classes of its dependencies.
+ * Dependency resolution happens at [PluginDependencyGraph].
  */
 internal fun discoverExternalPlugins(
     dataDir: String,
-    knownVersions: Map<String, Version>,
+    internalManifests: Map<String, PluginManifest>,
 ): ExternalDiscovery {
     val failures = mutableMapOf<String, DiscoveryFailure>()
     val root = externalPluginsRoot(dataDir)
@@ -69,25 +65,42 @@ internal fun discoverExternalPlugins(
         }
     }
 
-    val ordered = orderByDependencies(parsed, knownVersions, failures)
+    // toPluginManifest shouldn't throw since we already validate()d them.
+    val graph = PluginDependencyGraph(
+        internalManifests + parsed.mapValues { (_, plugin) -> plugin.manifest.toPluginManifest() },
+    )
+    val order = graph.loadOrder()
 
-    // Failed required dependencies fail dependents too. Optionals are ignored.
+    for ((id, problems) in order.dropped) {
+        val plugin = parsed[id] ?: continue
+        failures.sessionSkip(
+            id, plugin.manifest.toPluginManifest(),
+            problems.map { PluginError(it.code, "Unsatisfied dependency: ${it.reason}") },
+        )
+    }
+
+    for (id in order.cycles) {
+        val plugin = parsed[id] ?: continue
+        failures.sessionSkip(
+            id, plugin.manifest.toPluginManifest(),
+            listOf(PluginError(PluginErrorCodes.DEPENDENCY_CYCLE, "Dependency cycle")),
+        )
+    }
+
+    // The graph doesn't know if a directory describes a plugin at all.
+    // This only builds the factory, loading the plugin's code happens at [loadPlugin] for enabled plugins only.
+    // A failed required dependency must skip the dependent, a failed optional one just goes ignored/unchained.
     val failed = mutableSetOf<String>()
     val result = mutableListOf<PluginFactory>()
-    for (plugin in ordered) {
-        val id = plugin.manifest.id
-        plugin.availableDeps = plugin.availableDeps.filterNot { depId ->
-            depId in failed && plugin.manifest.dependencies[depId]?.optional == true
-        }.toSet()
+    for (id in order.ordered) {
+        val plugin = parsed[id] ?: continue
 
-        val failedDeps = plugin.manifest.dependencies
-            .filter { (depId, dep) -> !dep.optional && depId in failed }
-            .keys
-        if (failedDeps.isNotEmpty()) {
+        val failedRequired = graph.requiredDependencies(id).intersect(failed)
+        if (failedRequired.isNotEmpty()) {
             failed += id
             failures.sessionSkip(
                 id, plugin.manifest.toPluginManifest(),
-                failedDeps.map {
+                failedRequired.map {
                     PluginError(PluginErrorCodes.DEPENDENCY_FAILED, "Dependency '$it' failed to load")
                 },
             )
@@ -99,7 +112,7 @@ internal fun discoverExternalPlugins(
         } catch (e: Throwable) {
             failed += id
             failures[id] = DiscoveryFailure(
-                runCatching { plugin.manifest.toPluginManifest() }.getOrNull(),
+                plugin.manifest.toPluginManifest(),
                 listOf(PluginError(PluginErrorCodes.LOAD_FAILED, "Failed to load: ${e.message}")),
             )
             pluginLog.e("Failed to load external plugin '$id'", e)

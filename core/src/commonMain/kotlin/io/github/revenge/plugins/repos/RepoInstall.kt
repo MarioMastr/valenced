@@ -4,6 +4,7 @@ import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.PluginPaths
 import io.github.revenge.plugins.PluginSystemError
 import io.github.revenge.plugins.Version
+import io.github.revenge.plugins.external.ExternalManifest
 import io.github.revenge.plugins.external.StagedPlugin
 import io.github.revenge.plugins.external.applyStagedPlugin
 import io.github.revenge.plugins.external.discardStagedPlugin
@@ -46,6 +47,8 @@ class DownloadedArtifact(val action: RepoInstallAction, val bytes: ByteArray)
 class AppliedInstall(
     val action: RepoInstallAction,
     val dir: Path,
+    /** The applied manifest, so the host can resolve intra-plan dependencies without re-reading `dist/`. */
+    val manifest: ExternalManifest,
     /**
      * Applied on disk only. Loading it now would either replace running code or link a stale
      * dependency, so it waits for a reload.
@@ -145,7 +148,7 @@ fun installSubmit(
             } else {
                 pluginLog.i("Installed ${action.id}@${action.version} from ${action.repo}")
             }
-            applied += AppliedInstall(action, dir, deferred)
+            applied += AppliedInstall(action, dir, plugin.manifest, deferred)
         }
         return applied
     } finally {

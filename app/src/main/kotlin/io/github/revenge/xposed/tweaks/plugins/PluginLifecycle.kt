@@ -9,9 +9,6 @@ import io.github.revenge.plugins.PluginFlags
 import io.github.revenge.plugins.PluginScope
 import io.github.revenge.plugins.PluginStatesStore
 import io.github.revenge.plugins.PluginSystemError
-import io.github.revenge.plugins.Version
-import io.github.revenge.plugins.cascadeDisable
-import io.github.revenge.plugins.cascadeStop
 import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.api.HostScope
 import io.github.revenge.xposed.api.callJSMethod
@@ -19,6 +16,7 @@ import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
 import java.io.File
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 private inline val loaded get() = pluginRegistry.loaded
 
@@ -29,11 +27,7 @@ internal class LoadedPlugin(
     val persistJob: Job,
     /** Collector syncing native errors + broadcasting them to JS. Canceled on stop. */
     val errorSyncJob: Job,
-) {
-    /** Whether the native side is currently running. */
-    @Volatile
-    var started = true
-}
+)
 
 internal class PluginScopeImpl(
     tweakScope: HostScope,
@@ -64,12 +58,13 @@ internal class PluginScopeImpl(
         flags.value += PluginFlags.PENDING_RELOAD
     }
 
+    // Fire-and-forget. No plugin code should run after it asks to be stopped.
     override fun stop() {
-        stopPlugin(manifest.id)
+        pluginJobScope.launch { stopPlugin(manifest.id) }
     }
 
     override fun disable() {
-        disablePlugin(manifest.id)
+        pluginJobScope.launch { disablePlugin(manifest.id) }
     }
 }
 
@@ -85,8 +80,20 @@ internal fun loadPlugin(
     late: Boolean = false,
 ): LoadedPlugin {
     val manifest = factory.manifest
+    val graph = pluginRegistry.dependencies
 
-    val plugin = factory.builder.build(manifest)
+    // Running satisfied dependencies. Some dependencies may've been stopped prior to this.
+    val chain = graph.satisfiedDependencies(manifest.id).filterTo(mutableSetOf()) { it in loaded }
+
+    // *Should* be unreachable, since disabling a plugin cascades to its required dependents.
+    // Regardless, the check is required for safety so the plugin won't immediately blow up on missing dependencies.
+    val missing = graph.requiredDependencies(manifest.id) - chain
+    if (missing.isNotEmpty()) throw PluginSystemError(
+        PluginErrorCodes.DEPENDENCY_MISSING,
+        "Plugin '${manifest.id}' cannot start, required dependencies are not running: ${missing.joinToString()}",
+    )
+
+    val plugin = factory.build(chain)
     // Use the boot flags as it's what's currently running this session.
     val flags = PluginStatesStore.boot.flagsOf(manifest.id)
 
@@ -131,28 +138,52 @@ internal fun loadPlugin(
     return entry
 }
 
-/** Stops a running plugin, taking every dependent that's linked to it down first. */
+/**
+ * Stops a running plugin, cascading to any running dependents that chained it.
+ *
+ * JS is asked to stop first, so it can stop its own half and clean up any state before native tears down the plugin.
+ * If JS refuses to stop after a timeout, native will still stop the plugin regardless.
+ */
 context(host: HostScope)
-internal fun stopPlugin(pluginId: String) {
-    // Snapshot the cascade first: stopping mutates [loaded].
-    val actions = cascadeStop(
-        pluginId,
-        running = loaded.mapValues { (_, entry) -> entry.scope.manifest },
-        unlinkedOptionals = { pluginRegistry.factories[it]?.unsatisfiedOptionalDependencies.orEmpty() },
-    )
+internal suspend fun stopPlugin(pluginId: String) {
+    if (pluginId !in loaded) return
 
-    for (action in actions) {
-        action.because?.let { pluginLog.i("Stopping ${action.id}: its ${action.edge?.label} dependency $it is stopping") }
-        stopLoadedPlugin(action.id)
+    if (!letJSStopPluginFirst(pluginId)) {
+        // JS couldn't stop in time, so take down everything manually.
+        for (dependentId in chainedDependentsOf(pluginId)) {
+            pluginLog.i("Stopping $dependentId: it chained $pluginId, which is stopping")
+            stopNativePlugin(dependentId)
+        }
     }
+
+    stopNativePlugin(pluginId)
 }
 
-/** Stops one plugin, with no cascade. */
+/** Running plugins whose class loader chains [pluginId] transitively. */
+private fun chainedDependentsOf(pluginId: String): Set<String> {
+    val found = mutableSetOf(pluginId)
+
+    var changed = true
+    while (changed) {
+        changed = false
+        for (id in loaded.keys) {
+            if (id in found) continue
+            if (pluginRegistry.factories[id]?.chainedDependencies.orEmpty().any { it in found }) {
+                found += id
+                changed = true
+            }
+        }
+    }
+
+    return found - pluginId
+}
+
+/** Tears down the plugin's native half. */
 context(host: HostScope)
-private fun stopLoadedPlugin(pluginId: String) {
+internal fun stopNativePlugin(pluginId: String) {
     val entry = loaded.remove(pluginId) ?: return
     try {
-        if (entry.started) entry.plugin.stop(entry.scope)
+        entry.plugin.stop(entry.scope)
     } catch (e: Throwable) {
         entry.scope.errors.tryEmit(e)
         pluginLog.e("Plugin $pluginId threw in stop()", e)
@@ -166,16 +197,65 @@ private fun stopLoadedPlugin(pluginId: String) {
 }
 
 /**
+ * Starts a plugin's native half, stopping it first if it is already running.
+ *
+ * [loadPlugin] recomputes the class loader chain, so a restart also relinks when the dependency set changes.
+ *
+ * Unknown IDs are ignored because it may be a JS-only plugin.
+ *
+ * @throws PluginSystemError with [PluginErrorCodes.RELOAD_REQUIRED] when the stop asks for a reload.
+ * A plugin which couldn't undo itself must not be resumed.
+ */
+context(host: HostScope)
+internal fun restartPlugin(pluginId: String) {
+    val factory = pluginRegistry.factories[pluginId] ?: return
+
+    stopNativePlugin(pluginId)
+
+    if (PluginFlags.PENDING_RELOAD in PluginStatesStore.boot.flagsOf(pluginId).value) throw PluginSystemError(
+        PluginErrorCodes.RELOAD_REQUIRED,
+        "Plugin '$pluginId' could not stop cleanly and cannot start again before a reload",
+    )
+
+    try {
+        loadPlugin(factory, late = true)
+    } catch (e: Throwable) {
+        throw PluginSystemError(
+            PluginErrorCodes.LOAD_FAILED,
+            e.message ?: "Failed to load plugin '$pluginId'",
+            e,
+        )
+    }
+    pluginRegistry.bootErrors.remove(pluginId)
+}
+
+/**
  * Disables and stops a plugin.
- * 
- * Required dependents (transitively) lose their enabled state in the active slot too.
- * Linked optionals only stop, since they can load fine without this plugin next start.
+ *
+ * Required dependents transitively lose their enabled state in the active slot too.
+ * Optional dependents handled by JS.
+ *
+ * Running dependents are stopped by [stopPlugin].
  *
  * Throws when the plugin is essential.
  */
 context(host: HostScope)
-internal fun disablePlugin(pluginId: String) {
-    val toDisable = cascadeDisable(pluginId, pluginRegistry.knownManifests(), ::isEssential)
+internal suspend fun disablePlugin(pluginId: String) {
+    if (isEssential(pluginId)) throw PluginSystemError(
+        PluginErrorCodes.NOT_ALLOWED,
+        "Plugin $pluginId is essential and cannot be disabled",
+    )
+
+    // The known graph, not the loaded one: a plugin that never ran must still lose its enabled flag.
+    val dependents = pluginRegistry.knownDependencies.requiredDependents(pluginId)
+    for (dependentId in dependents) {
+        if (isEssential(dependentId)) throw PluginSystemError(
+            PluginErrorCodes.NOT_ALLOWED,
+            "Plugin '$pluginId' is depended by '$dependentId' which is essential, so it cannot be disabled",
+        )
+    }
+
+    val toDisable = dependents + pluginId
 
     PluginStatesStore.batchSave {
         for (id in toDisable) {
@@ -233,24 +313,28 @@ internal fun unsatisfiedDependenciesMessage(pluginId: String, problems: List<Dep
     return "Cannot enable plugin \"$pluginId\": unsatisfied dependencies: $details"
 }
 
-internal fun PluginFactory.dependencyProblems(
+/** Required dependencies of [pluginId] that would prevent it from starting right now, as a JS payload. */
+internal fun PluginFactory.dependencyProblemsToJSPayload(
     factories: Map<String, PluginFactory>,
-): List<DependencyProblemPayload> = manifest.dependencies.mapNotNull { (depId, dep) ->
-    if (dep.optional) return@mapNotNull null
+): List<DependencyProblemPayload> {
+    val graph = pluginRegistry.dependencies
+    val pluginId = manifest.id
 
-    fun problem(installed: Version?, depEnabled: Boolean) = DependencyProblemPayload(
-        id = depId,
-        required = dep.version.toString(),
-        installed = installed?.toString(),
-        enabled = depEnabled,
-    )
+    return manifest.dependencies.mapNotNull { (depId, dep) ->
+        if (dep.optional) return@mapNotNull null
 
-    val depFactory = factories[depId]
-    val installed = depFactory?.manifest?.version
-    when {
-        installed == null -> problem(null, false)
-        !dep.version.satisfies(installed) -> problem(installed, isPluginEnabled(depId, depFactory))
-        !isPluginEnabled(depId, depFactory) -> problem(installed, false)
-        else -> null
+        val depFactory = factories[depId]
+        val installed = depFactory?.manifest?.version
+        val unsatisfied = graph.problem(pluginId, depId) != null
+        val enabled = isPluginEnabled(depId, depFactory)
+
+        if (!unsatisfied && enabled) return@mapNotNull null
+
+        DependencyProblemPayload(
+            id = depId,
+            required = dep.version.toString(),
+            installed = installed?.toString(),
+            enabled = installed != null && enabled,
+        )
     }
 }

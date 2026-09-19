@@ -1,8 +1,8 @@
 package io.github.revenge.xposed.tweaks.plugins.repos
 
 import io.github.revenge.plugins.PluginErrorCodes
+import io.github.revenge.plugins.PluginManifest
 import io.github.revenge.plugins.PluginSystemError
-import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.external.validate
 import io.github.revenge.plugins.repos.ArtifactRequest
 import io.github.revenge.plugins.repos.DownloadedArtifact
@@ -11,7 +11,8 @@ import io.github.revenge.plugins.repos.installBegin
 import io.github.revenge.plugins.repos.installSubmit
 import io.github.revenge.xposed.httpClient
 import io.github.revenge.xposed.tweaks.plugins.*
-import io.github.revenge.xposed.tweaks.plugins.external.readExternalPluginDir
+import io.github.revenge.xposed.tweaks.plugins.external.parseExternalPluginDir
+import io.github.revenge.xposed.tweaks.plugins.external.readParsedPlugin
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -43,13 +44,13 @@ internal class DownloadProgress(
 /**
  * Downloads an install plan's artifacts, then hands them to core to verify, extract and apply.
  *
- * [knownVersions] must contain the currently registered plugin versions.
- * Planned versions are added on top so intra-plan dependencies validate.
+ * [knownManifests] must contain the currently registered plugin manifests.
+ * Applied manifests are added on top so intra-plan dependencies validate.
  */
 internal suspend fun executeInstallPlan(
     actions: List<RepoInstallAction>,
     dataDir: String,
-    knownVersions: Map<String, Version>,
+    knownManifests: Map<String, PluginManifest>,
     isUpdate: (String) -> Boolean,
     isPendingReload: (String) -> Boolean,
     onProgress: (DownloadProgress) -> Unit = {},
@@ -67,9 +68,11 @@ internal suspend fun executeInstallPlan(
 
     val applied = installSubmit(pluginPaths(dataDir), downloads, isUpdate, isPendingReload)
 
-    val effectiveVersions = knownVersions + actions.associate { it.id to it.version }
+    // Apply, dependencies before dependents, including the staged plugins.
+    val effectiveManifests = knownManifests + applied.associate { it.action.id to it.manifest.toPluginManifest() }
     return InstallPlanResult(
-        fresh = applied.filterNot { it.deferred }.map { readExternalPluginDir(it.dir.toFile(), effectiveVersions) },
+        fresh = applied.filterNot { it.deferred }
+            .map { readParsedPlugin(parseExternalPluginDir(it.dir.toFile()), effectiveManifests) },
         pending = applied.filter { it.deferred }.map { it.action },
     )
 }

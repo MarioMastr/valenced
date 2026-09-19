@@ -29,7 +29,8 @@ internal fun PluginFactory.toJSPayload(
     enabledByDefault = InternalPluginFlags.ENABLED_BY_DEFAULT in internalFlags,
     api = InternalPluginFlags.API in internalFlags,
     source = source?.toPayload(),
-    unsatisfiedOptionalDependencies = unsatisfiedOptionalDependencies.toList(),
+    unsatisfiedOptionalDependencies = pluginRegistry.dependencies
+        .unsatisfiedOptionalDependencies(manifest.id).toList(),
     errors = buildList {
         bootError?.let(::add)
         loaded?.let { addAll(it.scope.pluginErrors) }

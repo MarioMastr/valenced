@@ -78,7 +78,7 @@ val pluginInstallMethods by tweak {
             token,
             accepted,
             appInfo.dataDir,
-            pluginRegistry.installedVersions(),
+            pluginRegistry.installedManifests(),
         ) { it in pluginRegistry.factories }
 
         val result = when (outcome) {
@@ -87,6 +87,7 @@ val pluginInstallMethods by tweak {
             is InstallResult.Updated -> "pending"
         }
         outcome?.let { handleInstallResult(it) }
+        if (outcome != null) emitDependencyGraphUpdate()
         result
     }
 
@@ -171,7 +172,7 @@ val pluginInstallMethods by tweak {
             val result = executeInstallPlan(
                 todo,
                 appInfo.dataDir,
-                pluginRegistry.installedVersions(),
+                pluginRegistry.installedManifests(),
                 isUpdate = { it in pluginRegistry.factories },
                 isPendingReload = { id ->
                     pluginRegistry.loaded[id]?.let { PluginFlags.PENDING_RELOAD in it.scope.flags.value } ?: false
@@ -219,6 +220,9 @@ val pluginInstallMethods by tweak {
                     )
                 }.onFailure { pluginLog.e("Failed to notify JS of pending update", it) }
             }
+
+            // Update the dependency graph if needed.
+            if (result.fresh.isNotEmpty() || result.pending.isNotEmpty()) emitDependencyGraphUpdate()
 
             mapOf(
                 "installed" to result.fresh.map { it.manifest.id },
