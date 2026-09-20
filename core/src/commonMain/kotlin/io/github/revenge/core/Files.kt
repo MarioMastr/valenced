@@ -7,20 +7,38 @@ import okio.IOException
 import okio.Path
 
 /**
- * Writes [target] via a sibling `.tmp` file, then moves it into place.
+ * Writes [target] via a sibling `.tmp` file, then moves it into place, keeping the old contents in a
+ * sibling `.bak` until the move lands.
  *
  * The move is atomic on every filesystem this runs on, so a reader sees either the old contents or
- * the new ones, never a half-written file. Unlike `AtomicFile` there is no backup copy, so callers
- * still need the "corrupt file reads as empty" fallback.
+ * the new ones, never a half-written file. A move that fails anyway (some Android filesystems refuse
+ * to replace an existing file) restores the backup instead of leaving nothing behind, so callers only
+ * need the "corrupt file reads as empty" fallback for a genuinely torn write.
  */
 fun FileSystem.atomicWrite(target: Path, block: (BufferedSink) -> Unit) {
-    val tmp = target.parent?.resolve("${target.name}.tmp")
-        ?: throw IOException("Cannot write to a filesystem root: $target")
+    val parent = target.parent ?: throw IOException("Cannot write to a filesystem root: $target")
+    val tmp = parent / "${target.name}.tmp"
+    val backup = parent / "${target.name}.bak"
 
-    target.parent?.let { createDirectories(it) }
+    createDirectories(parent)
     try {
         write(tmp) { block(this) }
-        atomicMove(tmp, target)
+
+        // A backup left by an earlier crashed write is older, but known good, so it stays and the
+        // live file gives way instead.
+        val hadTarget = exists(target)
+        val restorable = hadTarget && !exists(backup)
+        if (restorable) atomicMove(target, backup)
+        else if (hadTarget) delete(target)
+
+        try {
+            atomicMove(tmp, target)
+        } catch (t: Throwable) {
+            if (restorable) runCatching { atomicMove(backup, target) }
+            throw t
+        }
+
+        runCatching { delete(backup) }
     } catch (t: Throwable) {
         runCatching { delete(tmp) }
         throw t

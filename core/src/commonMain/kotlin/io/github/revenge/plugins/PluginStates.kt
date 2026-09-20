@@ -48,6 +48,9 @@ fun pluginFlagsFromJSPayload(payload: Map<String, Any?>): Set<PluginFlags> {
 /** Matches `[a-zA-Z0-9._-]`, with no consecutive dots or leading dot. Colons are internal-only. */
 private val SLOT_ID_REGEX = Regex("[a-zA-Z0-9._-]+")
 
+/** Extensions of files that sit beside a slot file but are not slots themselves. */
+private val SLOT_SIDECAR_SUFFIXES = setOf("tmp", "bak", "corrupt")
+
 fun isInternalSlotId(id: String) = id.startsWith(':')
 
 fun requireValidSlotId(id: String) {
@@ -293,7 +296,9 @@ object PluginStatesStore {
     /** Persistent slots on disk, with [PRIMARY_SLOT] always present. */
     fun persistentSlotIds(paths: PluginPaths): List<String> {
         val onDisk = paths.fs.listFileNames(paths.slots).filter {
-            runCatching { requireValidSlotId(it) }.isSuccess && !isInternalSlotId(it)
+            // Write scratch files ([atomicWrite]) and quarantined reads live next to the slots they belong to.
+            it.substringAfterLast('.', "") !in SLOT_SIDECAR_SUFFIXES &&
+                    runCatching { requireValidSlotId(it) }.isSuccess && !isInternalSlotId(it)
         }
         return (listOf(PRIMARY_SLOT) + onDisk).distinct()
     }

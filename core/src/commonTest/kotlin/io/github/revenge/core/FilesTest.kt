@@ -48,6 +48,15 @@ class FilesTest {
     }
 
     @Test
+    fun `a completed write leaves no backup behind`() {
+        val target = dir / "file"
+        fs.atomicWriteUtf8(target, "old")
+        fs.atomicWriteUtf8(target, "new")
+
+        assertFalse(fs.exists(dir / "file.bak"))
+    }
+
+    @Test
     fun `readUtf8OrNull returns null for a missing file`() {
         assertNull(fs.readUtf8OrNull(dir / "missing"))
     }

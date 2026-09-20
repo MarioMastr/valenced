@@ -229,6 +229,22 @@ class PluginStateSlotsTest {
     }
 
     @Test
+    fun `getSlots skips the scratch files a write leaves behind`() {
+        load()
+        paths.fs.createDirectories(paths.slots)
+        // A crashed write and a quarantined corrupt read both sit beside the slot they belong to.
+        for (name in listOf("work.tmp", "work.bak", "work.corrupt")) {
+            paths.fs.write(paths.slots / name) { writeUtf8("x") }
+        }
+
+        assertEquals(
+            listOf(PluginStatesStore.PRIMARY_SLOT),
+            PluginStatesStore.persistentSlotIds(paths),
+            "a scratch file listed as a slot would offer the user a setup that cannot be read",
+        )
+    }
+
+    @Test
     fun `uninstall drops the plugin from a slot this boot never loaded`() {
         load()
         PluginStatesStore.active.write("com.example.plugin", setOf(PluginFlags.ENABLED))
