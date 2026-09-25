@@ -54,6 +54,35 @@ class BundledPluginsTest {
     }
 
     @Test
+    fun `enablement from the manifest`() {
+        val plugins = parseBundledPlugins(
+            """
+            {
+              "version": "1.0.0",
+              "plugins": [
+                { "id": "revenge.settings", "essential": true },
+                { "id": "revenge.no-track", "enabledByDefault": true },
+                { "id": "revenge.api.hidden" }
+              ]
+            }
+            """.trimIndent()
+        )
+
+        val flags = plugins.associate { it.manifest.id to it.internalFlags }
+
+        assertEquals(
+            setOf(InternalPluginFlags.INTERNAL, InternalPluginFlags.ESSENTIAL),
+            flags.getValue("revenge.settings"),
+        )
+        assertEquals(
+            setOf(InternalPluginFlags.INTERNAL, InternalPluginFlags.ENABLED_BY_DEFAULT),
+            flags.getValue("revenge.no-track"),
+        )
+        // Absent means off: a plugin the build resolved as dev-only-by-default in a release bundle.
+        assertEquals(setOf(InternalPluginFlags.INTERNAL), flags.getValue("revenge.api.hidden"))
+    }
+
+    @Test
     fun `a malformed entry does not take the rest of the set down`() {
         val plugins = parseBundledPlugins(
             """

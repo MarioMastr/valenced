@@ -2,6 +2,7 @@ package io.github.revenge.xposed.tweaks
 
 import android.content.res.XModuleResources
 import io.github.revenge.plugins.API_VERSION
+import io.github.revenge.plugins.BUNDLE_MANIFEST_FORMAT
 import io.github.revenge.plugins.BundleManifest
 import io.github.revenge.plugins.parseBundleManifest
 import io.github.revenge.xposed.RevengeConstants
@@ -13,9 +14,13 @@ val revengeBundleManifest by tweak {
     runCatching { RevengeUpdater.readBundleManifest() }
         .onFailure { log.e("Unable to read downloaded bundle manifest", it) }
         .getOrNull()?.let {
-            if (setBundleManifest(it)) return@tweak
+            if (setBundleManifest(it)) {
+                log.i("Remote bundle manifest: $bundleManifest")
+                return@tweak
+            }
         }
 
+    log.i("Using module bundle manifest...")
     runCatching {
         XModuleResources.createInstance(modulePath, null)
             .assets.open(RevengeConstants.BUNDLE_MANIFEST_FILE)
@@ -26,10 +31,12 @@ val revengeBundleManifest by tweak {
             if (setBundleManifest(it)) return@tweak
         }
 
-    bundleManifest = BundleManifest(API_VERSION.toString(), emptyList())
+    log.w("Using fallback manifest...")
+    bundleManifest = BundleManifest(BUNDLE_MANIFEST_FORMAT, API_VERSION.toString(), emptyList())
 }
 
 private fun setBundleManifest(json: String): Boolean {
     bundleManifest = parseBundleManifest(json) ?: return false
+
     return true
 }

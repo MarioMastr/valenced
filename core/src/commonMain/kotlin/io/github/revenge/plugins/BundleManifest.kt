@@ -4,14 +4,21 @@ import io.github.revenge.core.RevengeJson
 import io.github.revenge.plugins.external.requireValidPluginId
 import kotlinx.serialization.Serializable
 
+const val BUNDLE_MANIFEST_FORMAT = 1
+
 @Serializable
 data class BundleManifest(
+    val format: Int = BUNDLE_MANIFEST_FORMAT,
     val version: String,
     val plugins: List<Plugin> = emptyList(),
 ) {
     @Serializable
     data class Plugin(
         val id: String,
+        /** Cannot be turned off. Implies [enabledByDefault]. */
+        val essential: Boolean = false,
+        /** On until the user says otherwise. */
+        val enabledByDefault: Boolean = false,
         val dependencies: Map<String, Dependency> = emptyMap(),
     )
 
@@ -21,11 +28,11 @@ data class BundleManifest(
         val optional: Boolean = false,
     )
 
-    fun pluginManifests(): List<PluginManifest> {
+    fun pluginManifests(): List<Pair<Plugin, PluginManifest>> {
         val bundleVersion = Version.parse(version)
 
         return plugins.mapNotNull { entry ->
-            runCatching { entry.toPluginManifest(bundleVersion) }
+            runCatching { entry to entry.toPluginManifest(bundleVersion) }
                 .onFailure { pluginLog.e("Skipping bundled plugin '${entry.id}'", it) }
                 .getOrNull()
         }
