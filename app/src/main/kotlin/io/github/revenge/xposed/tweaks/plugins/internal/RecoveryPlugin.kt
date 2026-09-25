@@ -30,6 +30,11 @@ private val manifest = PluginManifest(
 internal val recoveryPlugin =
     internalPlugin(manifest, setOf(InternalPluginFlags.INTERNAL, InternalPluginFlags.ESSENTIAL)) {
         start {
+            // User stuck in Recovery mode. It is only ever intended to be one-shot.
+            if (PluginStatesStore.activeSlotId == PluginStatesStore.DEFAULTS_SLOT) {
+                PluginStatesStore.setActiveSlot(pluginPaths(appInfo.dataDir), PluginStatesStore.PRIMARY_SLOT, false)
+            }
+
             withAppActivity { act ->
                 registerNativeMethod("revenge.showRecoveryAlert") {
                     showRecoveryAlert(act)

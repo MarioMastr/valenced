@@ -271,7 +271,7 @@ object PluginStatesStore {
             paths.fs.createDirectories(paths.slots)
 
             activeSlotId = readSlotId(paths, paths.activeSlotFile)
-                ?.takeIf { runCatching { requireValidSlotId(it) }.isSuccess && !isInternalSlotId(it) }
+                ?.takeIf { runCatching { requireValidSlotId(it) }.isSuccess }
                 ?: PRIMARY_SLOT
 
             // Consumed before any plugin loads, so a boot crash can't trap the user in it.
@@ -289,8 +289,13 @@ object PluginStatesStore {
         }
     }
 
+    private fun makeInternalSlot(slotId: String) = when (slotId) {
+        ":defaults" -> PluginStateSlot(slotId, persistent = false, paths = null, file = null)
+        else -> throw IllegalArgumentException("No such internal slot: $slotId")
+    }
+
     private fun loadSlot(paths: PluginPaths, slotId: String): PluginStateSlot =
-        if (isInternalSlotId(slotId)) PluginStateSlot(slotId, persistent = false, paths = null, file = null)
+        if (isInternalSlotId(slotId)) makeInternalSlot(slotId)
         else PluginStateSlot.load(slotId, paths, paths.slots / slotId, log, ::writeNow)
 
     /** Persistent slots on disk, with [PRIMARY_SLOT] always present. */
@@ -298,7 +303,7 @@ object PluginStatesStore {
         val onDisk = paths.fs.listFileNames(paths.slots).filter {
             // Write scratch files ([atomicWrite]) and quarantined reads live next to the slots they belong to.
             it.substringAfterLast('.', "") !in SLOT_SIDECAR_SUFFIXES &&
-                    runCatching { requireValidSlotId(it) }.isSuccess && !isInternalSlotId(it)
+                    runCatching { requireValidSlotId(it) }.isSuccess
         }
         return (listOf(PRIMARY_SLOT) + onDisk).distinct()
     }
@@ -310,10 +315,6 @@ object PluginStatesStore {
      */
     fun setActiveSlot(paths: PluginPaths, slotId: String, oneShot: Boolean) {
         requireValidSlotId(slotId)
-        if (isInternalSlotId(slotId) && !oneShot) throw PluginSystemError(
-            PluginErrorCodes.NOT_ALLOWED,
-            "Slot '$slotId' is internal and can only be set for one boot",
-        )
 
         paths.fs.atomicWriteUtf8(if (oneShot) paths.nextSlotFile else paths.activeSlotFile, slotId)
     }
