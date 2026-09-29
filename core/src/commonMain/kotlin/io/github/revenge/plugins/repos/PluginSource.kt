@@ -11,6 +11,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PluginSource(
     val repo: String? = null,
+    /** Hash of the artifact installed. */
+    val hash: String? = null,
     /** The channel followed for updates (`latest` unless the user opted into another). */
     val channel: String = REPO_CHANNEL_LATEST,
     /** Keep the installed version, skip update checks, and refuse to update it to satisfy something else. */

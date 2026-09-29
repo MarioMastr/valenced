@@ -34,7 +34,7 @@ class SourcesStoreTest {
     fun `a record survives a reload`() {
         SourcesStore.record("a.b", repo = "https://repo.example/", channel = "beta")
 
-        assertEquals(PluginSource("https://repo.example/", "beta"), reload()["a.b"])
+        assertEquals(PluginSource("https://repo.example/", channel = "beta"), reload()["a.b"])
     }
 
     @Test
@@ -45,8 +45,8 @@ class SourcesStoreTest {
         SourcesStore.record("a.b", repo = "https://three.example/", channel = "beta")
 
         val all = reload()
-        assertEquals(PluginSource("https://three.example/", "beta"), all["a.b"])
-        assertEquals(PluginSource("https://two.example/", REPO_CHANNEL_LATEST), all["c.d"])
+        assertEquals(PluginSource("https://three.example/", channel = "beta"), all["a.b"])
+        assertEquals(PluginSource("https://two.example/", channel = REPO_CHANNEL_LATEST), all["c.d"])
     }
 
     @Test

@@ -56,7 +56,7 @@ object SourcesStore {
     /** Records where [pluginId] was just installed from, keeping every other configuration intact. */
     fun record(pluginId: String, repo: String?, channel: String) = lock.withLock {
         val existing = all()[pluginId]
-        set(pluginId, existing?.copy(repo = repo, channel = channel) ?: PluginSource(repo, channel))
+        set(pluginId, existing?.copy(repo = repo, channel = channel) ?: PluginSource(repo, channel = channel))
     }
 
     /** Holds [pluginId] at its installed version, or resumes following its channel. Returns the new record. */
