@@ -80,13 +80,13 @@ class PluginStateSlot(
 
     private val flows = HashMap<String, MutableStateFlow<Set<PluginFlags>>>()
 
-    /** Plugin IDs with an entry. A flow alone is not an entry, only [write] makes one. */
-    private val present = HashSet<String>()
+    /** What each entry was last written as via [write]. */
+    private val recorded = HashMap<String, Set<PluginFlags>>()
 
     init {
         for ((pluginId, flags) in initial) {
             flows[pluginId] = MutableStateFlow(flags)
-            present += pluginId
+            recorded[pluginId] = flags
         }
     }
 
@@ -101,34 +101,41 @@ class PluginStateSlot(
 
     /** Flags of the plugin's entry, or `null` when it has none. */
     fun entryFlags(pluginId: String): Set<PluginFlags>? = lock.withLock {
-        if (pluginId in present) flows[pluginId]?.value else null
+        if (pluginId in recorded) flows[pluginId]?.value else null
     }
 
-    fun hasPlugin(pluginId: String): Boolean = lock.withLock { pluginId in present }
+    fun hasPlugin(pluginId: String): Boolean = lock.withLock { pluginId in recorded }
 
     fun isPluginEnabled(pluginId: String): Boolean = lock.withLock {
         PluginFlags.ENABLED in (entryFlags(pluginId) ?: return@withLock false)
     }
 
-    /** Writes an entry, and pushes to the live flow, so a running plugin sees it. */
-    fun write(pluginId: String, flags: Set<PluginFlags>) {
-        lock.withLock {
+    /**
+     * Writes an entry, and pushes to the live flow, so a running plugin sees it.
+     * @return Whether anything has changed.
+     */
+    fun write(pluginId: String, flags: Set<PluginFlags>): Boolean {
+        val changed = lock.withLock {
+            if (pluginId in recorded && recorded[pluginId] == flags) return@withLock false
+            recorded[pluginId] = flags
             flows.getOrPut(pluginId) { MutableStateFlow(flags) }.value = flags
-            present += pluginId
+            true
         }
+        if (!changed) return false
         onChanged()
+        return true
     }
 
     fun remove(pluginId: String) {
         lock.withLock {
-            present -= pluginId
+            recorded.remove(pluginId)
             flows.remove(pluginId)
         }
         onChanged()
     }
 
     fun snapshot(): Map<String, Set<PluginFlags>> = lock.withLock {
-        present.associateWith { flows[it]?.value ?: emptySet() }
+        recorded.keys.associateWith { flows[it]?.value ?: emptySet() }
     }
 
     /** Persists the entries. No-op for an ephemeral slots. */

@@ -1,9 +1,12 @@
 package io.github.revenge.xposed.tweaks.plugins
 
 import io.github.revenge.bridge.asDelegate
+import io.github.revenge.plugins.PluginFlags
+import io.github.revenge.plugins.PluginStateSlot
 import io.github.revenge.plugins.PluginStatesStore
 import io.github.revenge.plugins.pluginFlagsFromJSPayload
 import io.github.revenge.plugins.toJSPayload
+import io.github.revenge.xposed.api.HostScope
 import io.github.revenge.xposed.tweak
 
 /**
@@ -53,6 +56,7 @@ val pluginStates by tweak {
      * `states.update(slot, id, PluginStates): PluginStates`
      *
      * JS reporting flags it changed.
+     * Writes to the slot directly since we already return the new state here and won't need to wait for emit.
      */
     pluginSystemMethod("revenge.plugins.states.update") { args ->
         val argv = args.asDelegate()
@@ -65,4 +69,17 @@ val pluginStates by tweak {
         PluginStatesStore.slot(slotId)?.write(pluginId, newFlags)
         newFlags.toJSPayload()
     }
+}
+
+
+/** Writes a plugin's flags into [slot] and notifies JS with [sendStateToJS] if something changed. */
+context(host: HostScope)
+internal suspend fun writeSlotFlags(slot: PluginStateSlot, pluginId: String, flags: Set<PluginFlags>) {
+    if (slot.write(pluginId, flags)) sendStateToJS(slot.id, pluginId, flags)
+}
+
+/** Writes a plugin's flags into [slot] and notifies JS with [dispatchStateToJS] if something changed. */
+context(host: HostScope)
+internal fun dispatchSlotFlags(slot: PluginStateSlot, pluginId: String, flags: Set<PluginFlags>) {
+    if (slot.write(pluginId, flags)) dispatchStateToJS(slot.id, pluginId, flags)
 }
