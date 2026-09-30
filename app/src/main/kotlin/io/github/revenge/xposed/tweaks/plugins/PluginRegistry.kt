@@ -2,6 +2,7 @@ package io.github.revenge.xposed.tweaks.plugins
 
 import io.github.revenge.plugins.*
 import io.github.revenge.plugins.external.DiscoveryFailure
+import io.github.revenge.plugins.repos.PluginSource
 import io.github.revenge.xposed.tweaks.plugins.external.forgetNativePluginLoader
 import io.github.revenge.xposed.tweaks.plugins.external.nativePluginLoaders
 import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
@@ -12,6 +13,8 @@ internal class PluginFactory(
     val internalFlags: Set<InternalPluginFlags> = emptySet(),
     /** Absolute path to the plugin's `dist.script` JS bundle. */
     val scriptPath: String? = null,
+    /** Default provenance for a plugin when unset. */
+    val defaultSource: PluginSource? = null,
     /** Loads the plugin's code, chaining the class loaders of the given dependencies. */
     private val load: (chain: Set<String>) -> PluginBuilder,
 ) {

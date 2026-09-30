@@ -27,6 +27,7 @@ private val payload = PluginPayload(
     enabledByDefault = false,
     api = false,
     source = null,
+    hasStub = false,
 )
 
 /** The wire shape is a contract with revenge-next: keys never silently appear or disappear. */
@@ -38,7 +39,7 @@ class PayloadsTest {
         assertEquals(
             setOf(
                 "manifest", "script", "internal", "essential", "enabledByDefault", "api", "source",
-                "unsatisfiedOptionalDependencies", "errors",
+                "hasStub", "unsatisfiedOptionalDependencies", "errors",
             ),
             json.keys,
         )

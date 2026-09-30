@@ -58,6 +58,8 @@ private val pendingInstalls = mutableMapOf<String, StagedPlugin>()
 context(host: HostScope)
 internal fun promptInstallPlugin(
     installedVersion: (String) -> Version?,
+    /** Throws when the staged plugin must not be installed. */
+    requireInstallable: (String) -> Unit,
     onReady: (Result<InstallPrompt>) -> Unit,
 ) {
     if (!pickZipHooked) {
@@ -96,6 +98,13 @@ internal fun promptInstallPlugin(
 
                 val staged = input.use { stream ->
                     stagePluginZip(paths, "$CONFIRM_TMP_PREFIX$token") { it.writeAll(stream.source()) }
+                }
+
+                try {
+                    requireInstallable(staged.manifest.id)
+                } catch (e: Throwable) {
+                    discardStagedPlugin(paths, staged)
+                    throw e
                 }
 
                 pendingInstalls[token] = staged

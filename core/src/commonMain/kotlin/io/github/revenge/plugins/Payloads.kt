@@ -51,6 +51,7 @@ data class PluginPayload @OptIn(ExperimentalSerializationApi::class) constructor
     val api: Boolean,
     /** `null` = sideloaded. */
     val source: SourcePayload?,
+    val hasStub: Boolean,
     /** Installed optional dependencies that are unsatisfied, so this plugin loaded without linking them. */
     @EncodeDefault(EncodeDefault.Mode.ALWAYS) val unsatisfiedOptionalDependencies: List<String> = emptyList(),
     /** Errors the native side has already hit (for example at boot, before JS was up). */

@@ -14,6 +14,7 @@ import io.github.revenge.plugins.toJSPayload
 import io.github.revenge.plugins.toPayload
 import io.github.revenge.plugins.toPluginError
 import io.github.revenge.xposed.tweaks.plugins.internal.InternalPluginFlags
+import io.github.revenge.xposed.tweaks.plugins.internal.internalPluginOf
 import java.io.File
 
 internal fun PluginFactory.toJSPayload(
@@ -29,6 +30,7 @@ internal fun PluginFactory.toJSPayload(
     enabledByDefault = InternalPluginFlags.ENABLED_BY_DEFAULT in internalFlags,
     api = InternalPluginFlags.API in internalFlags,
     source = source?.toPayload(),
+    hasStub = hasStub(manifest.id, source),
     unsatisfiedOptionalDependencies = pluginRegistry.dependencies
         .unsatisfiedOptionalDependencies(manifest.id).toList(),
     errors = buildList {
@@ -55,9 +57,13 @@ internal fun DiscoveryFailure.toJSPayload(
     enabledByDefault = false,
     api = false,
     source = source?.toPayload(),
+    hasStub = hasStub(manifest.id, source),
     errors = errors,
     failed = true,
 ).toNativeMap()
+
+/** Whether uninstalling [id] restores an internal plugin with the same ID. */
+private fun hasStub(id: String, source: PluginSource?) = source != null && internalPluginOf(id) != null
 
 internal fun PluginSource.toPayload(): SourcePayload = SourcePayload(repo = repo, channel = channel, held = held)
 
