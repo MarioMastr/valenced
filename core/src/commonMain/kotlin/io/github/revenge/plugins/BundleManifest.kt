@@ -2,6 +2,7 @@ package io.github.revenge.plugins
 
 import io.github.revenge.core.RevengeJson
 import io.github.revenge.plugins.external.requireValidPluginId
+import io.github.revenge.plugins.repos.PluginSource
 import kotlinx.serialization.Serializable
 
 const val BUNDLE_MANIFEST_FORMAT = 1
@@ -20,6 +21,7 @@ data class BundleManifest(
         /** On until the user says otherwise. */
         val enabledByDefault: Boolean = false,
         val dependencies: Map<String, Dependency> = emptyMap(),
+        val defaultSource: PluginSource? = null,
     )
 
     @Serializable

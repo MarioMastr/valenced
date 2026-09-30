@@ -1,6 +1,7 @@
 package io.github.revenge.xposed.tweaks.plugins.internal
 
 import io.github.revenge.plugins.BundleManifest
+import io.github.revenge.plugins.pluginLog
 import io.github.revenge.xposed.tweaks.plugins.PluginFactory
 
 /**
@@ -11,7 +12,24 @@ import io.github.revenge.xposed.tweaks.plugins.PluginFactory
  * external plugin that depends on one.
  */
 internal fun bundledPlugins(bundleManifest: BundleManifest): List<PluginFactory> =
-    bundleManifest.pluginManifests().map { (entry, manifest) -> internalPlugin(manifest, entry.internalFlags()) {} }
+    bundleManifest.pluginManifests().mapNotNull { (entry, manifest) ->
+        runCatching {
+            val flags = entry.internalFlags()
+            val defaultSource = entry.defaultSource
+
+            if (defaultSource != null) {
+                stubPlugin(
+                    manifest,
+                    defaultSource,
+                    flags,
+                ) {}
+            } else {
+                internalPlugin(manifest, flags) {}
+            }
+        }
+            .onFailure { pluginLog.e("Skipping bundled plugin '${entry.id}'", it) }
+            .getOrNull()
+    }
 
 private fun BundleManifest.Plugin.internalFlags() = buildSet {
     add(InternalPluginFlags.INTERNAL)
