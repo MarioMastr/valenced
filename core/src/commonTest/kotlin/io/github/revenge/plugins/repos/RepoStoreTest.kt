@@ -60,7 +60,7 @@ class RepoStoreTest {
     fun `removing a repo drops its cache and its plugins' provenance`() {
         RepoStore.set(listOf(UserRepo("https://one.example/")))
         RepoStore.writeCachedIndex("https://one.example/", "{}", etag = "W/\"1\"")
-        SourcesStore.record("a.b", repo = "https://one.example/", channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = "https://one.example/", channel = REPO_CHANNEL_LATEST, hash = null)
 
         RepoStore.set(emptyList())
 

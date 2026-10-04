@@ -32,17 +32,17 @@ class SourcesStoreTest {
 
     @Test
     fun `a record survives a reload`() {
-        SourcesStore.record("a.b", repo = "https://repo.example/", channel = "beta")
+        SourcesStore.record("a.b", repo = "https://repo.example/", channel = "beta", hash = null)
 
         assertEquals(PluginSource("https://repo.example/", channel = "beta"), reload()["a.b"])
     }
 
     @Test
     fun `record replaces provenance without touching every other plugin`() {
-        SourcesStore.record("a.b", repo = "https://one.example/", channel = REPO_CHANNEL_LATEST)
-        SourcesStore.record("c.d", repo = "https://two.example/", channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = "https://one.example/", channel = REPO_CHANNEL_LATEST, hash = null)
+        SourcesStore.record("c.d", repo = "https://two.example/", channel = REPO_CHANNEL_LATEST, hash = null)
 
-        SourcesStore.record("a.b", repo = "https://three.example/", channel = "beta")
+        SourcesStore.record("a.b", repo = "https://three.example/", channel = "beta", hash = null)
 
         val all = reload()
         assertEquals(PluginSource("https://three.example/", channel = "beta"), all["a.b"])
@@ -51,10 +51,10 @@ class SourcesStoreTest {
 
     @Test
     fun `held survives the install that follows it`() {
-        SourcesStore.record("a.b", repo = "https://repo.example/", channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = "https://repo.example/", channel = REPO_CHANNEL_LATEST, hash = null)
         SourcesStore.setHeld("a.b", held = true)
 
-        SourcesStore.record("a.b", repo = "https://repo.example/", channel = "beta")
+        SourcesStore.record("a.b", repo = "https://repo.example/", channel = "beta", hash = null)
 
         val source = reload().getValue("a.b")
         assertTrue(source.held, "a user hold must outlive a reinstall")
@@ -69,9 +69,9 @@ class SourcesStoreTest {
 
     @Test
     fun `forgetRepos drops the repo and keeps everything else`() {
-        SourcesStore.record("a.b", repo = "https://gone.example/", channel = "beta")
+        SourcesStore.record("a.b", repo = "https://gone.example/", channel = "beta", hash = null)
         SourcesStore.setHeld("a.b", held = true)
-        SourcesStore.record("c.d", repo = "https://kept.example/", channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("c.d", repo = "https://kept.example/", channel = REPO_CHANNEL_LATEST, hash = null)
 
         SourcesStore.forgetRepos(listOf("https://gone.example/"))
 
@@ -84,7 +84,7 @@ class SourcesStoreTest {
 
     @Test
     fun `forgetRepos with nothing to forget writes nothing`() {
-        SourcesStore.record("a.b", repo = "https://kept.example/", channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = "https://kept.example/", channel = REPO_CHANNEL_LATEST, hash = null)
 
         SourcesStore.forgetRepos(emptyList())
         SourcesStore.forgetRepos(listOf("https://unknown.example/"))
@@ -94,8 +94,8 @@ class SourcesStoreTest {
 
     @Test
     fun `remove deletes only that plugin`() {
-        SourcesStore.record("a.b", repo = null, channel = REPO_CHANNEL_LATEST)
-        SourcesStore.record("c.d", repo = null, channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = null, channel = REPO_CHANNEL_LATEST, hash = null)
+        SourcesStore.record("c.d", repo = null, channel = REPO_CHANNEL_LATEST, hash = null)
 
         SourcesStore.remove("a.b")
         SourcesStore.remove("missing.plugin")
@@ -107,7 +107,7 @@ class SourcesStoreTest {
 
     @Test
     fun `an unreadable document is quarantined and reads as empty`() {
-        SourcesStore.record("a.b", repo = null, channel = REPO_CHANNEL_LATEST)
+        SourcesStore.record("a.b", repo = null, channel = REPO_CHANNEL_LATEST, hash = null)
         paths.fs.write(paths.repos / "sources.json") { writeUtf8("{not json") }
 
         assertTrue(reload().isEmpty())
