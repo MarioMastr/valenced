@@ -3,6 +3,7 @@ package io.github.revenge.xposed.tweaks.plugins.repos
 import io.github.revenge.plugins.PluginErrorCodes
 import io.github.revenge.plugins.PluginManifest
 import io.github.revenge.plugins.PluginSystemError
+import io.github.revenge.plugins.Version
 import io.github.revenge.plugins.repos.INTERNAL_REPO_URL
 import io.github.revenge.plugins.repos.REPO_CHANNEL_LATEST
 import io.github.revenge.plugins.repos.RepoStore
@@ -147,6 +148,7 @@ val pluginRepos by tweak {
                 "contributors" to plugin.contributors,
                 "icon" to plugin.icon,
                 "channels" to plugin.channels,
+                "order" to plugin.versions.keys.newestFirst(),
                 "versions" to plugin.versions.mapValues { (_, v) ->
                     mapOf(
                         "url" to v.url,
@@ -164,6 +166,10 @@ val pluginRepos by tweak {
         }
     }
 }
+
+/** Sorts versions newest first, unparsable ones last. */
+private fun Collection<String>.newestFirst(): List<String> =
+    sortedWith(compareByDescending(nullsFirst()) { runCatching { Version.parse(it) }.getOrNull() })
 
 internal fun internalRepoJSPayload(): Map<String, Any?> = mapOf(
     "url" to INTERNAL_REPO_URL,
@@ -190,6 +196,7 @@ internal fun internalRepoPluginsJSPayload(): List<Map<String, Any?>> {
             "contributors" to manifest.contributors,
             "icon" to manifest.icon,
             "channels" to mapOf(REPO_CHANNEL_LATEST to version),
+            "order" to listOf(version),
             "versions" to mapOf(
                 version to mapOf(
                     "url" to null,
