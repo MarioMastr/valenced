@@ -40,6 +40,9 @@ dependencies {
     compileOnly(libs.kotlinx.coroutines.android)
 }
 
+// Forks publish to their own repository's packages.
+val githubRepository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("Valenced/valenced-xposed")
+
 publishing {
     publications {
         register<MavenPublication>("release") {
@@ -50,6 +53,33 @@ publishing {
             afterEvaluate {
                 from(components["release"])
             }
+
+            pom {
+                name = "Valenced API"
+                description = "API for building native Valenced plugins"
+                url = "https://github.com/$githubRepository"
+
+                licenses {
+                    license {
+                        name = "GNU General Public License v3.0"
+                        url = "https://www.gnu.org/licenses/gpl-3.0.html"
+                    }
+                }
+
+                scm {
+                    url = "https://github.com/$githubRepository"
+                    connection = "scm:git:https://github.com/$githubRepository.git"
+                }
+            }
+        }
+    }
+
+    repositories {
+        // Credentials come from the `GitHubPackagesUsername` and `GitHubPackagesPassword` Gradle properties.
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/$githubRepository")
+            credentials(PasswordCredentials::class)
         }
     }
 }

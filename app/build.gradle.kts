@@ -25,6 +25,19 @@ android {
         }
     }
 
+    // Release signing is provided by CI through the environment. Without it, release builds are unsigned.
+    val keystoreFile = providers.environmentVariable("KEYSTORE_FILE").orNull?.takeIf { it.isNotBlank() }
+    if (keystoreFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreFile)
+                storePassword = providers.environmentVariable("KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("KEY_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         debug {
             isDebuggable = true
@@ -36,6 +49,7 @@ android {
         release {
             isDebuggable = false
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
