@@ -13,7 +13,7 @@
                 android:value="true"/>
         <meta-data
                 android:name="xposeddescription"
-                android:value="👊 Discord, your way. Revenge is a client modification for Discord Android."/>
+                android:value="👊 Discord, your way. Valenced is a client modification for Discord Android."/>
         <meta-data
                 android:name="xposedminversion"
                 android:value="82"/>

@@ -1,0 +1,19 @@
+name: iOS Build Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios-*.yml'
+
+jobs:
+  build-check:
+    name: Build Check
+    uses: ./.github/workflows/ios-deploy.yml
+    with:
+      ipa_url: ""
+      is_testflight: false
+      release: false
+      caller_workflow: "ci"
+    secrets: inherit

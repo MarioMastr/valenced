@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.revenge.api"
+    namespace = "app.valenced.api"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -43,7 +43,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "io.github.revenge"
+            groupId = "app.valenced"
             artifactId = "api"
             version = libs.versions.apiVersion.get()
 
