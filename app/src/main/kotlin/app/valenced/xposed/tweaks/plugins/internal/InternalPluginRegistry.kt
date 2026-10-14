@@ -6,6 +6,7 @@ import app.valenced.plugins.PluginManifest
 import app.valenced.plugins.RESERVED_DEPENDENCY_IDS
 import app.valenced.plugins.plugin
 import app.valenced.plugins.repos.PluginSource
+import app.valenced.xposed.tweaks.bundleManifest
 import app.valenced.xposed.tweaks.plugins.PluginFactory
 
 enum class InternalPluginFlags {
@@ -61,8 +62,15 @@ internal val internalPlugins: List<PluginFactory> by lazy {
     listOf(apiProviderPlugin, discordProviderPlugin, recoveryPlugin, noTrackPlugin, preventOtaUpdatesPlugin)
 }
 
+/** Native internal plugins and bundled (JS-only) ones from [bundleManifest]. */
+internal val allInternalPlugins: List<PluginFactory> by lazy {
+    internalPlugins + bundledPlugins(bundleManifest)
+        // Not an existing internal plugin
+        .filterNot { b -> internalPlugins.any { it.manifest.id == b.manifest.id } }
+}
+
 /** Internal plugin with [id], stubs included. */
-internal fun internalPluginOf(id: String): PluginFactory? = internalPlugins.find { it.manifest.id == id }
+internal fun internalPluginOf(id: String): PluginFactory? = allInternalPlugins.find { it.manifest.id == id }
 
 /** Defaults sources to record, skipping plugins that already have provenance. */
 internal fun defaultSourcesToSeed(
