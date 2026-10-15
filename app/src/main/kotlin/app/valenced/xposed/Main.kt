@@ -14,10 +14,6 @@ import app.valenced.xposed.tweaks.base.scriptLoader
 import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry
 import app.valenced.xposed.tweaks.bridge.additionalBridgeMethods
 import app.valenced.xposed.tweaks.bridge.revengeBridgeSupport
-import app.valenced.xposed.tweaks.legacy.appearance.fonts
-import app.valenced.xposed.tweaks.legacy.appearance.sysColors
-import app.valenced.xposed.tweaks.legacy.appearance.themes
-import app.valenced.xposed.tweaks.legacy.valencedPayloadGlobal
 import app.valenced.xposed.tweaks.plugins.pluginInstallMethods
 import app.valenced.xposed.tweaks.plugins.pluginLoader
 import app.valenced.xposed.tweaks.plugins.pluginMethods
@@ -54,14 +50,10 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
         recoveryCompanion,
         discordDevSupport,
         additionalBridgeMethods,
-        fonts,
-        themes,
-        sysColors,
         pluginLoader,
         pluginMethods,
         pluginInstallMethods,
         valencedScriptLoader,
-        valencedPayloadGlobal,
     )
 
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
