@@ -23,6 +23,12 @@ data class BundleManifest(
         val dependencies: Map<String, Dependency> = emptyMap(),
         /** Overrides the bundle version. Stubs ([defaultSource]) only. */
         val version: String? = null,
+        // Metadata for stubs only.
+        val name: String? = null,
+        val description: String? = null,
+        val author: String? = null,
+        val contributors: List<String> = emptyList(),
+        val icon: String? = null,
         val defaultSource: PluginSource? = null,
     )
 
@@ -48,16 +54,17 @@ fun parseBundleManifest(json: String) =
         .onFailure { pluginLog.e("Unable to parse bundle manifest", it) }
         .getOrNull()
 
-// JS will fill these in later.
 private fun BundleManifest.Plugin.toPluginManifest(bundleVersion: Version): PluginManifest {
     requireValidPluginId(id)
     require(version == null || defaultSource != null) { "Only stubs can override the bundle version" }
 
     return PluginManifest(
         id = id,
-        name = id,
-        description = "",
-        author = "",
+        name = name ?: id,
+        description = description.orEmpty(),
+        author = author.orEmpty(),
+        contributors = contributors,
+        icon = icon,
         dependencies = dependencies.entries.associate { (depId, dep) ->
             requireValidPluginId(depId)
             depId to PluginDependency(
