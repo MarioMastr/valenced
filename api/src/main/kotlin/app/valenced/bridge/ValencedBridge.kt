@@ -1,14 +1,14 @@
 package app.valenced.bridge
 
 /**
- * - JS -> native: `{ revenge: { method, args: [...] } }` passed to either `RNSVGRenderableManager.getBBox` (sync, fast)
+ * - JS -> native: `{ valenced: { method, args: [...] } }` passed to either `RNSVGRenderableManager.getBBox` (sync, fast)
  *   or `FileReaderModule.readAsDataURL` (alternative path).
  *
- * - Native -> JS: JS registers a callable module named `RevengeBridge`; native code invokes
- *   `ReactInstance.callFunctionOnModule("RevengeBridge", method, NativeArray)`.
- *   JS replies via `revenge.__callableReturn`.
+ * - Native -> JS: JS registers a callable module named `ValencedBridge`; native code invokes
+ *   `ReactInstance.callFunctionOnModule("ValencedBridge", method, NativeArray)`.
+ *   JS replies via `valenced.__callableReturn`.
  */
-interface RevengeBridge {
+interface ValencedBridge {
     /**
      * Whether [callJSMethod] can reach JS at this point.
      */
@@ -37,7 +37,7 @@ interface RevengeBridge {
     fun registerAsyncMethod(name: String, handler: suspend (args: List<Any?>) -> Any?)
 
     /**
-     * Invoke a JS method on the `RevengeBridge` callable module and await JS's `revenge.__callableReturn` reply.
+     * Invoke a JS method on the `ValencedBridge` callable module and await JS's `valenced.__callableReturn` reply.
      *
      * Throws if JS responds with an error or if JavaScript isn't ready (check [isReady]). May suspend forever if JS never replies.
      */

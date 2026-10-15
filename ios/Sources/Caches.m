@@ -152,22 +152,22 @@ static NSDictionary *AssetsCacheLoadFromFileOrNull(NSURL *file) {
 void RegisterCachesMethods(void) {
     NSString *versionTag = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"] ?: @"unknown";
 
-    NSURL *revengeCacheDir = [getValencedDirectory() URLByAppendingPathComponent:CACHE_DIR];
-    [[NSFileManager defaultManager] createDirectoryAtURL:revengeCacheDir
+    NSURL *valencedCacheDir = [getValencedDirectory() URLByAppendingPathComponent:CACHE_DIR];
+    [[NSFileManager defaultManager] createDirectoryAtURL:valencedCacheDir
                              withIntermediateDirectories:YES attributes:nil error:nil];
-    NSURL *modulesCacheFile = [revengeCacheDir URLByAppendingPathComponent:[NSString stringWithFormat:@"modules.%@", versionTag]];
-    NSURL *assetsCacheFile = [revengeCacheDir URLByAppendingPathComponent:[NSString stringWithFormat:@"assets.%@", versionTag]];
+    NSURL *modulesCacheFile = [valencedCacheDir URLByAppendingPathComponent:[NSString stringWithFormat:@"modules.%@", versionTag]];
+    NSURL *assetsCacheFile = [valencedCacheDir URLByAppendingPathComponent:[NSString stringWithFormat:@"assets.%@", versionTag]];
     ValencedLog(@"modules cache at: %@, assets cache at: %@", modulesCacheFile.lastPathComponent, assetsCacheFile.lastPathComponent);
 
     __block NSDictionary *modulesCache = nil;
     __block NSDictionary *assetsCache = nil;
 
-    bridgeHandlers()[@"revenge.caches.modules.read"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.caches.modules.read"] = ^NSDictionary *(NSArray *args) {
         if (!modulesCache) modulesCache = ModulesCacheLoadFromFileOrNull(modulesCacheFile);
         return @{@"result": modulesCache ?: [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.caches.modules.write"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.caches.modules.write"] = ^NSDictionary *(NSArray *args) {
         NSArray<NSNumber *> *blacklist = args.count > 0 ? args[0] : nil;
         NSDictionary<NSString *, id> *finds = args.count > 1 ? args[1] : nil;
         if (![blacklist isKindOfClass:[NSArray class]]) return @{@"error": @"Expected a blacklist argument"};
@@ -180,12 +180,12 @@ void RegisterCachesMethods(void) {
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.caches.assets.read"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.caches.assets.read"] = ^NSDictionary *(NSArray *args) {
         if (!assetsCache) assetsCache = AssetsCacheLoadFromFileOrNull(assetsCacheFile);
         return @{@"result": assetsCache ?: [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.caches.assets.write"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.caches.assets.write"] = ^NSDictionary *(NSArray *args) {
         NSDictionary *data = args.firstObject;
         if (![data isKindOfClass:[NSDictionary class]]) return @{@"error": @"Expected a data argument"};
 

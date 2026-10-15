@@ -30,7 +30,7 @@ private val payload = PluginPayload(
     hasStub = false,
 )
 
-/** The wire shape is a contract with revenge-next: keys never silently appear or disappear. */
+/** The wire shape is a contract with valenced-next: keys never silently appear or disappear. */
 class PayloadsTest {
     @Test
     fun `a plugin entry always carries its keys`() {

@@ -18,15 +18,15 @@ NSMutableDictionary<NSString *, BridgeHandler> *bridgeHandlers(void);
 
 void RegisterBridgeMethods(void);
 
-// RevengeBridge.callJSMethod
-extern NSString * const EVENT_DOWNLOAD_PROGRESS;           // revenge.plugins.events.downloadProgress
-extern NSString * const EVENT_PLUGIN_INSTALL_READY;        // revenge.plugins.events.pluginInstallFileReady
-extern NSString * const EVENT_PLUGIN_INSTALL_RESULT;       // revenge.plugins.events.pluginInstallResult
-extern NSString * const EVENT_PLUGIN_UPDATED;              // revenge.plugins.events.pluginUpdated
-extern NSString * const EVENT_PLUGIN_ERRORED;              // revenge.plugins.events.pluginErrored
-extern NSString * const EVENT_REPO_STATE_UPDATE;           // revenge.plugins.events.repoStateUpdate
-extern NSString * const EVENT_DEPENDENCIES_UPDATED;        // revenge.plugins.events.dependenciesUpdated
-extern NSString * const EVENT_PLUGIN_STOPPING;             // revenge.plugins.stopping
+// ValencedBridge.callJSMethod
+extern NSString * const EVENT_DOWNLOAD_PROGRESS;           // valenced.plugins.events.downloadProgress
+extern NSString * const EVENT_PLUGIN_INSTALL_READY;        // valenced.plugins.events.pluginInstallFileReady
+extern NSString * const EVENT_PLUGIN_INSTALL_RESULT;       // valenced.plugins.events.pluginInstallResult
+extern NSString * const EVENT_PLUGIN_UPDATED;              // valenced.plugins.events.pluginUpdated
+extern NSString * const EVENT_PLUGIN_ERRORED;              // valenced.plugins.events.pluginErrored
+extern NSString * const EVENT_REPO_STATE_UPDATE;           // valenced.plugins.events.repoStateUpdate
+extern NSString * const EVENT_DEPENDENCIES_UPDATED;        // valenced.plugins.events.dependenciesUpdated
+extern NSString * const EVENT_PLUGIN_STOPPING;             // valenced.plugins.stopping
 
 void EmitJSEvent(NSString *eventName, NSDictionary * _Nullable payload);
 void EmitJSEventArgs(NSString *eventName, NSArray *args);

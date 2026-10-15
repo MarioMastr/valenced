@@ -101,16 +101,16 @@ static id ParseJSONObjectOrEmpty(NSString *json) {
 @end
 
 void RegisterPluginStatesMethods(void) {
-    bridgeHandlers()[@"revenge.plugins.states.read"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.states.read"] = ^NSDictionary *(NSArray *args) {
         [[PluginStatesStore sharedStore] ensureLoaded];
         return @{@"result": ParseJSONObjectOrEmpty(ValencedCore_ConsumeString(ValencedCore_PluginStatesRead(NULL)))};
     };
 
-    bridgeHandlers()[@"revenge.plugins.states.getSlots"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.states.getSlots"] = ^NSDictionary *(NSArray *args) {
         return @{@"result": ParseJSONObjectOrEmpty(ValencedCore_ConsumeString(ValencedCore_PluginStatesGetSlots(NULL)))};
     };
 
-    bridgeHandlers()[@"revenge.plugins.states.setActiveSlot"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.states.setActiveSlot"] = ^NSDictionary *(NSArray *args) {
         NSString *slot = argString(args, 0, nil);
         if (!slot) return @{@"error": @"Expected a slot ID"};
         char *error = NULL;
@@ -120,7 +120,7 @@ void RegisterPluginStatesMethods(void) {
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.states.update"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.states.update"] = ^NSDictionary *(NSArray *args) {
         NSString *slot = argString(args, 0, nil);
         NSString *pluginId = argString(args, 1, nil);
         id state = argPresent(args, 2);

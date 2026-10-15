@@ -6,14 +6,14 @@ import android.content.pm.ApplicationInfo
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import app.valenced.bridge.RevengeBridge
+import app.valenced.bridge.ValencedBridge
 import app.valenced.xposed.api.HostScope
 import app.valenced.xposed.tweaks.*
 import app.valenced.xposed.tweaks.base.lifecycleSupport
 import app.valenced.xposed.tweaks.base.scriptLoader
-import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry
+import app.valenced.xposed.tweaks.bridge.ValencedBridgeRegistry
 import app.valenced.xposed.tweaks.bridge.additionalBridgeMethods
-import app.valenced.xposed.tweaks.bridge.revengeBridgeSupport
+import app.valenced.xposed.tweaks.bridge.valencedBridgeSupport
 import app.valenced.xposed.tweaks.plugins.pluginInstallMethods
 import app.valenced.xposed.tweaks.plugins.pluginLoader
 import app.valenced.xposed.tweaks.plugins.pluginMethods
@@ -30,7 +30,7 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
     private val tweaks: List<TweakSpec> = listOf(
         // Framework
         lifecycleSupport,
-        revengeBridgeSupport,
+        valencedBridgeSupport,
         scriptLoader,
         discordVersionRetriever,
 
@@ -82,7 +82,7 @@ private class HostScopeImpl(
     override val appInfo: ApplicationInfo,
     override val classLoader: ClassLoader,
 ) : HostScope {
-    override val bridge: RevengeBridge get() = RevengeBridgeRegistry
+    override val bridge: ValencedBridge get() = ValencedBridgeRegistry
     override fun withAppContext(block: (Context) -> Unit) = app.valenced.xposed.tweaks.base.withAppContext(block)
     override fun withAppActivity(block: (Activity) -> Unit) =
         app.valenced.xposed.tweaks.base.withAppActivity(block)

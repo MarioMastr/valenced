@@ -17,7 +17,7 @@ import okio.Path.Companion.toPath
  * The staging pipeline against the real filesystem, with ZIPs built by the JVM writer plugin authors use.
  */
 class ExtractPluginZipTest {
-    private val dataDir: File = Files.createTempDirectory("revenge-zip-test").toFile()
+    private val dataDir: File = Files.createTempDirectory("valenced-zip-test").toFile()
     private val paths = PluginPaths(FileSystem.SYSTEM, dataDir.absolutePath.toPath())
     private val root: File get() = paths.dist.toFile()
 
@@ -46,7 +46,7 @@ class ExtractPluginZipTest {
             "id": "com.example.zip",
             "name": "Zip Test",
             "version": "1.0.0",
-            "dependencies": { "revenge.api": {}, "discord": {} }
+            "dependencies": { "valenced.api": {}, "discord": {} }
         }
     """.trimIndent()
 

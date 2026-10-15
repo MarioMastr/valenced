@@ -17,7 +17,7 @@ import kotlin.test.*
  * instead of vanishing and appearing in logs only.
  */
 class DiscoveryFailureTest {
-    private val dataDir: File = Files.createTempDirectory("revenge-discovery-test").toFile()
+    private val dataDir: File = Files.createTempDirectory("valenced-discovery-test").toFile()
 
     /** The reserved dependencies, which every plugin below declares. */
     private val knownManifests = listOf(

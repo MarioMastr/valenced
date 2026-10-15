@@ -25,7 +25,7 @@ import app.valenced.xposed.tweaks.resetCrashCount
 import java.io.File
 
 private val manifest = PluginManifest(
-    id = "revenge.recovery",
+    id = "valenced.recovery",
     name = "Recovery",
     description = "Handles errors and provides troubleshooting options for Valenced.",
     author = "Valenced",
@@ -87,12 +87,12 @@ fun showRecoveryAlert(context: Context) {
 
 fun PluginScope.addBridgeMethods() {
     withAppActivity { act ->
-        registerNativeMethod("revenge.showRecoveryAlert") {
+        registerNativeMethod("valenced.showRecoveryAlert") {
             showRecoveryAlert(act)
             null
         }
 
-        registerNativeMethod("revenge.alertError") {
+        registerNativeMethod("valenced.alertError") {
             val (error, version) = it
             val errorString = "$error"
 

@@ -63,26 +63,16 @@ static NSData *loadFallbackBundle(void)
                 return d;
             }
         }
-        path = [b pathForResource:@"revenge" ofType:@"bundle"];
-        if (path) {
-            NSData *d = [NSData dataWithContentsOfFile:path];
-            if (d.length > 0) {
-                ValencedLog(@"Using fallback bundle at %@", path);
-                return d;
-            }
-        }
     }
     Dl_info info;
     if (dladdr((void *)&loadFallbackBundle, &info) && info.dli_fname) {
         NSString *dylibPath = [NSString stringWithUTF8String:info.dli_fname];
         NSString *dir = [dylibPath stringByDeletingLastPathComponent];
-        for (NSString *name in @[@"valenced.bundle", @"revenge.bundle"]) {
-            NSString *p = [dir stringByAppendingPathComponent:name];
-            NSData *d = [NSData dataWithContentsOfFile:p];
-            if (d.length > 0) {
-                ValencedLog(@"Using fallback bundle at %@", p);
-                return d;
-            }
+        NSString *p = [dir stringByAppendingPathComponent:@"valenced.bundle"];
+        NSData *d = [NSData dataWithContentsOfFile:p];
+        if (d.length > 0) {
+            ValencedLog(@"Using fallback bundle at %@", p);
+            return d;
         }
     }
     return nil;

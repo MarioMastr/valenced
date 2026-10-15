@@ -56,7 +56,7 @@ class PluginDependencyGraphTest {
             manifest(
                 "a",
                 dependencies = arrayOf(
-                    "revenge.settings" to dep(optional = true),
+                    "valenced.settings" to dep(optional = true),
                     "gone" to dep(),
                 ),
             ),
@@ -64,7 +64,7 @@ class PluginDependencyGraphTest {
 
         assertEquals(emptySet(), graph.unsatisfiedOptionalDependencies("a"))
         // ...while the graph itself still knows they cannot be linked.
-        assertEquals(PluginErrorCodes.DEPENDENCY_MISSING, graph.problem("a", "revenge.settings")?.code)
+        assertEquals(PluginErrorCodes.DEPENDENCY_MISSING, graph.problem("a", "valenced.settings")?.code)
     }
 
     // endregion

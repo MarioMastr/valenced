@@ -13,14 +13,14 @@ static NSMutableDictionary<NSString *, BridgeHandler> *gBridgeHandlers = nil;
 static jsi::Runtime *gJsiRuntime = nullptr;
 static id gJsiInstance = nil;
 
-NSString * const EVENT_DOWNLOAD_PROGRESS = @"revenge.plugins.events.downloadProgress";
-NSString * const EVENT_PLUGIN_INSTALL_READY = @"revenge.plugins.events.pluginInstallFileReady";
-NSString * const EVENT_PLUGIN_INSTALL_RESULT = @"revenge.plugins.events.pluginInstallResult";
-NSString * const EVENT_PLUGIN_UPDATED = @"revenge.plugins.events.pluginUpdated";
-NSString * const EVENT_PLUGIN_ERRORED = @"revenge.plugins.events.pluginErrored";
-NSString * const EVENT_REPO_STATE_UPDATE = @"revenge.plugins.events.repoStateUpdate";
-NSString * const EVENT_DEPENDENCIES_UPDATED = @"revenge.plugins.events.dependenciesUpdated";
-NSString * const EVENT_PLUGIN_STOPPING = @"revenge.plugins.stopping";
+NSString * const EVENT_DOWNLOAD_PROGRESS = @"valenced.plugins.events.downloadProgress";
+NSString * const EVENT_PLUGIN_INSTALL_READY = @"valenced.plugins.events.pluginInstallFileReady";
+NSString * const EVENT_PLUGIN_INSTALL_RESULT = @"valenced.plugins.events.pluginInstallResult";
+NSString * const EVENT_PLUGIN_UPDATED = @"valenced.plugins.events.pluginUpdated";
+NSString * const EVENT_PLUGIN_ERRORED = @"valenced.plugins.events.pluginErrored";
+NSString * const EVENT_REPO_STATE_UPDATE = @"valenced.plugins.events.repoStateUpdate";
+NSString * const EVENT_DEPENDENCIES_UPDATED = @"valenced.plugins.events.dependenciesUpdated";
+NSString * const EVENT_PLUGIN_STOPPING = @"valenced.plugins.stopping";
 
 NSMutableDictionary<NSString *, BridgeHandler> *bridgeHandlers(void) {
     static std::once_flag once;
@@ -52,7 +52,7 @@ static jsi::Value callJSFunctionOnRuntime(jsi::Runtime &runtime, NSString *event
             jsi::Value callable = runtime.global().getProperty(runtime, "RN$CallableModules");
             if (callable.isObject()) {
                 jsi::Object modules = callable.asObject(runtime);
-                jsi::Value module = modules.getProperty(runtime, "RevengeBridge");
+                jsi::Value module = modules.getProperty(runtime, "ValencedBridge");
                 if (module.isObject()) {
                     jsi::Object bridge = module.asObject(runtime);
                     jsi::Value fn = bridge.getProperty(runtime, [eventName UTF8String]);
@@ -100,7 +100,7 @@ void EmitJSEventArgs(NSString *eventName, NSArray *args) {
         if (instance && [instance respondsToSelector:@selector(callFunctionOnJSModule:method:args:)]) {
             ((void (*)(id, SEL, id, id, id))objc_msgSend)(
                 instance, @selector(callFunctionOnJSModule:method:args:),
-                @"RevengeBridge", eventName, args);
+                @"ValencedBridge", eventName, args);
             return;
         }
     }
@@ -148,11 +148,11 @@ void RegisterAdditionalBridgeMethods(void);
 
 void RegisterBridgeMethods(void) {
     ensureHandler(@{
-        @"revenge.__callableReturn": ^NSDictionary *(NSArray *args) {
+        @"valenced.__callableReturn": ^NSDictionary *(NSArray *args) {
             return @{@"result": [NSNull null]};
         },
 
-        @"revenge.info": ^NSDictionary *(NSArray *args) {
+        @"valenced.info": ^NSDictionary *(NSArray *args) {
             return @{@"result": @{@"name": @"ValencedTweak", @"version": VERSION_CODE}};
         },
 
@@ -167,7 +167,7 @@ void RegisterBridgeMethods(void) {
 }
 
 NSDictionary *callBridgeMethodHelper(NSString *methodName, NSArray *args) {
-    BOOL pluginSystem = [methodName hasPrefix:@"revenge.plugins."];
+    BOOL pluginSystem = [methodName hasPrefix:@"valenced.plugins."];
     @try {
         BridgeHandler handler = bridgeHandlers()[methodName];
         if (!handler) {
@@ -207,24 +207,24 @@ void injectPreBundle(jsi::Runtime &runtime) {
             .getPropertyAsObject(runtime, "Reflect")
             .getPropertyAsFunction(runtime, "set");
 
-        jsi::Value syncKey = symbolFor.call(runtime, jsi::String::createFromUtf8(runtime, "revenge.bridge.call.sync"));
-        jsi::Value asyncKey = symbolFor.call(runtime, jsi::String::createFromUtf8(runtime, "revenge.bridge.call.async"));
+        jsi::Value syncKey = symbolFor.call(runtime, jsi::String::createFromUtf8(runtime, "valenced.bridge.call.sync"));
+        jsi::Value asyncKey = symbolFor.call(runtime, jsi::String::createFromUtf8(runtime, "valenced.bridge.call.async"));
 
         auto syncCall = jsi::Function::createFromHostFunction(
             runtime,
-            jsi::PropNameID::forUtf8(runtime, "revengeBridgeCallSync"),
+            jsi::PropNameID::forUtf8(runtime, "valencedBridgeCallSync"),
             1,
             [](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) -> jsi::Value {
                 NSString *methodName = @"";
                 NSArray *objcArgs = @[];
                 if (count >= 1 && args[0].isObject()) {
                     jsi::Object payload = args[0].asObject(rt);
-                    jsi::Value revengeVal = payload.getProperty(rt, "revenge");
-                    if (revengeVal.isObject()) {
-                        jsi::Object revenge = revengeVal.asObject(rt);
-                        jsi::Value methodVal = revenge.getProperty(rt, "method");
+                    jsi::Value valencedVal = payload.getProperty(rt, "valenced");
+                    if (valencedVal.isObject()) {
+                        jsi::Object valenced = valencedVal.asObject(rt);
+                        jsi::Value methodVal = valenced.getProperty(rt, "method");
                         if (methodVal.isString()) methodName = [JSI toNSString:methodVal runtime:rt];
-                        jsi::Value argsVal = revenge.getProperty(rt, "args");
+                        jsi::Value argsVal = valenced.getProperty(rt, "args");
                         if (argsVal.isObject() && argsVal.asObject(rt).isArray(rt))
                             objcArgs = [JSI toObjC:argsVal runtime:rt];
                     }
@@ -240,19 +240,19 @@ void injectPreBundle(jsi::Runtime &runtime) {
 
         auto asyncCall = jsi::Function::createFromHostFunction(
             runtime,
-            jsi::PropNameID::forUtf8(runtime, "revengeBridgeCallAsync"),
+            jsi::PropNameID::forUtf8(runtime, "valencedBridgeCallAsync"),
             1,
             [](jsi::Runtime &rt, const jsi::Value &, const jsi::Value *args, size_t count) -> jsi::Value {
                 NSString *methodName = @"";
                 NSArray *objcArgs = @[];
                 if (count >= 1 && args[0].isObject()) {
                     jsi::Object payload = args[0].asObject(rt);
-                    jsi::Value revengeVal = payload.getProperty(rt, "revenge");
-                    if (revengeVal.isObject()) {
-                        jsi::Object revenge = revengeVal.asObject(rt);
-                        jsi::Value methodVal = revenge.getProperty(rt, "method");
+                    jsi::Value valencedVal = payload.getProperty(rt, "valenced");
+                    if (valencedVal.isObject()) {
+                        jsi::Object valenced = valencedVal.asObject(rt);
+                        jsi::Value methodVal = valenced.getProperty(rt, "method");
                         if (methodVal.isString()) methodName = [JSI toNSString:methodVal runtime:rt];
-                        jsi::Value argsVal = revenge.getProperty(rt, "args");
+                        jsi::Value argsVal = valenced.getProperty(rt, "args");
                         if (argsVal.isObject() && argsVal.asObject(rt).isArray(rt))
                             objcArgs = [JSI toObjC:argsVal runtime:rt];
                     }

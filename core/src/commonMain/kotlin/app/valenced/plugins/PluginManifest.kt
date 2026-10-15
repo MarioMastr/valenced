@@ -49,7 +49,7 @@ val API_VERSION: Version = Version.parse(API_VERSION_STRING)
  *
  * External plugins **MUST** declare a dependency on this ID. Plugins that don't won't be loaded.
  */
-const val API_DEPENDENCY_ID: String = "revenge.api"
+const val API_DEPENDENCY_ID: String = "valenced.api"
 
 /**
  * The reserved dependency ID resolving to the host Discord app's version.

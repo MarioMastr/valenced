@@ -17,7 +17,7 @@ val caches by tweak {
     val log: Logger = this.log
 
     withAppContext { ctx ->
-        val revengeCacheDir = File(ctx.cacheDir, "valenced").apply { ensureDir() }
+        val valencedCacheDir = File(ctx.cacheDir, "valenced").apply { ensureDir() }
         val versionCode = ctx.versionCode()
 
         fun cacheFileName(type: String): String {
@@ -27,18 +27,18 @@ val caches by tweak {
             return name
         }
 
-        val modulesCacheFile by lazy { File(revengeCacheDir, cacheFileName("modules")).apply { ensureFile() } }
-        val assetsCacheFile by lazy { File(revengeCacheDir, cacheFileName("assets")).apply { ensureFile() } }
+        val modulesCacheFile by lazy { File(valencedCacheDir, cacheFileName("modules")).apply { ensureFile() } }
+        val assetsCacheFile by lazy { File(valencedCacheDir, cacheFileName("assets")).apply { ensureFile() } }
 
         var modulesCache: ModulesCache? = null
         var assetsCache: AssetsCache? = null
 
-        registerNativeMethod("revenge.caches.modules.read") {
+        registerNativeMethod("valenced.caches.modules.read") {
             (modulesCache ?: ModulesCache.loadFromFileOrNull(modulesCacheFile, log)?.also { modulesCache = it })
                 ?.toMap()
         }
 
-        registerNativeMethod("revenge.caches.modules.write") { args ->
+        registerNativeMethod("valenced.caches.modules.write") { args ->
             val argv = args.asDelegate()
             val blacklist by argv.arrayList<Double>()
             val finds by argv.hashMap<String, HashMap<String, Double>?>()
@@ -47,12 +47,12 @@ val caches by tweak {
             null
         }
 
-        registerNativeMethod("revenge.caches.assets.read") {
+        registerNativeMethod("valenced.caches.assets.read") {
             (assetsCache ?: AssetsCache.loadFromFileOrNull(assetsCacheFile, log)?.also { assetsCache = it })
                 ?.toMap()
         }
 
-        registerNativeMethod("revenge.caches.assets.write") { args ->
+        registerNativeMethod("valenced.caches.assets.write") { args ->
             val argv = args.asDelegate()
             val data by argv.hashMap<String, HashMap<String, Double>>()
             assetsCache = AssetsCache(data).also { it.saveToFile(assetsCacheFile) }

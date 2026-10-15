@@ -40,7 +40,7 @@ data class SourcePayload(
     val held: Boolean,
 )
 
-/** One entry of `revenge.plugins.list`. */
+/** One entry of `valenced.plugins.list`. */
 @Serializable
 data class PluginPayload @OptIn(ExperimentalSerializationApi::class) constructor(
     val manifest: ManifestPayload,

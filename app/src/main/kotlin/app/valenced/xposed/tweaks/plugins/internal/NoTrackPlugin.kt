@@ -8,7 +8,7 @@ import app.valenced.xposed.loadClassOrNull
 import app.valenced.xposed.method
 
 private val manifest = PluginManifest(
-    id = "revenge.no-track",
+    id = "valenced.no-track",
     name = "No Track",
     description = "Disables Discord and Sentry analytics, and other tracking.",
     author = "Valenced",

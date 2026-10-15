@@ -7,7 +7,7 @@ import app.valenced.xposed.hook
 import app.valenced.xposed.method
 
 private val manifest = PluginManifest(
-    id = "revenge.discord.prevent-ota-updates",
+    id = "valenced.discord.prevent-ota-updates",
     name = "Prevent OTA Updates",
     description = "Prevents Discord from downloading and running OTA updates.",
     author = "Valenced",

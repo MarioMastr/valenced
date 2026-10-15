@@ -13,7 +13,7 @@ import kotlin.concurrent.Volatile
 /**
  * Reserved identity of the built-in internal repository serving internal plugins. It is not persisted, and not removable.
  */
-const val INTERNAL_REPO_URL = "revenge://internal"
+const val INTERNAL_REPO_URL = "valenced://internal"
 
 @Serializable
 data class UserRepo(

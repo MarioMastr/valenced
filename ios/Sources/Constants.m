@@ -21,7 +21,7 @@ NSString * const REPO_ETAG_FILE = @"etag";
 NSString * const REPO_INDEX_PATH = @"index.json";
 NSString * const PLUGIN_BINARY_FILE = @"plugin.dylib";
 
-NSString * const INTERNAL_REPO_URL = @"revenge://internal";
+NSString * const INTERNAL_REPO_URL = @"valenced://internal";
 NSString * const REPO_CHANNEL_LATEST = @"latest";
 
 const int PLUGINS_STATES_CURRENT_VERSION = 1;

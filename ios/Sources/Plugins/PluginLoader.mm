@@ -33,7 +33,7 @@ static id ParseJSONObjectOrEmpty(NSString *json) {
 @end
 
 static NSString * const kManifestFile = @"manifest.json";
-static NSString * const kReservedIds[] = {@"revenge.api", @"discord"};
+static NSString * const kReservedIds[] = {@"valenced.api", @"discord"};
 static NSString *const  kConfirmTmpPrefix = @".confirm-";
 // we like super dont need this but its here incase android uses this one day (it definetly wont we will just rewrite it all) (we did infact switch to kmp)
 static NSString * const kDexCacheDir = @".dex-cache";
@@ -340,7 +340,7 @@ NSString *PluginErrorCodeString(PluginErrorCode code) {
         PluginVersion *hostVer = [PluginVersion versionFromString:discordVersion error:nil] ?: [PluginVersion versionWithNumbers:@[@1] label:nil];
 
         PluginManifest *api =
-            [PluginManifest manifestWithId:@"revenge.api"
+            [PluginManifest manifestWithId:@"valenced.api"
                                       name:@"Valenced Plugin API"
                                description:@"Provides the Valenced plugin API."
                                     author:@"Valenced"
@@ -662,10 +662,10 @@ NSString *PluginErrorCodeString(PluginErrorCode code) {
         return nil;
     }
 
-    void *symbol = dlsym(handle, "RevengePluginMain");
+    void *symbol = dlsym(handle, "ValencedPluginMain");
     if (!symbol) {
-        ValencedLog(@"startNative: missing RevengePluginMain symbol in %@", record.manifest.id);
-        record.errorInfo = [PluginErrorInfo errorWithCode:PluginErrorLoadFailed message:@"Missing RevengePluginMain symbol" stack:nil];
+        ValencedLog(@"startNative: missing ValencedPluginMain symbol in %@", record.manifest.id);
+        record.errorInfo = [PluginErrorInfo errorWithCode:PluginErrorLoadFailed message:@"Missing ValencedPluginMain symbol" stack:nil];
         dlclose(handle);
         return nil;
     }
@@ -673,8 +673,8 @@ NSString *PluginErrorCodeString(PluginErrorCode code) {
     id (*factory)(void) = (id (*)(void))symbol;
     id<Plugin> plugin = factory();
     if (!plugin) {
-        ValencedLog(@"startNative: RevengePluginMain returned nil for %@", record.manifest.id);
-        record.errorInfo = [PluginErrorInfo errorWithCode:PluginErrorLoadFailed message:@"RevengePluginMain returned nil" stack:nil];
+        ValencedLog(@"startNative: ValencedPluginMain returned nil for %@", record.manifest.id);
+        record.errorInfo = [PluginErrorInfo errorWithCode:PluginErrorLoadFailed message:@"ValencedPluginMain returned nil" stack:nil];
         dlclose(handle);
         return nil;
     }
@@ -818,7 +818,7 @@ NSString *PluginErrorCodeString(PluginErrorCode code) {
         [[PluginStatesStore sharedStore] updatePluginFlags:record.manifest flags:newFlags];
     }
     NSString *slot = ValencedCore_ConsumeStringOrNil(ValencedCore_PluginStatesBootSlot(NULL)) ?: @"primary";
-    EmitJSEventArgs(@"revenge.plugins.states.update", @[slot, pluginId, PluginStatePayloadForFlags(newFlags)]);
+    EmitJSEventArgs(@"valenced.plugins.states.update", @[slot, pluginId, PluginStatePayloadForFlags(newFlags)]);
 }
 
 - (void)clearPersistedState:(NSString *)pluginId {
@@ -1194,7 +1194,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
 - (void)registerLoaderMethods {
     PluginLoader *__weak weakLoader = self;
 
-    bridgeHandlers()[@"revenge.plugins.getConstants"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.getConstants"] = ^NSDictionary *(NSArray *args) {
         return @{@"result": @{
             @"storageRootPath": [weakLoader pluginStorageRoot].path ?: [NSNull null],
             @"distRootPath": [weakLoader pluginsDirectory].path ?: [NSNull null],
@@ -1202,7 +1202,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         }};
     };
 
-    bridgeHandlers()[@"revenge.plugins.list"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.list"] = ^NSDictionary *(NSArray *args) {
         PluginLoader *loader = weakLoader;
         NSDictionary *sources = SourcesStoreAll();
         NSMutableArray *payload = [NSMutableArray array];
@@ -1219,7 +1219,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": payload};
     };
 
-    bridgeHandlers()[@"revenge.plugins.uninstall"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.uninstall"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         if (!pluginId) return @{@"error": @"Expected a plugin ID"};
         PluginRecord *record = [weakLoader records][pluginId];
@@ -1233,7 +1233,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": @{@"restored": [NSNull null]}};
     };
 
-    bridgeHandlers()[@"revenge.plugins.setEnabled"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.setEnabled"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         BOOL enabled = argBool(args, 1, NO);
         BOOL requiredByUser = argBool(args, 2, NO);
@@ -1255,14 +1255,14 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.stop"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.stop"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         if (!pluginId) return @{@"error": @"Expected a plugin ID"};
         [weakLoader stopNativePlugin:pluginId];
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.restart"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.restart"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         if (!pluginId) return @{@"error": @"Expected a plugin ID"};
         [weakLoader stopNativePlugin:pluginId];
@@ -1275,12 +1275,12 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.installFile"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.installFile"] = ^NSDictionary *(NSArray *args) {
         [weakLoader presentFilePickerForInstall];
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.confirmInstallFile"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.confirmInstallFile"] = ^NSDictionary *(NSArray *args) {
         NSString *token = argString(args, 0, nil);
         BOOL accepted = argBool(args, 1, NO);
         if (!token) return @{@"error": @"Expected an install token"};
@@ -1288,7 +1288,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": result ?: @"cancelled"};
     };
 
-    bridgeHandlers()[@"revenge.plugins.planInstall"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.planInstall"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         id options = argPresent(args, 1);
         if (!pluginId) return @{@"error": @"Expected a plugin ID"};
@@ -1327,7 +1327,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": plan};
     };
 
-    bridgeHandlers()[@"revenge.plugins.install"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.install"] = ^NSDictionary *(NSArray *args) {
         id plan = argPresent(args, 0);
         if (![plan isKindOfClass:[NSDictionary class]]) return @{@"error": @"Expected an install plan"};
         NSDictionary *result = ExecuteInstallPlan(plan, ^BOOL(NSString *pluginId) {
@@ -1343,7 +1343,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": result};
     };
 
-    bridgeHandlers()[@"revenge.plugins.setHeld"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.setHeld"] = ^NSDictionary *(NSArray *args) {
         NSString *pluginId = argString(args, 0, nil);
         id heldValue = argPresent(args, 1);
         if (!pluginId || ![heldValue isKindOfClass:[NSNumber class]]) {
@@ -1362,7 +1362,7 @@ NSDictionary *ListUpdatesForRepo(NSString *url, PluginVersion * (^installedVersi
         return @{@"result": source};
     };
 
-    bridgeHandlers()[@"revenge.plugins.listUpdates"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.listUpdates"] = ^NSDictionary *(NSArray *args) {
         NSMutableDictionary *installed = [NSMutableDictionary dictionary];
         NSMutableDictionary *pending = [NSMutableDictionary dictionary];
         NSMutableDictionary *installedDeps = [NSMutableDictionary dictionary];

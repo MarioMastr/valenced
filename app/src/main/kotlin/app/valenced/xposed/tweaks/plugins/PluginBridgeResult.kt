@@ -8,7 +8,7 @@ import app.valenced.plugins.toPluginError
 import app.valenced.xposed.api.HostScope
 import app.valenced.xposed.api.registerNativeAsyncMethod
 import app.valenced.xposed.api.registerNativeMethod
-import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry.toNativeObject
+import app.valenced.xposed.tweaks.bridge.ValencedBridgeRegistry.toNativeObject
 
 /** The error DTO in the `Map` shape the React bridge takes. */
 internal fun PluginError.toJSPayload(): Map<String, Any?> = toNativeMap()

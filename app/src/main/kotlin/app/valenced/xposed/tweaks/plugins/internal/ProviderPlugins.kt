@@ -17,7 +17,7 @@ internal var DISCORD_VERSION: Version
  *
  * > `CompositeClassLoader`'s parent also fulfills the actual lookup, so this plugin is redundant for providing the class loader.
  *
- * The JS API is split into multiple `revenge.api.*` sub-plugins which get run at different JS stages, so this has no JS entry point.
+ * The JS API is split into multiple `valenced.api.*` sub-plugins which get run at different JS stages, so this has no JS entry point.
  */
 internal val apiProviderPlugin = internalPlugin(
     PluginManifest(

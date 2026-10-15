@@ -31,7 +31,7 @@ if (!System.getProperty("os.name").equals("Mac OS X", ignoreCase = true)) {
     }
     if (wantsIos) {
         gradle.beforeProject {
-            extensions.extraProperties.set("revenge.appleTargets", "true")
+            extensions.extraProperties.set("valenced.appleTargets", "true")
         }
     }
 }

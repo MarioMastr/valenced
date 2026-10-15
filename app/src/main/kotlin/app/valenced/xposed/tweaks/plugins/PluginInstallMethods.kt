@@ -31,7 +31,7 @@ import app.valenced.xposed.tweaks.plugins.repos.*
 import kotlinx.coroutines.sync.withLock
 
 val pluginInstallMethods by tweak {
-    pluginSystemMethod("revenge.plugins.installFile") {
+    pluginSystemMethod("valenced.plugins.installFile") {
         SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
         promptInstallPlugin(
             installedVersion = { id -> pluginRegistry.factories[id]?.manifest?.version },
@@ -68,7 +68,7 @@ val pluginInstallMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.confirmInstallFile(token, accepted) -> "cancelled" | "installed" | "pending"`
+     * `valenced.plugins.confirmInstallFile(token, accepted) -> "cancelled" | "installed" | "pending"`
      *
      * Answers a [PluginEvents.PLUGIN_INSTALL_FILE_READY] prompt.
      * `accepted = false`, or an unknown/stale token discards the plan and returns `cancelled`.
@@ -76,7 +76,7 @@ val pluginInstallMethods by tweak {
      * Accepting applies the staged install, returning `installed` for a fresh plugin (registers disabled),
      * `pending` for an update (applies after reload).
      */
-    pluginSystemAsyncMethod("revenge.plugins.confirmInstallFile") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.confirmInstallFile") { args ->
         val token = args.getOrNull(0) as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected an install token")
         val accepted = args.getOrNull(1) as? Boolean ?: false
@@ -99,7 +99,7 @@ val pluginInstallMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.planInstall(id, options?) -> InstallPlan`
+     * `valenced.plugins.planInstall(id, options?) -> InstallPlan`
      *
      * Resolves an install against cached indexes and returns a plan for JS to confirm and pass to `install`.
      *
@@ -108,7 +108,7 @@ val pluginInstallMethods by tweak {
      * - `targets` overrides default resolution rules.
      * - `skipMissingOptionals` skips untargeted optional dependencies that aren't installed.
      */
-    pluginSystemAsyncMethod("revenge.plugins.planInstall") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.planInstall") { args ->
         val id = args.getOrNull(0) as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a plugin ID")
         val options = args.getOrNull(1)?.let {
@@ -175,7 +175,7 @@ val pluginInstallMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.install(plan) -> { installed, pending, skipped }`
+     * `valenced.plugins.install(plan) -> { installed, pending, skipped }`
      *
      * Download, verify, and apply on disk. New plugins load immediately. Updates run after a reload.
      * A manifest not matching the plan aborts the whole plan without committing.
@@ -183,7 +183,7 @@ val pluginInstallMethods by tweak {
      *
      * Concurrent calls get queued and run one by one, re-checking after each.
      */
-    pluginSystemAsyncMethod("revenge.plugins.install") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.install") { args ->
         val planMap = args.firstOrNull() as? Map<*, *>
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected an install plan")
         val actions = (planMap["actions"] as? List<*>).orEmpty().map(::parseRepoInstallAction)
@@ -279,12 +279,12 @@ val pluginInstallMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.listUpdates() -> Update[]`
+     * `valenced.plugins.listUpdates() -> Update[]`
      *
      * Checks cached indexes of enabled repositories against installed plugins. See [findUpdates].
      * Each update comes with structured `warnings`, and a `blocker` when it can't be installed safely.
      */
-    pluginSystemAsyncMethod("revenge.plugins.listUpdates") { _ ->
+    pluginSystemAsyncMethod("valenced.plugins.listUpdates") { _ ->
         RepoStore.ensureLoaded(pluginPaths(appInfo.dataDir))
         SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
 

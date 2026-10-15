@@ -3,12 +3,12 @@ package app.valenced.xposed.tweaks.bridge
 import de.robv.android.xposed.XposedHelpers.findAndHookConstructor
 import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import app.valenced.Logger
-import app.valenced.bridge.RevengeBridge
+import app.valenced.bridge.ValencedBridge
 import app.valenced.logger
 import app.valenced.xposed.*
-import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry.dispatchScope
-import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry.jsCallableLock
-import app.valenced.xposed.tweaks.bridge.RevengeBridgeRegistry.toNativeObject
+import app.valenced.xposed.tweaks.bridge.ValencedBridgeRegistry.dispatchScope
+import app.valenced.xposed.tweaks.bridge.ValencedBridgeRegistry.jsCallableLock
+import app.valenced.xposed.tweaks.bridge.ValencedBridgeRegistry.toNativeObject
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference
 import java.lang.reflect.Method
@@ -16,8 +16,8 @@ import java.lang.reflect.Method
 typealias MethodCallback = (args: List<Any?>) -> Any?
 typealias AsyncMethodCallback = suspend (args: List<Any?>) -> Any?
 
-object RevengeBridgeRegistry : RevengeBridge {
-    internal val log: Logger = logger("revengeBridge")
+object ValencedBridgeRegistry : ValencedBridge {
+    internal val log: Logger = logger("valencedBridge")
 
     private val methods = mutableMapOf<String, MethodCallback>()
     private val asyncMethods = mutableMapOf<String, AsyncMethodCallback>()
@@ -45,8 +45,8 @@ object RevengeBridgeRegistry : RevengeBridge {
     @Volatile
     private var readableMapToHashMap: Method? = null
 
-    internal const val JS_CALLABLE_MODULE_NAME = "RevengeBridge"
-    internal const val NATIVE_CALL_DATA_KEY = "revenge"
+    internal const val JS_CALLABLE_MODULE_NAME = "ValencedBridge"
+    internal const val NATIVE_CALL_DATA_KEY = "valenced"
     internal const val NATIVE_METHOD_NAME_KEY = "method"
     internal const val NATIVE_METHOD_ARGS_KEY = "args"
 
@@ -106,13 +106,13 @@ object RevengeBridgeRegistry : RevengeBridge {
         toHashMap: Method,
     ) {
         reactInstanceCallFunctionOnModule = callFunctionOnModule
-        RevengeBridgeRegistry.argumentsInstance = argumentsInstance
+        ValencedBridgeRegistry.argumentsInstance = argumentsInstance
         argumentsMakeNativeObject = makeNativeObject
         readableMapToHashMap = toHashMap
     }
 
     /**
-     * Returns the wrapped `{result | error}` payload if [rawCallData] was for Revenge bridge,
+     * Returns the wrapped `{result | error}` payload if [rawCallData] was for Valenced bridge,
      * or `null` if it wasn't ours (should let the original method run).
      */
     @Suppress("UNCHECKED_CAST")
@@ -181,7 +181,7 @@ object RevengeBridgeRegistry : RevengeBridge {
 
     /**
      * Completes the next pending [CompletableDeferred] in the JS-callable return queue.
-     * Used by the built-in `revenge.__callableReturn` bridge method registered in [revengeBridgeSupport].
+     * Used by the built-in `valenced.__callableReturn` bridge method registered in [valencedBridgeSupport].
      */
     internal fun completeNextJSCallable(result: Any?, error: Any?) {
         val deferred = synchronized(jsCallableLock) { jsCallableReturnQueue.removeFirstOrNull() } ?: return
@@ -203,8 +203,8 @@ object RevengeBridgeRegistry : RevengeBridge {
 }
 
 
-val revengeBridgeSupport by tweak {
-    RevengeBridgeRegistry.clearMethods()
+val valencedBridgeSupport by tweak {
+    ValencedBridgeRegistry.clearMethods()
 
     val arguments = classLoader.loadClass("com.facebook.react.bridge.Arguments")
     val readableMap = classLoader.loadClass("com.facebook.react.bridge.ReadableMap")
@@ -222,7 +222,7 @@ val revengeBridgeSupport by tweak {
         nativeArrayClass,
     )
 
-    RevengeBridgeRegistry.setReflectiveMethods(
+    ValencedBridgeRegistry.setReflectiveMethods(
         callFunctionOnModule,
         runCatching { getStaticObjectField(arguments, "INSTANCE") }.getOrNull(),
         makeNativeObject,
@@ -236,7 +236,7 @@ val revengeBridgeSupport by tweak {
             .hook {
                 before {
                     val callData = args[1] ?: return@before
-                    val response = RevengeBridgeRegistry.tryDispatchNative(callData) ?: return@before
+                    val response = ValencedBridgeRegistry.tryDispatchNative(callData) ?: return@before
                     result = runCatching { response.toNativeObject() }.getOrNull()
                 }
             }
@@ -249,7 +249,7 @@ val revengeBridgeSupport by tweak {
             before {
                 val callData = args[0] ?: return@before
                 val promiseObj = args[1]!!
-                val handled = RevengeBridgeRegistry.tryDispatchNativeAsync(callData) { response ->
+                val handled = ValencedBridgeRegistry.tryDispatchNativeAsync(callData) { response ->
                     promiseResolve.invoke(promiseObj, runCatching { response.toNativeObject() }.getOrNull())
                 }
                 if (handled) result = null
@@ -268,24 +268,24 @@ val revengeBridgeSupport by tweak {
         "com.facebook.react.runtime.ReactHostInspectorTarget",
         methodHook {
             after {
-                log.i("Captured ReactInstance for RevengeBridge")
-                RevengeBridgeRegistry.captureReactInstance(thisObject!!)
+                log.i("Captured ReactInstance for ValencedBridge")
+                ValencedBridgeRegistry.captureReactInstance(thisObject!!)
             }
         }.build(),
     )
 
-    // Native -> JS return (async, `revenge.__callableReturn`)
-    RevengeBridgeRegistry.registerMethod("revenge.__callableReturn") { args ->
+    // Native -> JS return (async, `valenced.__callableReturn`)
+    ValencedBridgeRegistry.registerMethod("valenced.__callableReturn") { args ->
         @Suppress("UNCHECKED_CAST")
         val data = args.firstOrNull() as? Map<String, Any?> ?: emptyMap()
-        RevengeBridgeRegistry.completeNextJSCallable(
+        ValencedBridgeRegistry.completeNextJSCallable(
             result = data["result"],
             error = data["error"],
         )
         null
     }
 
-    RevengeBridgeRegistry.registerMethod("revenge.info") {
+    ValencedBridgeRegistry.registerMethod("valenced.info") {
         mapOf(
             "name" to ValencedConstants.LOADER_NAME,
             "version" to ValencedConstants.LOADER_VERSION,

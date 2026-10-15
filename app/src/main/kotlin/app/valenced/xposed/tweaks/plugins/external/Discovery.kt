@@ -23,7 +23,7 @@ internal class ExternalDiscovery(
 )
 
 /**
- * Reads installed plugins in `<dataDir>/files/revenge/plugins/dist`.
+ * Reads installed plugins in `<dataDir>/files/valenced/plugins/dist`.
  * Each plugin has its own `<id>/` directory with a [MANIFEST_FILE] and `dist` artifacts.
  *
  * Dependency resolution happens at [PluginDependencyGraph].

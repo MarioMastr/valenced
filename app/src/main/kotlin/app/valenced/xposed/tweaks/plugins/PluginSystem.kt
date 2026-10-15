@@ -6,7 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 
 /*
  *   pluginLoader          discovers plugins at boot, then loads and starts the enabled ones
- *   pluginMethods         revenge.plugins.* lifecycle methods (list, setEnabled, uninstall, ...)
+ *   pluginMethods         valenced.plugins.* lifecycle methods (list, setEnabled, uninstall, ...)
  *   pluginInstallMethods  install, update, and checks
  *   pluginRepos           repository config, indexes, and the resolver
  */

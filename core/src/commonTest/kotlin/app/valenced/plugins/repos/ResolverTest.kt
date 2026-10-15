@@ -29,7 +29,7 @@ private fun plugin(
 private fun index(vararg plugins: Pair<String, RepoPlugin>) =
     RepoIndex(format = REPO_INDEX_FORMAT, name = "Test Repo", plugins = plugins.toMap())
 
-private val API = mapOf("revenge.api" to Version.parse("1.0.0"))
+private val API = mapOf("valenced.api" to Version.parse("1.0.0"))
 
 class ResolverTest {
     @Test
@@ -366,7 +366,7 @@ class ResolverTest {
                     versions = mapOf(
                         "1.0.0" to version(
                             deps = arrayOf(
-                                "revenge.api" to dep(">=1"),
+                                "valenced.api" to dep(">=1"),
                                 "com.example.b" to dep(">=1 <2"),
                             ),
                         ),

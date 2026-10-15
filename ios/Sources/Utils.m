@@ -136,12 +136,12 @@ void showRecoveryAlert(UIViewController *presenter) {
 }
 
 void RegisterRecoveryBridgeMethods(void) {
-    bridgeHandlers()[@"revenge.showRecoveryAlert"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.showRecoveryAlert"] = ^NSDictionary *(NSArray *args) {
         showRecoveryAlert(nil);
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.alertError"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.alertError"] = ^NSDictionary *(NSArray *args) {
         if (![args.firstObject isKindOfClass:[NSString class]]) return @{@"error": @"Expected a string error argument"};
         if (args.count < 2 || ![args[1] isKindOfClass:[NSString class]]) return @{@"error": @"Expected a string version argument"};
         NSString *errorString = args[0];

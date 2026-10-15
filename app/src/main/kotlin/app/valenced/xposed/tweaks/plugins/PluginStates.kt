@@ -10,7 +10,7 @@ import app.valenced.xposed.api.HostScope
 import app.valenced.xposed.tweak
 
 /**
- * `revenge.plugins.states.*` bridge methods.
+ * `valenced.plugins.states.*` bridge methods.
  *
  * A slot is a named set of plugin flags:
  * - [PluginStatesStore.activeSlotId]: the slot the user chose. The UI reads and edits it.
@@ -23,13 +23,13 @@ val pluginStates by tweak {
     val paths = pluginPaths(appInfo.dataDir)
 
     /** `states.read(): Record<slotId, Record<pluginId, PluginStates>>` */
-    pluginSystemMethod("revenge.plugins.states.read") {
+    pluginSystemMethod("valenced.plugins.states.read") {
         PluginStatesStore.ensureLoaded(paths)
         PluginStatesStore.toJSPayload()
     }
 
     /** `states.getSlots(): { active, oneShot?, slots }` */
-    pluginSystemMethod("revenge.plugins.states.getSlots") {
+    pluginSystemMethod("valenced.plugins.states.getSlots") {
         PluginStatesStore.ensureLoaded(paths)
         buildMap {
             put("active", PluginStatesStore.activeSlotId)
@@ -43,7 +43,7 @@ val pluginStates by tweak {
      *
      * Applies on the next boot.
      */
-    pluginSystemMethod("revenge.plugins.states.setActiveSlot") { args ->
+    pluginSystemMethod("valenced.plugins.states.setActiveSlot") { args ->
         val argv = args.asDelegate()
         val slot by argv.string()
         val oneShot by argv.booleanOrNull()
@@ -58,7 +58,7 @@ val pluginStates by tweak {
      * JS reporting flags it changed.
      * Writes to the slot directly since we already return the new state here and won't need to wait for emit.
      */
-    pluginSystemMethod("revenge.plugins.states.update") { args ->
+    pluginSystemMethod("valenced.plugins.states.update") { args ->
         val argv = args.asDelegate()
         val slotId by argv.string()
         val pluginId by argv.string()

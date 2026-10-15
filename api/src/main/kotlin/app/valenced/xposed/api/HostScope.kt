@@ -3,7 +3,7 @@ package app.valenced.xposed.api
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import app.valenced.bridge.RevengeBridge
+import app.valenced.bridge.ValencedBridge
 
 /**
  * Runtime surface every extension runs against. Carries the basics ([appInfo], [classLoader], [modulePath]),
@@ -22,7 +22,7 @@ interface HostScope {
     val classLoader: ClassLoader
 
     /** The JS <-> native bridge. Register methods and call JS through it. */
-    val bridge: RevengeBridge
+    val bridge: ValencedBridge
 
     /**
      * Run [block] with the target app's [Context]. Fires immediately if a [Context] is already captured;

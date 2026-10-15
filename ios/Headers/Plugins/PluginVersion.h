@@ -4,7 +4,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString * const kApiDependencyId     = @"revenge.api";
+static NSString * const kApiDependencyId     = @"valenced.api";
 static NSString * const kDiscordDependencyId = @"discord";
 
 @interface PluginVersion : NSObject <NSCopying>

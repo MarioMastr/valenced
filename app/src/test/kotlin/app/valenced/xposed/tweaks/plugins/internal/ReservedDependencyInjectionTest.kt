@@ -6,7 +6,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Every internal plugin gains `revenge.api` and `discord` at the ANY range. The providers themselves are exempt.
+ * Every internal plugin gains `valenced.api` and `discord` at the ANY range. The providers themselves are exempt.
  */
 class ReservedDependencyInjectionTest {
     init {

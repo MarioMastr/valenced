@@ -18,7 +18,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 
 val pluginMethods by tweak {
-    pluginSystemMethod("revenge.plugins.getConstants") {
+    pluginSystemMethod("valenced.plugins.getConstants") {
         mapOf(
             "storageRootPath" to pluginStorageRoot(appInfo.dataDir).absolutePath,
             "distRootPath" to externalPluginsRoot(appInfo.dataDir).absolutePath,
@@ -26,7 +26,7 @@ val pluginMethods by tweak {
         )
     }
 
-    pluginSystemMethod("revenge.plugins.list") {
+    pluginSystemMethod("valenced.plugins.list") {
         val sources = SourcesStore.ensureLoaded(pluginPaths(appInfo.dataDir))
         pluginRegistry.factories.values.map { factory ->
             factory.toJSPayload(
@@ -42,11 +42,11 @@ val pluginMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.stop(id)`
+     * `valenced.plugins.stop(id)`
      *
      * JS has already stopped its half down and cascaded. This stops the native half.
      */
-    pluginSystemAsyncMethod("revenge.plugins.stop") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.stop") { args ->
         val argv = args.asDelegate()
         val pluginId by argv.string()
 
@@ -55,11 +55,11 @@ val pluginMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.restart(id)`
+     * `valenced.plugins.restart(id)`
      *
      * See [restartPlugin].
      */
-    pluginSystemAsyncMethod("revenge.plugins.restart") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.restart") { args ->
         val argv = args.asDelegate()
         val pluginId by argv.string()
 
@@ -67,7 +67,7 @@ val pluginMethods by tweak {
         null
     }
 
-    pluginSystemAsyncMethod("revenge.plugins.uninstall") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.uninstall") { args ->
         val argv = args.asDelegate()
         val pluginId by argv.string()
 
@@ -110,7 +110,7 @@ val pluginMethods by tweak {
         mapOf("restored" to restored)
     }
 
-    pluginSystemAsyncMethod("revenge.plugins.setEnabled") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.setEnabled") { args ->
         val argv = args.asDelegate()
         val pluginId by argv.string()
         val enabled by argv.boolean()
@@ -143,12 +143,12 @@ val pluginMethods by tweak {
     }
 
     /**
-     * `revenge.plugins.setHeld(id, held) -> Source`
+     * `valenced.plugins.setHeld(id, held) -> Source`
      *
      * Holds a plugin at its installed version, or resumes following its channel.
      * A hold skips update checks and stops the resolver from moving the plugin to satisfy something else.
      */
-    pluginSystemAsyncMethod("revenge.plugins.setHeld") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.setHeld") { args ->
         val pluginId = args.getOrNull(0) as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a plugin ID")
         val held = args.getOrNull(1) as? Boolean

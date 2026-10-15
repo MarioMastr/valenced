@@ -10,21 +10,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 internal object PluginEvents {
-    const val DOWNLOAD_PROGRESS = "revenge.plugins.events.downloadProgress"
-    const val PLUGIN_INSTALL_FILE_READY = "revenge.plugins.events.pluginInstallFileReady"
-    const val PLUGIN_INSTALL_RESULT = "revenge.plugins.events.pluginInstallResult"
-    const val PLUGIN_UPDATED = "revenge.plugins.events.pluginUpdated"
-    const val PLUGIN_ERRORED = "revenge.plugins.events.pluginErrored"
-    const val REPO_STATE_UPDATE = "revenge.plugins.events.repoStateUpdate"
+    const val DOWNLOAD_PROGRESS = "valenced.plugins.events.downloadProgress"
+    const val PLUGIN_INSTALL_FILE_READY = "valenced.plugins.events.pluginInstallFileReady"
+    const val PLUGIN_INSTALL_RESULT = "valenced.plugins.events.pluginInstallResult"
+    const val PLUGIN_UPDATED = "valenced.plugins.events.pluginUpdated"
+    const val PLUGIN_ERRORED = "valenced.plugins.events.pluginErrored"
+    const val REPO_STATE_UPDATE = "valenced.plugins.events.repoStateUpdate"
 
     /** The dependency graph changed. */
-    const val DEPENDENCIES_UPDATED = "revenge.plugins.events.dependenciesUpdated"
+    const val DEPENDENCIES_UPDATED = "valenced.plugins.events.dependenciesUpdated"
 }
 
-private const val STATE_UPDATE = "revenge.plugins.states.update"
+private const val STATE_UPDATE = "valenced.plugins.states.update"
 
 /** Asks JS to tear a plugin's JS half down, for a stop native started. */
-private const val PLUGIN_STOPPING = "revenge.plugins.stopping"
+private const val PLUGIN_STOPPING = "valenced.plugins.stopping"
 
 /**
  * How long JS gets to tear its half down before native stops waiting.

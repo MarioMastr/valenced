@@ -74,7 +74,7 @@ static void emitRepoState(NSString *url, NSString *state, NSString * _Nullable e
 }
 
 extern "C" void RegisterRepoMethods(void) {
-    bridgeHandlers()[@"revenge.plugins.repos.list"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.repos.list"] = ^NSDictionary *(NSArray *args) {
         NSMutableArray *result = [NSMutableArray array];
         [result addObject:internalRepoJSPayload()];
         for (UserRepo *repo in [[RepoStore sharedStore] list]) {
@@ -84,7 +84,7 @@ extern "C" void RegisterRepoMethods(void) {
         return @{@"result": result};
     };
 
-    bridgeHandlers()[@"revenge.plugins.repos.set"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.repos.set"] = ^NSDictionary *(NSArray *args) {
         id config = args.firstObject;
         if (![config isKindOfClass:[NSArray class]]) {
             return @{@"error": @"Expected a config array of { url, enabled }"};
@@ -110,7 +110,7 @@ extern "C" void RegisterRepoMethods(void) {
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.repos.refresh"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.repos.refresh"] = ^NSDictionary *(NSArray *args) {
         NSString *url = argString(args, 0, nil);
         if (!url) return @{@"error": @"Expected a repository URL"};
         if ([url isEqualToString:INTERNAL_REPO_URL]) {
@@ -133,7 +133,7 @@ extern "C" void RegisterRepoMethods(void) {
         return @{@"result": matched ? repoPayload(matched, index) : [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.plugins.repos.listPlugins"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.plugins.repos.listPlugins"] = ^NSDictionary *(NSArray *args) {
         NSString *url = argString(args, 0, nil);
         if (!url) return @{@"error": @"Expected a repository URL"};
 

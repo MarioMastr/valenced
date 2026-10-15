@@ -5,7 +5,7 @@ import app.valenced.plugins.PluginManifest
 import app.valenced.xposed.api.registerNativeMethod
 
 private val manifest = PluginManifest(
-    id = "revenge.example",
+    id = "valenced.example",
     name = "Example Plugin",
     description = "Example plugin.",
     author = "Valenced",
@@ -16,12 +16,12 @@ internal val examplePlugin =
     internalPlugin(manifest, setOf(InternalPluginFlags.INTERNAL, InternalPluginFlags.ESSENTIAL)) {
         start {
             log.i("started in ${appInfo.packageName}")
-            registerNativeMethod("revenge.example.test") { args ->
-                log.i("revenge.example.test($args)")
+            registerNativeMethod("valenced.example.test") { args ->
+                log.i("valenced.example.test($args)")
                 null
             }
 
-            registerNativeMethod("revenge.example.test.error") {
+            registerNativeMethod("valenced.example.test.error") {
                 errors.tryEmit(Exception("Test exception!"))
             }
         }

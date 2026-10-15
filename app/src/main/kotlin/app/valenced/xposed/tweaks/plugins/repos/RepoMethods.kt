@@ -22,7 +22,7 @@ internal sealed class RepoState(val value: String) {
 }
 
 /**
- * Repository management `revenge.plugins.repos.*` bridge methods.
+ * Repository management `valenced.plugins.repos.*` bridge methods.
  *
  * Auto-updates are triggered JS-side. JS can choose to refresh all repos, then check for updates and install them.
  * The native side only provides the repository list and cached indexes.
@@ -42,12 +42,12 @@ val pluginRepos by tweak {
     )
 
     /**
-     * `revenge.plugins.repos.list() -> Repo[]`
+     * `valenced.plugins.repos.list() -> Repo[]`
      *
      * The internal repository is always first, followed by user repositories in priority order.
      * Display metadata comes from cached indexes.
      */
-    pluginSystemAsyncMethod("revenge.plugins.repos.list") {
+    pluginSystemAsyncMethod("valenced.plugins.repos.list") {
         buildList {
             add(internalRepoJSPayload())
             for ((url, enabled) in RepoStore.list()) {
@@ -67,11 +67,11 @@ val pluginRepos by tweak {
     }
 
     /**
-     * `revenge.plugins.repos.set(config: Array<{ url, enabled? }>) -> null`
+     * `valenced.plugins.repos.set(config: Array<{ url, enabled? }>) -> null`
      *
      * Replaces the whole user repository list. Array order is priority order.
      */
-    pluginSystemAsyncMethod("revenge.plugins.repos.set") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.repos.set") { args ->
         val config = args.firstOrNull() as? List<*>
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a config array of { url, enabled }")
 
@@ -89,11 +89,11 @@ val pluginRepos by tweak {
     }
 
     /**
-     * `revenge.plugins.repos.refresh(url) -> Repo`
+     * `valenced.plugins.repos.refresh(url) -> Repo`
      *
      * Refreshes a repository's cached index. Failures won't modify existing cache and fails the bridge call.
      */
-    pluginSystemAsyncMethod("revenge.plugins.repos.refresh") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.repos.refresh") { args ->
         val url = args.firstOrNull() as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a repository URL")
         if (url == INTERNAL_REPO_URL) throw PluginSystemError(
@@ -122,11 +122,11 @@ val pluginRepos by tweak {
     }
 
     /**
-     * `revenge.plugins.repos.listPlugins(url) -> RepoPluginListing[]`
+     * `valenced.plugins.repos.listPlugins(url) -> RepoPluginListing[]`
      *
      * Lists one repository's plugins from its cached index. Internal plugins are served with no artifacts.
      */
-    pluginSystemAsyncMethod("revenge.plugins.repos.listPlugins") { args ->
+    pluginSystemAsyncMethod("valenced.plugins.repos.listPlugins") { args ->
         val url = args.firstOrNull() as? String
             ?: throw PluginSystemError(PluginErrorCodes.INVALID_ARGUMENT, "Expected a repository URL")
 

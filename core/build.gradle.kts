@@ -5,7 +5,7 @@ plugins {
     `maven-publish`
 }
 
-val appleTargets = findProperty("revenge.appleTargets")?.toString() == "true" ||
+val appleTargets = findProperty("valenced.appleTargets")?.toString() == "true" ||
     System.getProperty("os.name").equals("Mac OS X", ignoreCase = true)
 
 kotlin {
@@ -49,7 +49,7 @@ kotlin {
 // commonMain can't read BuildConfig, so the API version arrives as a generated constant.
 val generateCoreConstants = tasks.register("generateCoreConstants") {
     val apiVersion = libs.versions.apiVersion.get()
-    val outputDir = layout.buildDirectory.dir("generated/revenge/commonMain/kotlin")
+    val outputDir = layout.buildDirectory.dir("generated/valenced/commonMain/kotlin")
 
     inputs.property("apiVersion", apiVersion)
     outputs.dir(outputDir)

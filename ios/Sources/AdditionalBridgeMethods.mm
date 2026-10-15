@@ -4,7 +4,7 @@
 #import "Logger.h"
 
 extern "C" void RegisterAdditionalBridgeMethods(void) {
-    bridgeHandlers()[@"revenge.app.reload"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.app.reload"] = ^NSDictionary *(NSArray *args) {
         dispatch_async(dispatch_get_main_queue(), ^{
             UIViewController *rootVC = [UIApplication sharedApplication].windows.firstObject.rootViewController;
             reloadApp(rootVC);
@@ -12,7 +12,7 @@ extern "C" void RegisterAdditionalBridgeMethods(void) {
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.fs.getConstants"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.fs.getConstants"] = ^NSDictionary *(NSArray *args) {
         NSURL *valencedDir = getValencedDirectory();
         NSURL *filesDir = valencedDir;
         NSURL *cacheDir = [valencedDir URLByAppendingPathComponent:CACHE_DIR];
@@ -23,13 +23,13 @@ extern "C" void RegisterAdditionalBridgeMethods(void) {
         }};
     };
 
-    bridgeHandlers()[@"revenge.fs.exists"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.fs.exists"] = ^NSDictionary *(NSArray *args) {
         NSString *path = argString(args, 0, nil);
         if (!path) return @{@"error": @"Expected a string path argument"};
         return @{@"result": @([[NSFileManager defaultManager] fileExistsAtPath:path])};
     };
 
-    bridgeHandlers()[@"revenge.fs.read"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.fs.read"] = ^NSDictionary *(NSArray *args) {
         NSString *path = argString(args, 0, nil);
         if (!path) return @{@"error": @"Expected a string path argument"};
         BOOL isDir = NO;
@@ -45,7 +45,7 @@ extern "C" void RegisterAdditionalBridgeMethods(void) {
         return @{@"result": content ?: @""};
     };
 
-    bridgeHandlers()[@"revenge.fs.write"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.fs.write"] = ^NSDictionary *(NSArray *args) {
         NSString *path = argString(args, 0, nil);
         NSString *contents = argString(args, 1, nil);
         if (!path) return @{@"error": @"Expected a string path argument"};
@@ -66,7 +66,7 @@ extern "C" void RegisterAdditionalBridgeMethods(void) {
         return @{@"result": [NSNull null]};
     };
 
-    bridgeHandlers()[@"revenge.fs.delete"] = ^NSDictionary *(NSArray *args) {
+    bridgeHandlers()[@"valenced.fs.delete"] = ^NSDictionary *(NSArray *args) {
         NSString *path = argString(args, 0, nil);
         if (!path) return @{@"error": @"Expected a string path argument"};
         NSFileManager *fm = [NSFileManager defaultManager];
