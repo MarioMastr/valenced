@@ -17,10 +17,10 @@ object ValencedConstants {
         get() = "ValencedXposed/$LOADER_VERSION"
 
     /**
-     * Fallback Hermes bundle shipped inside this APK's `assets/` directory.
-     * Loaded by [app.valenced.xposed.tweaks.valencedScriptLoader] when the cached `bundle.js` isn't available.
+     * Hermes bundle shipped inside this APK's `assets/` directory, built by the `:bundle` project.
+     * Loaded by [app.valenced.xposed.tweaks.valencedScriptLoader].
      */
-    const val FALLBACK_BUNDLE_ASSET = "assets://valenced.bundle"
+    const val BUNDLE_ASSET = "assets://valenced.bundle"
 }
 
 /**

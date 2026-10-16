@@ -43,7 +43,7 @@ class Main : IXposedHookLoadPackage, IXposedHookZygoteInit {
         pluginRepos,
 
         // Async updater
-        valencedUpdater,
+        devLoader,
         valencedBundleManifest,
 
         // Consumers

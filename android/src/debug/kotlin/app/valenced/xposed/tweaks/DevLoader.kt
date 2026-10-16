@@ -27,20 +27,18 @@ data class LoaderConfig(
 )
 
 /**
- * Updater for the JS bundle.
+ * Loads a development bundle in place of the one shipped in the APK. Debug builds only.
  *
- * Handles configuration, downloading, caching, and user-facing retry/recovery dialogs.
- * The actual loading of the bundle is handled by [valencedScriptLoader].
+ * Downloads the bundle (and optionally its manifest) from the custom URL in `files/valenced/loader.json`,
+ * and runs scripts in `files/valenced/preloads/` before it. Without a custom URL, the shipped bundle runs.
  */
-object ValencedUpdater {
-    internal val TIMEOUT = 10.seconds
+object DevLoader {
+    private val TIMEOUT = 10.seconds
     private val TIMEOUT_CACHED = 5.seconds
     private const val ETAG_PATH = "etag.txt"
     private const val CONFIG_PATH = "loader.json"
-    private const val DEFAULT_BUNDLE_URL =
-        "https://github.com/Valenced/valenced-bundle/releases/download/latest/valenced.bundle"
 
-    private val log = logger("valencedUpdater")
+    private val log = logger("devLoader")
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Volatile
@@ -49,14 +47,11 @@ object ValencedUpdater {
     private lateinit var manifest: File
     private lateinit var etag: File
     private lateinit var configFile: File
+    private lateinit var preloadsDir: File
 
-    private val _downloadReady = CompletableDeferred<Unit>()
+    private val downloadReady = CompletableDeferred<Unit>()
 
-    /**
-     * Completes after the *first* download attempt finishes (success or any terminal failure).
-     * [valencedScriptLoader] joins on this before falling through to its fallback bundle.
-     */
-    val downloadReady: Deferred<Unit> = _downloadReady
+    private val customLoadUrl get() = config.customLoadUrl.takeIf { it.enabled && it.url.isNotEmpty() }
 
     internal fun init(dataDir: String) {
         val cacheDir = File(dataDir, ValencedConstants.CACHE_DIR).apply { mkdirs() }
@@ -66,6 +61,7 @@ object ValencedUpdater {
         manifest = File(cacheDir, ValencedConstants.BUNDLE_MANIFEST_FILE)
         etag = File(cacheDir, ETAG_PATH)
         configFile = File(filesDir, CONFIG_PATH)
+        preloadsDir = File(filesDir, ValencedConstants.PRELOADS_DIR).apply { mkdirs() }
 
         config = runCatching {
             if (configFile.exists()) ValencedJson.decodeFromString<LoaderConfig>(configFile.readText())
@@ -73,9 +69,41 @@ object ValencedUpdater {
         }.getOrDefault(LoaderConfig())
     }
 
-    fun resetLoaderConfig() {
-        if (::configFile.isInitialized && configFile.exists()) configFile.delete()
+    /** Waits for the first download, then returns the downloaded bundle, or null to run the shipped one. */
+    fun awaitBundle(): File? {
+        if (customLoadUrl == null) return null
+
+        runBlocking {
+            try {
+                withTimeout(TIMEOUT) { downloadReady.await() }
+            } catch (e: Throwable) {
+                log.w("Bundle download did not complete", e)
+            }
+        }
+
+        return bundle.takeIf { it.exists() && it.length() > 0 }
     }
+
+    /** The downloaded bundle manifest, or null to use the shipped one. */
+    fun readBundleManifest(): String? {
+        if (customLoadUrl == null) return null
+        return manifest.takeIf { it.exists() }?.readText()
+    }
+
+    /** Scripts to run before the bundle, in name order. */
+    fun preloads(): List<File> = preloadsDir.walk().filter { it.isFile }.sorted().toList()
+
+    /** Extra recovery options for developers. */
+    val recoveryOptions: List<Pair<String, () -> Unit>> = listOf(
+        "Delete Downloaded Bundle" to {
+            if (bundle.exists()) bundle.delete()
+            reloadApp()
+        },
+        "Reset Loader Config" to {
+            if (configFile.exists()) configFile.delete()
+            reloadApp()
+        },
+    )
 
     /**
      * Trigger a download. If [userInitiated] is true (retry from the error dialog), the timeout
@@ -83,11 +111,11 @@ object ValencedUpdater {
      */
     fun downloadScript(userInitiated: Boolean = false, showDialog: Boolean = true): Job = scope.launch {
         try {
-            val url = config.customLoadUrl.takeIf { it.enabled }?.url ?: DEFAULT_BUNDLE_URL
-            log.i("Fetching JS bundle from: $url")
+            val custom = customLoadUrl ?: return@launch
+            log.i("Fetching JS bundle from: ${custom.url}")
 
             val result = httpClient.getWithETag(
-                url = url,
+                url = custom.url,
                 etag = if (etag.exists() && bundle.exists()) etag.readText() else null,
                 timeoutMillis = if (userInitiated) null
                 else if (bundle.exists()) TIMEOUT_CACHED.inWholeMilliseconds else TIMEOUT.inWholeMilliseconds,
@@ -100,7 +128,7 @@ object ValencedUpdater {
 
                     log.i("Bundle updated (${result.bytes.size} bytes)")
 
-                    downloadManifest()
+                    downloadManifest(custom.manifestUrl)
 
                     if (showDialog) {
                         if (userInitiated) showSuccessDialog() else showUpdateDialog()
@@ -113,13 +141,12 @@ object ValencedUpdater {
             log.e("Failed to download script", e)
             showErrorDialog(e)
         } finally {
-            _downloadReady.complete(Unit)
+            downloadReady.complete(Unit)
         }
     }
 
-    private suspend fun downloadManifest() {
-        val manifestUrl = config.customLoadUrl.takeIf { it.enabled }?.manifestUrl
-            ?: return
+    private suspend fun downloadManifest(manifestUrl: String) {
+        if (manifestUrl.isEmpty()) return
 
         try {
             val result = httpClient.getWithETag(url = manifestUrl, etag = null, timeoutMillis = null)
@@ -130,11 +157,6 @@ object ValencedUpdater {
         } catch (e: Throwable) {
             log.w("Failed to download bundle manifest", e)
         }
-    }
-
-    fun readBundleManifest(): String? {
-        if (manifest.exists()) return manifest.readText()
-        return null
     }
 
     private fun showUpdateDialog() = withAppActivity { activity ->
@@ -165,8 +187,7 @@ object ValencedUpdater {
                 .setTitle("Valenced Update Failed")
                 .setMessage(
                     """
-                    Unable to download the latest version of Valenced.
-                    This is usually caused by bad network connection.
+                    Unable to download the development bundle.
 
                     Error: ${e.message ?: e.stackTraceToString()}
                     """.trimIndent()
@@ -184,13 +205,13 @@ object ValencedUpdater {
 }
 
 /**
- * Wires [ValencedUpdater] into the lifecycle. Loads the loader config once the target [android.content.Context]
- * is available, then kicks off the first download.
+ * Wires [DevLoader] into the lifecycle. Loads the loader config, then kicks off the first download
+ * once the target [android.content.Context] is available.
  */
-val valencedUpdater by tweak {
-    ValencedUpdater.init(appInfo.dataDir)
+val devLoader by tweak {
+    DevLoader.init(appInfo.dataDir)
 
     withAppContext {
-        ValencedUpdater.downloadScript(userInitiated = false, showDialog = false)
+        DevLoader.downloadScript(userInitiated = false, showDialog = false)
     }
 }

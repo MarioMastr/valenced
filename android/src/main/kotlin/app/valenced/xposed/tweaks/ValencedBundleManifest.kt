@@ -11,11 +11,11 @@ import app.valenced.xposed.tweak
 lateinit var bundleManifest: BundleManifest
 
 val valencedBundleManifest by tweak {
-    runCatching { ValencedUpdater.readBundleManifest() }
-        .onFailure { log.e("Unable to read downloaded bundle manifest", it) }
+    runCatching { DevLoader.readBundleManifest() }
+        .onFailure { log.e("Unable to read development bundle manifest", it) }
         .getOrNull()?.let {
             if (setBundleManifest(it)) {
-                log.i("Remote bundle manifest: $bundleManifest")
+                log.i("Development bundle manifest: $bundleManifest")
                 return@tweak
             }
         }

@@ -17,12 +17,11 @@ import app.valenced.plugins.PluginStatesStore
 import app.valenced.reloadApp
 import app.valenced.xposed.*
 import app.valenced.xposed.api.registerNativeMethod
-import app.valenced.xposed.tweaks.ValencedUpdater
+import app.valenced.xposed.tweaks.DevLoader
 import app.valenced.xposed.tweaks.base.withAppActivity
 import app.valenced.xposed.tweaks.crashRecoveryTriggered
 import app.valenced.xposed.tweaks.plugins.pluginPaths
 import app.valenced.xposed.tweaks.resetCrashCount
-import java.io.File
 
 private val manifest = PluginManifest(
     id = "valenced.recovery",
@@ -50,38 +49,21 @@ internal val recoveryPlugin =
  * For the actual shake-gesture hook, you should be looking at [app.valenced.xposed.tweaks.discordDevSupport].
  */
 fun showRecoveryAlert(context: Context) {
+    val options = listOf<Pair<String, () -> Unit>>(
+        "Reload" to ::reloadApp,
+        "Enter Recovery Mode" to {
+            PluginStatesStore.setActiveSlot(
+                pluginPaths(context.dataDir.absolutePath),
+                PluginStatesStore.DEFAULTS_SLOT,
+                oneShot = true,
+            )
+            reloadApp()
+        },
+    ) + DevLoader.recoveryOptions
+
     AlertDialog.Builder(context)
         .setTitle("Valenced Recovery Options")
-        .setItems(
-            arrayOf("Reload", "Enter Recovery Mode", "Delete Script", "Reset Loader Config"),
-        ) { _, which ->
-            when (which) {
-                0 -> reloadApp()
-
-                1 -> {
-                    PluginStatesStore.setActiveSlot(
-                        pluginPaths(context.dataDir.absolutePath),
-                        PluginStatesStore.DEFAULTS_SLOT,
-                        oneShot = true,
-                    )
-                    reloadApp()
-                }
-
-                2 -> {
-                    val bundleFile = File(
-                        context.dataDir,
-                        "${ValencedConstants.CACHE_DIR}/${ValencedConstants.MAIN_SCRIPT_FILE}",
-                    )
-                    if (bundleFile.exists()) bundleFile.delete()
-                    reloadApp()
-                }
-
-                3 -> {
-                    ValencedUpdater.resetLoaderConfig()
-                    reloadApp()
-                }
-            }
-        }
+        .setItems(options.map { it.first }.toTypedArray()) { _, which -> options[which].second() }
         .show()
 }
 
