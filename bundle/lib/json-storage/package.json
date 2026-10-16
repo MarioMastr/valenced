@@ -1,0 +1,16 @@
+{
+  "name": "@revenge-mod/json-storage",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./init": {
+      "default": "./src/init.ts"
+    },
+    "./types": {
+      "types": "./src/types.ts"
+    }
+  }
+}

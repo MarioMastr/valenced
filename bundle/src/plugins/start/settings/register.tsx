@@ -1,0 +1,35 @@
+import {
+    registerSettingsItems,
+    registerSettingsSection,
+} from '@revenge-mod/discord/modules/settings'
+import { Setting } from './constants'
+import HermesVersionSetting from './definitions/HermesVersionSetting'
+import LoaderVersionSetting from './definitions/LoaderVersionSetting'
+import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
+import ReactVersionSetting from './definitions/ReactVersionSetting'
+import ReloadSetting from './definitions/ReloadSetting'
+import RevengeDeveloperModeSetting from './definitions/RevengeDeveloperModeSetting'
+import RevengeDiscordSetting from './definitions/RevengeDiscordSetting'
+import RevengeLicenseSetting from './definitions/RevengeLicenseSetting'
+import RevengeSetting from './definitions/RevengeSetting'
+import RevengeSourceRepositorySetting from './definitions/RevengeSourceRepositorySetting'
+import RevengeVersionSetting from './definitions/RevengeVersionSetting'
+
+registerSettingsItems({
+    [Setting.Revenge]: RevengeSetting,
+    [Setting.RevengeSourceRepository]: RevengeSourceRepositorySetting,
+    [Setting.RevengeLicense]: RevengeLicenseSetting,
+    [Setting.RevengeDiscord]: RevengeDiscordSetting,
+    [Setting.Reload]: ReloadSetting,
+    [Setting.RevengeDeveloperMode]: RevengeDeveloperModeSetting,
+    [Setting.RevengeVersion]: RevengeVersionSetting,
+    [Setting.ReactVersion]: ReactVersionSetting,
+    [Setting.ReactNativeVersion]: ReactNativeVersionSetting,
+    [Setting.HermesVersion]: HermesVersionSetting,
+    [Setting.LoaderVersion]: LoaderVersionSetting,
+})
+
+registerSettingsSection('REVENGE', {
+    label: 'Revenge',
+    settings: [Setting.Revenge],
+})

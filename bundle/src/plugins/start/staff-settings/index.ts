@@ -1,0 +1,69 @@
+import { ToastActionCreators } from '@revenge-mod/discord/actions'
+import { getStore, Stores } from '@revenge-mod/discord/flux'
+import { getModules } from '@revenge-mod/modules/finders'
+import { withProps } from '@revenge-mod/modules/finders/filters'
+import { instead } from '@revenge-mod/patcher'
+import { registerInternalPlugin } from '@revenge-mod/plugins/_'
+import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+import manifest from './manifest.json'
+import type { DiscordModules } from '@revenge-mod/discord/types'
+
+registerInternalPlugin(manifest, {
+    start({ cleanup, logger, plugin }) {
+        const CircleInformationIcon = lookupGeneratedIconComponent(
+            'CircleInformationIcon',
+            'CircleInformationIcon-secondary',
+            'CircleInformationIcon-primary',
+        )
+
+        const showToast = () =>
+            ToastActionCreators.open('REVENGE_STAFF_SETTINGS_ACTION', {
+                text: 'Navigate out of Settings to apply changes',
+                icon: CircleInformationIcon,
+            })
+
+        function reset() {
+            getStore<{
+                initialize(): void
+            }>('DeveloperExperimentStore', store => {
+                logger.log(
+                    'Reinitializing DeveloperExperimentStore to apply changes...',
+                )
+
+                const unpatch = instead(
+                    Object,
+                    'defineProperties',
+                    args => args[0],
+                )
+
+                store.initialize()
+                unpatch()
+            })
+        }
+
+        cleanup(
+            getModules(withProps('isStaffEnv'), UserStoreUtils => {
+                logger.log('Patching UserStoreUtils...')
+
+                cleanup(
+                    instead(
+                        UserStoreUtils,
+                        'isStaffEnv',
+                        ([user]) =>
+                            user ===
+                            (
+                                Stores.UserStore as DiscordModules.Flux.Store<{
+                                    getCurrentUser(): unknown
+                                }>
+                            ).getCurrentUser(),
+                    ),
+                    reset,
+                    showToast,
+                )
+
+                reset()
+                if (plugin.startedLate) showToast()
+            }),
+        )
+    },
+})
