@@ -1,8 +1,8 @@
-# @revenge-mod/externals
+# @valenced/externals
 
 This package provides common external libraries bundled in React Native apps, but this does not guarantee that they will be available.
 
-This is done to ensure that Revenge's core APIs won't change if the external libraries are removed from the app.
+This is done to ensure that Valenced's core APIs won't change if the external libraries are removed from the app.
 
 ## Libraries
 

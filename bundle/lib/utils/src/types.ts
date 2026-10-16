@@ -26,23 +26,23 @@ export type KeyWithType<O extends AnyObject, T> = {
 /// PLUGIN API EXTENSIONS
 
 export interface PreInitPluginApiUtils {
-    bitset: typeof import('@revenge-mod/utils/bitset')
-    callback: typeof import('@revenge-mod/utils/callback')
-    error: typeof import('@revenge-mod/utils/error')
-    object: typeof import('@revenge-mod/utils/object')
-    promise: typeof import('@revenge-mod/utils/promise')
-    proxy: typeof import('@revenge-mod/utils/proxy')
-    tree: typeof import('@revenge-mod/utils/tree')
-    react: typeof import('@revenge-mod/utils/react')
+    bitset: typeof import('@valenced/utils/bitset')
+    callback: typeof import('@valenced/utils/callback')
+    error: typeof import('@valenced/utils/error')
+    object: typeof import('@valenced/utils/object')
+    promise: typeof import('@valenced/utils/promise')
+    proxy: typeof import('@valenced/utils/proxy')
+    tree: typeof import('@valenced/utils/tree')
+    react: typeof import('@valenced/utils/react')
     /** This API is available in and after the `init` phase.  */
     discord: unknown
 }
 
 export interface PluginApiUtils extends PreInitPluginApiUtils {
-    discord: typeof import('@revenge-mod/utils/discord')
+    discord: typeof import('@valenced/utils/discord')
 }
 
-declare module '@revenge-mod/plugins/types' {
+declare module '@valenced/plugins/types' {
     export interface UnscopedPreInitPluginApi {
         utils: PreInitPluginApiUtils
     }

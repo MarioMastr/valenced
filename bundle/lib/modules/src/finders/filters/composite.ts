@@ -1,4 +1,4 @@
-import { getInitializedModuleExports } from '@revenge-mod/modules/metro/utils'
+import { getInitializedModuleExports } from '@valenced/modules/metro/utils'
 import { FilterScopes } from '.'
 import { NamespaceOnlyMark } from './_internal'
 import { createFilterGenerator } from './utils'
@@ -59,7 +59,7 @@ export type AllOf = FilterGenerator<
 >
 
 const allOfKeyGenerator = ([a, b]: Parameters<AllOf>) =>
-    `revenge.allOf(${a.key},${b.key})`
+    `valenced.allOf(${a.key},${b.key})`
 
 const allOfScopesGenerator = ([a, b]: Parameters<AllOf>) => a.scopes | b.scopes
 
@@ -130,7 +130,7 @@ export type AnyOf = FilterGenerator<
 >
 
 const anyOfKeyGenerator = ([a, b]: Parameters<AnyOf>) =>
-    `revenge.anyOf(${a.key},${b.key})`
+    `valenced.anyOf(${a.key},${b.key})`
 
 const anyOfScopesGenerator = ([a, b]: Parameters<AnyOf>) => a.scopes | b.scopes
 
@@ -202,7 +202,7 @@ const namespaceOnlyGenerator = createFilterGenerator<Parameters<NamespaceOnly>>(
             filter(id, exports, true)
         )
     },
-    ([filter]) => `revenge.namespaceOnly(${filter.key})`,
+    ([filter]) => `valenced.namespaceOnly(${filter.key})`,
     ([filter]) => filter.scopes,
 ) as NamespaceOnly
 

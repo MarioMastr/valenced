@@ -1,4 +1,4 @@
-import { getCurrentStack } from '@revenge-mod/utils/error'
+import { getCurrentStack } from '@valenced/utils/error'
 import { getModuleDependencies } from '../../metro/utils'
 import { FilterScopes } from './constants'
 import { createFilterGenerator } from './utils'
@@ -91,7 +91,7 @@ export interface ComparableDependencyMap
  */
 const withDependencies_ = createFilterGenerator<Parameters<WithDependencies>>(
     ([deps], id) => depCompare(getModuleDependencies(id)!, deps, id, id),
-    deps => `revenge.deps(${depGenFilterKey(deps)})`,
+    deps => `valenced.deps(${depGenFilterKey(deps)})`,
     FilterScopes.Uninitialized | FilterScopes.Initialized,
 ) as WithDependencies
 

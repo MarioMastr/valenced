@@ -37,7 +37,7 @@ export default function hermesCPlugin({
         generateBundle(_, bundle) {
             if (before) before(ver)
 
-            const file = bundle['revenge.js'] as OutputChunk
+            const file = bundle['valenced.js'] as OutputChunk
             if (!file) throw new Error('No code to compile')
 
             const argList = ['-emit-binary', ...(flags ?? [])]

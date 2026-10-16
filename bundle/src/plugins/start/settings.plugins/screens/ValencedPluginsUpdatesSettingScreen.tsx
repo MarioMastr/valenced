@@ -1,16 +1,16 @@
 import { useNavigation } from '@react-navigation/native'
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { styles } from '@revenge-mod/components/_'
-import Checkbox from '@revenge-mod/components/Checkbox'
-import Page from '@revenge-mod/components/Page'
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { Tokens } from '@revenge-mod/discord/common/tokens'
-import { Design } from '@revenge-mod/discord/design'
-import { reloadApp } from '@revenge-mod/modules/native/app'
-import { PluginFlags, pList } from '@revenge-mod/plugins/_'
-import { useHasFlagPluginCount } from '@revenge-mod/plugins/_/react'
-import { repoEvents } from '@revenge-mod/plugins/_/repositories'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+import { getAssetIdByName } from '@valenced/assets'
+import { styles } from '@valenced/components/_'
+import Checkbox from '@valenced/components/Checkbox'
+import Page from '@valenced/components/Page'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { Tokens } from '@valenced/discord/common/tokens'
+import { Design } from '@valenced/discord/design'
+import { reloadApp } from '@valenced/modules/native/app'
+import { PluginFlags, pList } from '@valenced/plugins/_'
+import { useHasFlagPluginCount } from '@valenced/plugins/_/react'
+import { repoEvents } from '@valenced/plugins/_/repositories'
+import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import {
     useCallback,
     useEffect,
@@ -36,7 +36,7 @@ import {
 import type {
     DownloadProgressEvent,
     PluginUpdate,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 import type { ReactNode } from 'react'
 import type { StyleProp, ViewStyle } from 'react-native'
 import type { PluginCardData } from '../components/PluginList'
@@ -90,7 +90,7 @@ function UpdateNotes({ notes }: { notes: UpdateNote[] }) {
     ))
 }
 
-export default function RevengePluginsUpdatesSettingScreen() {
+export default function ValencedPluginsUpdatesSettingScreen() {
     const navigation = useNavigation()
 
     const updates = useStore(updatesStore, state => state.updates)
@@ -165,7 +165,7 @@ export default function RevengePluginsUpdatesSettingScreen() {
                     'INSTALL_UPDATES_ERROR',
                 )
             else
-                ToastActionCreators.open('REVENGE_PLUGINS_UPDATED', {
+                ToastActionCreators.open('VALENCED_PLUGINS_UPDATED', {
                     text: `Updated ${pluralize(pending.length, 'plugin')}. Reload to apply.`,
                     icon: DownloadIconComponent,
                 })

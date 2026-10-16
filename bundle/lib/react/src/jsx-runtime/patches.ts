@@ -1,4 +1,4 @@
-import { instead } from '@revenge-mod/patcher'
+import { instead } from '@valenced/patcher'
 import { ReactJSXRuntime } from '..'
 import { jPatches } from './_internal'
 import type { ReactElement } from 'react'

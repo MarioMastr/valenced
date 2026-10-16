@@ -7,7 +7,7 @@ import { getInternalPluginManifests } from './manifest'
 let root: string
 
 beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), 'revenge-manifests-'))
+    root = await mkdtemp(join(tmpdir(), 'valenced-manifests-'))
 })
 
 async function plugin(stage: string, dir: string, manifest: unknown) {
@@ -18,58 +18,58 @@ async function plugin(stage: string, dir: string, manifest: unknown) {
 
 describe('getInternalPluginManifests', () => {
     it('stamps every plugin with the bundle version', async () => {
-        await plugin('preinit', 'api', { id: 'revenge.api' })
-        await plugin('start', 'settings', { id: 'revenge.settings' })
+        await plugin('preinit', 'api', { id: 'valenced.api' })
+        await plugin('start', 'settings', { id: 'valenced.settings' })
 
         expect(await getInternalPluginManifests(root)).toEqual([
-            { id: 'revenge.api' },
-            { id: 'revenge.settings' },
+            { id: 'valenced.api' },
+            { id: 'valenced.settings' },
         ])
     })
 
     it('keeps dependencies, which is the half native cannot derive', async () => {
-        await plugin('start', 'settings', { id: 'revenge.settings' })
+        await plugin('start', 'settings', { id: 'valenced.settings' })
         await plugin('start', 'settings.plugins', {
-            id: 'revenge.settings.plugins',
-            dependencies: { 'revenge.settings': {} },
+            id: 'valenced.settings.plugins',
+            dependencies: { 'valenced.settings': {} },
         })
 
         const plugins = await getInternalPluginManifests(root)
         expect(plugins).toContainEqual({
-            id: 'revenge.settings.plugins',
-            dependencies: { 'revenge.settings': {} },
+            id: 'valenced.settings.plugins',
+            dependencies: { 'valenced.settings': {} },
         })
     })
 
     it('drops everything native does not read', async () => {
         await plugin('start', 'settings', {
-            id: 'revenge.settings',
+            id: 'valenced.settings',
             name: 'Settings',
-            description: 'Settings UI for Revenge.',
-            author: 'Revenge',
+            description: 'Settings UI for Valenced.',
+            author: 'Valenced',
             icon: 'SettingsIcon',
         })
 
         const plugins = await getInternalPluginManifests(root)
-        expect(plugins).toEqual([{ id: 'revenge.settings' }])
+        expect(plugins).toEqual([{ id: 'valenced.settings' }])
     })
 
     // Replaces the type checking lost when cross-plugin ID imports were removed.
     it('rejects a dependency on a plugin that does not exist', async () => {
         await plugin('start', 'settings.plugins', {
-            id: 'revenge.settings.plugins',
-            dependencies: { 'revenge.setings': {} },
+            id: 'valenced.settings.plugins',
+            dependencies: { 'valenced.setings': {} },
         })
 
         await expect(getInternalPluginManifests(root)).rejects.toThrow(
-            /"revenge.setings", which is not an internal plugin/,
+            /"valenced.setings", which is not an internal plugin/,
         )
     })
 
     it('allows reserved dependencies, which no plugin declares', async () => {
         await plugin('preinit', 'logging', {
-            id: 'revenge.logging',
-            dependencies: { 'revenge.api': {}, discord: {} },
+            id: 'valenced.logging',
+            dependencies: { 'valenced.api': {}, discord: {} },
         })
 
         await expect(getInternalPluginManifests(root)).resolves.toBeDefined()
@@ -77,7 +77,7 @@ describe('getInternalPluginManifests', () => {
 
     it('keeps the version of a stub', async () => {
         await plugin('start', 'settings.themes', {
-            id: 'revenge.settings.themes',
+            id: 'valenced.settings.themes',
             version: '1.0.0-beta1',
             defaultSource: { repo: 'https://example.com' },
         })
@@ -88,10 +88,10 @@ describe('getInternalPluginManifests', () => {
 
     it('keeps the metadata of a stub', async () => {
         await plugin('start', 'settings.themes', {
-            id: 'revenge.settings.themes',
+            id: 'valenced.settings.themes',
             name: 'Theme Settings',
             description: 'Manage your themes.',
-            author: 'Revenge',
+            author: 'Valenced',
             icon: 'PaintPaletteIcon',
             defaultSource: { repo: 'https://example.com' },
         })
@@ -100,14 +100,14 @@ describe('getInternalPluginManifests', () => {
         expect(stub).toMatchObject({
             name: 'Theme Settings',
             description: 'Manage your themes.',
-            author: 'Revenge',
+            author: 'Valenced',
             icon: 'PaintPaletteIcon',
         })
     })
 
     it('rejects a version on a plugin that is not a stub', async () => {
         await plugin('start', 'settings', {
-            id: 'revenge.settings',
+            id: 'valenced.settings',
             version: '1.0.0',
         })
 
@@ -118,7 +118,7 @@ describe('getInternalPluginManifests', () => {
 
     it('rejects an invalid stub version', async () => {
         await plugin('start', 'settings.themes', {
-            id: 'revenge.settings.themes',
+            id: 'valenced.settings.themes',
             version: 'v1',
             defaultSource: { repo: 'https://example.com' },
         })
@@ -129,11 +129,11 @@ describe('getInternalPluginManifests', () => {
     })
 
     it('rejects two plugins claiming one ID', async () => {
-        await plugin('preinit', 'settings', { id: 'revenge.settings' })
-        await plugin('start', 'settings', { id: 'revenge.settings' })
+        await plugin('preinit', 'settings', { id: 'valenced.settings' })
+        await plugin('start', 'settings', { id: 'valenced.settings' })
 
         await expect(getInternalPluginManifests(root)).rejects.toThrow(
-            /share the ID "revenge.settings"/,
+            /share the ID "valenced.settings"/,
         )
     })
 })

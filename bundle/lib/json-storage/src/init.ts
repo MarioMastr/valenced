@@ -1,7 +1,7 @@
-import { JsonStorage } from '@revenge-mod/json-storage'
-import { useReRender } from '@revenge-mod/utils/react'
+import { JsonStorage } from '@valenced/json-storage'
+import { useReRender } from '@valenced/utils/react'
 import { useLayoutEffect } from 'react'
-import type { JsonStorageSubscription } from '@revenge-mod/json-storage'
+import type { JsonStorageSubscription } from '@valenced/json-storage'
 
 const proto = JsonStorage.prototype as JsonStorage<any>
 // Actual implementation of JsonStorage#use

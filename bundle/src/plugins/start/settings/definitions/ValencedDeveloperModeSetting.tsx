@@ -1,26 +1,26 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { ToastActionCreators } from '@valenced/discord/actions'
 import {
     disablePluginInActiveSlot,
     enablePluginInActiveSlot,
     isDefaultsOnlyBoot,
     pList,
     runPluginLate,
-} from '@revenge-mod/plugins/_'
-import { usePluginEnabledById } from '@revenge-mod/plugins/_/react'
+} from '@valenced/plugins/_'
+import { usePluginEnabledById } from '@valenced/plugins/_/react'
 import pluginHiddenApi from '~plugins/preinit/api.hidden'
 import { Setting } from '../constants'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
-const RevengeDeveloperModeSetting: SettingsItem = {
-    parent: Setting.Revenge,
+const ValencedDeveloperModeSetting: SettingsItem = {
+    parent: Setting.Valenced,
     type: 'toggle',
     IconComponent: () => <TableRowAssetIcon name="WrenchIcon" />,
     useTitle: () => 'Developer Mode',
     useDescription: () =>
         isDefaultsOnlyBoot
             ? 'Unavailable in Recovery Mode. Reload to exit.'
-            : 'Exposes internal Revenge APIs for development purposes. Makes client mod detection easier. Use with caution.',
+            : 'Exposes internal Valenced APIs for development purposes. Makes client mod detection easier. Use with caution.',
     useIsDisabled: () => isDefaultsOnlyBoot,
     useValue: () => usePluginEnabledById(pluginHiddenApi),
     onValueChange: enabled => {
@@ -36,10 +36,10 @@ const RevengeDeveloperModeSetting: SettingsItem = {
 }
 
 function showFailureToast(e: unknown) {
-    ToastActionCreators.open('REVENGE_DEVELOPER_MODE_FAILED', {
+    ToastActionCreators.open('VALENCED_DEVELOPER_MODE_FAILED', {
         text: `Failed to toggle Developer Mode: ${e instanceof Error ? e.message : String(e)}`,
         variant: 'critical',
     })
 }
 
-export default RevengeDeveloperModeSetting
+export default ValencedDeveloperModeSetting

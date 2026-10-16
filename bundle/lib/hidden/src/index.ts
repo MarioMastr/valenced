@@ -1,4 +1,4 @@
-import { defineLazyProperties } from '@revenge-mod/utils/object'
+import { defineLazyProperties } from '@valenced/utils/object'
 import defer * as AssetsInternal from '../../assets/src/_internal'
 import defer * as AssetsCaches from '../../assets/src/caches'
 import defer * as ComponentsInternal from '../../components/src/_internal'

@@ -1,8 +1,8 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { Design } from '@revenge-mod/discord/design'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { Design } from '@valenced/discord/design'
 import { useState } from 'react'
-import type { AssetId } from '@revenge-mod/assets/types'
-import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
+import type { AssetId } from '@valenced/assets/types'
+import type { AnyPlugin, InternalPluginMeta } from '@valenced/plugins/_'
 
 export interface FilterAndSortActionSheetProps {
     filters: Record<

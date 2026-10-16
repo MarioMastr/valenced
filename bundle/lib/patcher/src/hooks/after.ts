@@ -42,7 +42,7 @@ function unpatchAfter<T extends UnknownFunction>(
  * After hooks allow you to modify the return value of the original function, or to perform some action after the original function is called.
  *
  * ```js
- * import { after } from '@revenge-mod/patcher'
+ * import { after } from '@valenced/patcher'
  *
  * const obj = {
  *     method: (a) => a * 2

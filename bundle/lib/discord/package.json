@@ -1,5 +1,5 @@
 {
-  "name": "@revenge-mod/discord",
+  "name": "@valenced/discord",
   "private": true,
   "type": "module",
   "exports": {

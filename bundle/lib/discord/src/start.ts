@@ -1,5 +1,5 @@
-import { waitForModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
+import { waitForModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
 import { sConfig, sSubscriptions } from './modules/settings/_internal'
 import type { SettingsItem } from './modules/settings'
 

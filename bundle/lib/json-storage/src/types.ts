@@ -1,9 +1,9 @@
-import type { AnyObject } from '@revenge-mod/utils/types'
+import type { AnyObject } from '@valenced/utils/types'
 import type { JsonStorage, JsonStorageOptions } from '.'
 
-declare module '@revenge-mod/plugins/types' {
+declare module '@valenced/plugins/types' {
     export interface UnscopedPreInitPluginApi {
-        jsonStorage: typeof import('@revenge-mod/json-storage')
+        jsonStorage: typeof import('@valenced/json-storage')
     }
 
     export interface PluginApiExtensionsOptions {

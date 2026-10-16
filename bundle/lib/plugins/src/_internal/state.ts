@@ -8,8 +8,8 @@
  * Both IDs are the same on a normal boot. However, a defaults-only boot sets {@link BootSlot} to an ephemeral slot.
  */
 
-import { registerJSMethod } from '@revenge-mod/modules/native'
-import { exists, rm } from '@revenge-mod/modules/native/fs'
+import { registerJSMethod } from '@valenced/modules/native'
+import { exists, rm } from '@valenced/modules/native/fs'
 import { pluginStorageDirFor } from '../constants'
 import { defaultsOnlySlot, PluginFlags } from './constants'
 import { pEmitter } from './emitter'
@@ -26,14 +26,14 @@ const PersistedFlags = Flag.Enabled | Flag.RequiredByUser
 /** Flags {@link PluginStateObject} can send over. */
 const WireFlags = PersistedFlags | Flag.PendingReload | Flag.StartedLate
 
-const StateUpdateMethod = 'revenge.plugins.states.update'
+const StateUpdateMethod = 'valenced.plugins.states.update'
 
 const slotInfo = callPluginSystemMethodSync(
-    'revenge.plugins.states.getSlots',
+    'valenced.plugins.states.getSlots',
     [],
 )
 const slotStates: PluginSlotStates = callPluginSystemMethodSync(
-    'revenge.plugins.states.read',
+    'valenced.plugins.states.read',
     [],
 )
 
@@ -105,7 +105,7 @@ registerJSMethod(StateUpdateMethod, (slot, id, state) => {
 })
 
 registerJSMethod(
-    'revenge.plugins.events.pluginErrored',
+    'valenced.plugins.events.pluginErrored',
     (id: string, errors: PluginSystemErrorPayload[]) => {
         const plugin = pList.get(id)
         if (!plugin) return
@@ -182,7 +182,7 @@ export async function writePluginEnabledState(
     enabled: boolean,
     requiredByUser: boolean,
 ) {
-    await callPluginSystemMethod('revenge.plugins.setEnabled', [
+    await callPluginSystemMethod('valenced.plugins.setEnabled', [
         plugin.manifest.id,
         enabled,
         requiredByUser,
@@ -202,7 +202,7 @@ export async function deleteStorageForPlugin(plugin: Plugin<any, any>) {
  * @param oneShot Applies to the next boot only.
  */
 export function setActiveSlot(slot: string, oneShot?: boolean) {
-    callPluginSystemMethodSync('revenge.plugins.states.setActiveSlot', [
+    callPluginSystemMethodSync('valenced.plugins.states.setActiveSlot', [
         slot,
         oneShot,
     ])
@@ -213,22 +213,22 @@ export function requestNextBootDefaultsOnly() {
     setActiveSlot(defaultsOnlySlot, true)
 }
 
-declare module '@revenge-mod/modules/native' {
+declare module '@valenced/modules/native' {
     interface NativeMethods {
         /**
          * Starts a plugin's native half, stopping it first if it is running.
          * Throws with `RELOAD_REQUIRED` when the stop could not undo the plugin cleanly.
          */
-        'revenge.plugins.restart': [[id: PluginManifest['id']], null]
+        'valenced.plugins.restart': [[id: PluginManifest['id']], null]
         /** Stops a plugin's native half. */
-        'revenge.plugins.stop': [[id: PluginManifest['id']], null]
+        'valenced.plugins.stop': [[id: PluginManifest['id']], null]
         /** Flags of every loaded slot. */
-        'revenge.plugins.states.read': [[], PluginSlotStates]
-        'revenge.plugins.states.getSlots': [
+        'valenced.plugins.states.read': [[], PluginSlotStates]
+        'valenced.plugins.states.getSlots': [
             [],
             { active: string; oneShot?: string; slots: string[] },
         ]
-        'revenge.plugins.states.setActiveSlot': [
+        'valenced.plugins.states.setActiveSlot': [
             [slot: string, oneShot?: boolean],
             null,
         ]
@@ -236,7 +236,7 @@ declare module '@revenge-mod/modules/native' {
          * Persists plugin enabled state. Rejects with `DEPENDENCIES_UNSATISFIED` when required
          * dependencies are missing, disabled, or incompatible.
          */
-        'revenge.plugins.setEnabled': [
+        'valenced.plugins.setEnabled': [
             [
                 id: PluginManifest['id'],
                 enabled: boolean,
@@ -245,7 +245,7 @@ declare module '@revenge-mod/modules/native' {
             null,
         ]
         /** JS reporting the flags it changed in a slot. Answers with them. */
-        'revenge.plugins.states.update': [
+        'valenced.plugins.states.update': [
             [slot: string, id: PluginManifest['id'], state: PluginStateObject],
             PluginStateObject,
         ]

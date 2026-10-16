@@ -1,12 +1,12 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { getAssetByName, getAssetIdByName } from '@revenge-mod/assets'
-import { styles } from '@revenge-mod/components/_'
-import Page from '@revenge-mod/components/Page'
-import SearchInput from '@revenge-mod/components/SearchInput'
-import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
-import { Tokens } from '@revenge-mod/discord/common/tokens'
-import { Design } from '@revenge-mod/discord/design'
-import { reloadApp } from '@revenge-mod/modules/native/app'
+import { getAssetByName, getAssetIdByName } from '@valenced/assets'
+import { styles } from '@valenced/components/_'
+import Page from '@valenced/components/Page'
+import SearchInput from '@valenced/components/SearchInput'
+import { ActionSheetActionCreators } from '@valenced/discord/actions'
+import { Tokens } from '@valenced/discord/common/tokens'
+import { Design } from '@valenced/discord/design'
+import { reloadApp } from '@valenced/modules/native/app'
 import {
     getInternalPluginMeta,
     isDefaultsOnlyBoot,
@@ -18,9 +18,9 @@ import {
     PluginFlags,
     pEmitter,
     pList,
-} from '@revenge-mod/plugins/_'
-import { useHasFlagPluginCount } from '@revenge-mod/plugins/_/react'
-import { debounce } from '@revenge-mod/utils/callback'
+} from '@valenced/plugins/_'
+import { useHasFlagPluginCount } from '@valenced/plugins/_/react'
+import { debounce } from '@valenced/utils/callback'
 import {
     useCallback,
     useEffect,
@@ -29,7 +29,7 @@ import {
     useState,
 } from 'react'
 import { Image, View } from 'react-native'
-import RevengeIcon from '~assets/RevengeIcon'
+import ValencedIcon from '~assets/ValencedIcon'
 import {
     belongsOnPage,
     matchInfoOfManifest,
@@ -40,7 +40,7 @@ import PluginTooltipsProvider from '../components/TooltipProvider'
 import { RouteNames, Setting } from '../constants'
 import { pluralize } from '../utils/strings'
 import type { NavigationProp, RouteProp } from '@react-navigation/core'
-import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
+import type { ReactNavigationParamList } from '@valenced/externals/react-navigation'
 import type { PluginsPageProps } from '../api'
 import type { FilterAndSortActionSheetProps } from '../components/FilterAndSortActionSheet'
 
@@ -51,7 +51,7 @@ const FiltersHorizontalIcon = getAssetIdByName('FiltersHorizontalIcon', 'png')!
 const SettingsIcon = getAssetIdByName('SettingsIcon')!
 const PlusLargeIcon = getAssetIdByName('PlusLargeIcon')!
 
-export default function RevengePluginsSettingScreen() {
+export default function ValencedPluginsSettingScreen() {
     return <PluginsPage />
 }
 
@@ -101,8 +101,8 @@ const Filters: FilterAndSortActionSheetProps['filters'] = {
             !isPluginEssential(meta) || plugin.SettingsComponent !== undefined,
     },
     Internal: {
-        icon: RevengeIcon,
-        desc: 'Included with Revenge.',
+        icon: ValencedIcon,
+        desc: 'Included with Valenced.',
         filter: (_, meta) => isPluginInternal(meta),
     },
 } satisfies FilterAndSortActionSheetProps['filters']
@@ -132,7 +132,7 @@ function HeaderButton() {
         <IconButton
             icon={SettingsIcon}
             onPress={() =>
-                navigation.navigate(RouteNames[Setting.RevengePluginsAdvanced])
+                navigation.navigate(RouteNames[Setting.ValencedPluginsAdvanced])
             }
             variant="tertiary"
         />
@@ -157,7 +157,7 @@ function BrowseFloatingActionButton({
                 onBrowse ??
                 (() =>
                     navigation.navigate(
-                        RouteNames[Setting.RevengePluginsBrowse],
+                        RouteNames[Setting.ValencedPluginsBrowse],
                     ))
             }
         />
@@ -285,7 +285,7 @@ function Screen({ match, onBrowse }: Partial<PluginsPageProps>) {
         useRoute<
             RouteProp<
                 ReactNavigationParamList,
-                (typeof RouteNames)[typeof Setting.RevengePlugins]
+                (typeof RouteNames)[typeof Setting.ValencedPlugins]
             >
         >()
 

@@ -1,4 +1,4 @@
-import { noop } from '@revenge-mod/utils/callback'
+import { noop } from '@valenced/utils/callback'
 import { sLoaded } from '../../start'
 import { sConfig, sRefresher, sSections, sSubscriptions } from './_internal'
 import type { DiscordModules } from '../../types'

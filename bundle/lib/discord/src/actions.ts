@@ -1,19 +1,19 @@
-import { lookupModule, lookupModules } from '@revenge-mod/modules/finders'
+import { lookupModule, lookupModules } from '@valenced/modules/finders'
 import {
     anyOf,
     withDependencies,
     withProps,
-} from '@revenge-mod/modules/finders/filters'
-import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
+} from '@valenced/modules/finders/filters'
+import { getModuleDependencies } from '@valenced/modules/metro/utils'
 import {
     ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
-} from '@revenge-mod/react'
-import { proxify } from '@revenge-mod/utils/proxy'
+} from '@valenced/react'
+import { proxify } from '@valenced/utils/proxy'
 import { DispatcherModuleId } from './common/flux'
 import { ImportTrackerModuleId } from './common/import-tracker'
-import type { Metro } from '@revenge-mod/modules/types'
+import type { Metro } from '@valenced/modules/types'
 import type { DiscordModules } from './types'
 
 const { atMost, relative, ordered } = withDependencies
@@ -52,7 +52,7 @@ export let [ActionSheetActionCreators, ActionSheetActionCreatorsModuleId]: [
                         ordered([DispatcherModuleId, ImportTrackerModuleId]),
                     ),
                 )
-                .keyAs('revenge.discord.actions.ActionSheetActionCreators'),
+                .keyAs('valenced.discord.actions.ActionSheetActionCreators'),
         )
 
         if (module) {
@@ -84,7 +84,7 @@ export let [AlertActionCreators, AlertActionCreatorsModuleId]: [
                         ImportTrackerModuleId,
                     ]),
                 )
-                .keyAs('revenge.discord.actions.AlertActionCreators'),
+                .keyAs('valenced.discord.actions.AlertActionCreators'),
         )
 
         if (module) {
@@ -141,7 +141,7 @@ export let [ToastActionCreators, ToastActionCreatorsModuleId]: [
                         ),
                     ),
                 )
-                .keyAs('revenge.discord.actions.ToastActionCreators'),
+                .keyAs('valenced.discord.actions.ToastActionCreators'),
         )
 
         for (const [module, id] of generator)

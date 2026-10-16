@@ -1,23 +1,23 @@
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
-import { NetInfo } from '@revenge-mod/externals/react-native-community'
-import { JsonStorageUpdateMode } from '@revenge-mod/json-storage'
-import { pList, registerInternalPlugin } from '@revenge-mod/plugins/_'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { onSettingsModulesLoaded } from '@valenced/discord/modules/settings'
+import { NetInfo } from '@valenced/externals/react-native-community'
+import { JsonStorageUpdateMode } from '@valenced/json-storage'
+import { pList, registerInternalPlugin } from '@valenced/plugins/_'
 import {
     refreshAllRepos,
     updateAllPlugins,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 import { createElement } from 'react'
 import { claimPlugins } from './claims'
 import defer * as NavigatorHeaderWithIconModule from './components/NavigatorHeaderWithIcon'
 import defer * as PluginIconModule from './components/PluginIcon'
 import manifest from './manifest.json'
 import { addDefaultRepoIfNeeded } from './repos'
-import defer * as BrowseScreen from './screens/RevengePluginsBrowseSettingScreen'
-import defer * as PluginsScreen from './screens/RevengePluginsSettingScreen'
+import defer * as BrowseScreen from './screens/ValencedPluginsBrowseSettingScreen'
+import defer * as PluginsScreen from './screens/ValencedPluginsSettingScreen'
 import { showPluginOptionsActionSheet } from './utils/sheets'
-import type { JsonStorage } from '@revenge-mod/json-storage'
-import type { PluginApi } from '@revenge-mod/plugins/types'
+import type { JsonStorage } from '@valenced/json-storage'
+import type { PluginApi } from '@valenced/plugins/types'
 import type {
     BrowsePageProps,
     PluginSettingsComponents,
@@ -99,7 +99,7 @@ function autoUpdateService(settings: Storage) {
                     lastUpdateCheck: Date.now(),
                 })
         } catch (e) {
-            ToastActionCreators.open('REVENGE_PLUGIN_UPDATE_CHECK_FAILED', {
+            ToastActionCreators.open('VALENCED_PLUGIN_UPDATE_CHECK_FAILED', {
                 text: 'Failed to check for plugin updates',
                 variant: 'critical',
             })

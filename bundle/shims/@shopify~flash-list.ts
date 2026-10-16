@@ -1,4 +1,4 @@
-import { FlashList } from '@revenge-mod/externals/shopify'
-import { unproxify } from '@revenge-mod/utils/proxy'
+import { FlashList } from '@valenced/externals/shopify'
+import { unproxify } from '@valenced/utils/proxy'
 
 module.exports = unproxify(FlashList)

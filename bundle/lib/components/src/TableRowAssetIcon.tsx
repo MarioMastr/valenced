@@ -1,6 +1,6 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { Design } from '@revenge-mod/discord/design'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import { getAssetIdByName } from '@valenced/assets'
+import { Design } from '@valenced/discord/design'
+import type { DiscordModules } from '@valenced/discord/types'
 
 export default function TableRowAssetIcon(props: TableRowAssetIconProps) {
     return (

@@ -1,9 +1,9 @@
-import { isModuleInitialized } from '@revenge-mod/modules/metro/utils'
-import { getErrorStack } from '@revenge-mod/utils/error'
+import { isModuleInitialized } from '@valenced/modules/metro/utils'
+import { getErrorStack } from '@valenced/utils/error'
 import { withProps } from '.'
 import { allOf, anyOf } from './composite'
 import { FilterScopes } from './constants'
-import type { Metro } from '@revenge-mod/modules/types'
+import type { Metro } from '@valenced/modules/types'
 import type {
     DefaultFilterInfo,
     FilterInfo,

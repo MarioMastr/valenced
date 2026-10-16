@@ -1,8 +1,8 @@
 {
-  "id": "revenge.staff-settings",
+  "id": "valenced.staff-settings",
   "name": "Staff Settings",
   "description": "Allows accessing Discord's Staff Settings.",
-  "author": "Revenge",
+  "author": "Valenced",
   "icon": "StaffBadgeIcon",
   "enabledByDefault": true
 }

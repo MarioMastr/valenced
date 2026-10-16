@@ -1,27 +1,27 @@
 import { useNavigation } from '@react-navigation/native'
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { FormSwitch } from '@revenge-mod/components'
-import { styles } from '@revenge-mod/components/_'
-import Page from '@revenge-mod/components/Page'
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { Tokens } from '@revenge-mod/discord/common/tokens'
-import { Design } from '@revenge-mod/discord/design'
-import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
+import { getAssetIdByName } from '@valenced/assets'
+import { FormSwitch } from '@valenced/components'
+import { styles } from '@valenced/components/_'
+import Page from '@valenced/components/Page'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { Tokens } from '@valenced/discord/common/tokens'
+import { Design } from '@valenced/discord/design'
+import { Clipboard } from '@valenced/externals/react-native-clipboard'
 import {
     callPluginSystemMethod,
     getInternalPluginMeta,
     pList,
     resyncPluginSources,
-} from '@revenge-mod/plugins/_'
+} from '@valenced/plugins/_'
 import {
     listRepos,
     refreshRepo,
     repoEvents,
     setRepos,
-} from '@revenge-mod/plugins/_/repositories'
-import { noop } from '@revenge-mod/utils/callback'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+} from '@valenced/plugins/_/repositories'
+import { noop } from '@valenced/utils/callback'
+import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Image, ScrollView, View } from 'react-native'
 import { useStore } from 'zustand/react'
@@ -38,7 +38,7 @@ import type {
     Repo,
     RepoConfigEntry,
     RepoStateEvent,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 
 const {
     Button,
@@ -192,7 +192,7 @@ function UserRepoRow({
     )
 }
 
-export default function RevengePluginsAdvancedSettingScreen() {
+export default function ValencedPluginsAdvancedSettingScreen() {
     const navigation = useNavigation<NavigationProp<any>>()
     // Internal repositories are native-managed and not part of the config.
     const [repos, setReposState] = useState<Repo[]>([])
@@ -415,7 +415,7 @@ export default function RevengePluginsAdvancedSettingScreen() {
                                 onPress={() =>
                                     navigation.navigate(
                                         RouteNames[
-                                            Setting.RevengePluginsUpdates
+                                            Setting.ValencedPluginsUpdates
                                         ],
                                     )
                                 }
@@ -428,7 +428,7 @@ export default function RevengePluginsAdvancedSettingScreen() {
                             label="Install from file"
                             onPress={() =>
                                 callPluginSystemMethod(
-                                    'revenge.plugins.installFile',
+                                    'valenced.plugins.installFile',
                                     [],
                                 ).catch(e =>
                                     showErrorToast(
@@ -447,7 +447,7 @@ export default function RevengePluginsAdvancedSettingScreen() {
                                         await addDefaultRepoIfNeeded(true)
                                     if (!restored) {
                                         ToastActionCreators.open(
-                                            'REVENGE_DEFAULT_REPO_NO_ACTION',
+                                            'VALENCED_DEFAULT_REPO_NO_ACTION',
                                             {
                                                 text: 'Nothing to restore',
                                                 icon: lookupGeneratedIconComponent(

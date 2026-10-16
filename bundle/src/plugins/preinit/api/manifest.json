@@ -1,8 +1,8 @@
 {
-  "id": "revenge.api",
+  "id": "valenced.api",
   "name": "Plugin API",
-  "description": "Provides the Revenge plugin API.",
-  "author": "Revenge",
+  "description": "Provides the Valenced plugin API.",
+  "author": "Valenced",
   "icon": "PollsIcon",
   "essential": true,
   "api": true

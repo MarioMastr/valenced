@@ -5,8 +5,8 @@
  * Also avoids cloning exports, allowing for patches to be applied directly without checking for clones.
  */
 
-import { callNativeMethodSync } from '@revenge-mod/modules/native'
-import { getErrorStack } from '@revenge-mod/utils/error'
+import { callNativeMethodSync } from '@valenced/modules/native'
+import { getErrorStack } from '@valenced/utils/error'
 import { FullVersion } from '~constants'
 import { loadModuleFromSegment, mList } from './patches'
 import {
@@ -65,7 +65,7 @@ export const metroRequire = (moduleId => {
         const msg = `Module ${moduleId} failed to initialize:\n\n${getErrorStack(e)}`
 
         if (__DEV__) {
-            callNativeMethodSync('revenge.alertError', [msg, FullVersion])
+            callNativeMethodSync('valenced.alertError', [msg, FullVersion])
         } else {
             nativeLoggingHook(msg, 2)
         }

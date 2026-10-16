@@ -1,8 +1,8 @@
-import { SheetHeader } from '@revenge-mod/components'
-import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { ReactNativeSafeAreaContext } from '@revenge-mod/externals/react-native-safe-area-context'
-import { listRepos } from '@revenge-mod/plugins/_/repositories'
+import { SheetHeader } from '@valenced/components'
+import { ActionSheetActionCreators } from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { ReactNativeSafeAreaContext } from '@valenced/externals/react-native-safe-area-context'
+import { listRepos } from '@valenced/plugins/_/repositories'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { View } from 'react-native'
 import { showErrorToast } from '../utils/alerts'
@@ -152,7 +152,7 @@ export function openPluginRepositoryPickerActionSheet(
 ) {
     ActionSheetActionCreators.openLazy(
         Promise.resolve({ default: PluginRepositoryPickerActionSheet }),
-        'REVENGE_PLUGIN_REPOSITORY_PICKER',
+        'VALENCED_PLUGIN_REPOSITORY_PICKER',
         props,
         'stack',
     )

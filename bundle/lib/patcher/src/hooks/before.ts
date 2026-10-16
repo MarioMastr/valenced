@@ -42,7 +42,7 @@ function unpatchBefore<T extends UnknownFunction>(
  * Before hooks allow you to modify the arguments passed to the original function, or to perform some action before the original function is called.
  *
  * ```js
- * import { before } from '@revenge-mod/patcher'
+ * import { before } from '@valenced/patcher'
  *
  * const obj = {
  *     method: (a) => console.log('Original method called with:', a)

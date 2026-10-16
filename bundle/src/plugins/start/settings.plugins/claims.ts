@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import type { PluginManifest } from '@revenge-mod/plugins/types'
+import type { PluginManifest } from '@valenced/plugins/types'
 import type { PluginMatch, PluginMatchInfo } from './api'
 
 // Plugins claimed by other plugins for custom pages, excluded from standard plugin views. Loaded at start stage without UI.

@@ -1,17 +1,17 @@
 import {
     AlertActionCreators,
     ToastActionCreators,
-} from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
+} from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { RootNavigationRef } from '@valenced/discord/modules/main_tabs_v2'
 import {
     deleteStorageForPlugin,
     getPluginDependents,
     isPluginEnabledInActiveSlot,
     isPluginStarted,
     uninstallExternalPlugin,
-} from '@revenge-mod/plugins/_'
-import { getErrorStack } from '@revenge-mod/utils/error'
+} from '@valenced/plugins/_'
+import { getErrorStack } from '@valenced/utils/error'
 import { deleteJsonStorageForPlugin } from '~plugins/preinit/api/json-storage'
 import PluginClearDataConfirmationAlert from '../components/PluginClearDataConfirmationAlert'
 import PluginDependentsChoiceAlert from '../components/PluginDependentsChoiceAlert'
@@ -19,8 +19,8 @@ import PluginHasDependenciesAlert from '../components/PluginHasDependenciesAlert
 import PluginMissingDependenciesAlert from '../components/PluginMissingDependenciesAlert'
 import PluginUninstallConfirmationAlert from '../components/PluginUninstallConfirmationAlert'
 import RepoRemoveConfirmationAlert from '../components/RepoRemoveConfirmationAlert'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
-import type { Repo } from '@revenge-mod/plugins/_/repositories'
+import type { AnyPlugin } from '@valenced/plugins/_'
+import type { Repo } from '@valenced/plugins/_/repositories'
 
 const { Text } = Design
 
@@ -238,7 +238,7 @@ export function showPluginRelinkAlert(
 }
 
 export function showErrorToast(message: string, key: string) {
-    ToastActionCreators.open(`REVENGE_PLUGINS_ERROR:${key}`, {
+    ToastActionCreators.open(`VALENCED_PLUGINS_ERROR:${key}`, {
         text: message,
         variant: 'critical',
     })

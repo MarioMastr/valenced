@@ -1,6 +1,6 @@
-import * as PluginApiReact_ from '@revenge-mod/react'
-import * as PluginApiReactJsxRuntime from '@revenge-mod/react/jsx-runtime'
-import * as PluginApiReactNative from '@revenge-mod/react/native'
+import * as PluginApiReact_ from '@valenced/react'
+import * as PluginApiReactJsxRuntime from '@valenced/react/jsx-runtime'
+import * as PluginApiReactNative from '@valenced/react/native'
 import { spreadDescriptors } from '.'
 
 export type PluginApiReact = typeof PluginApiReact_ & {

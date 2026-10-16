@@ -1,7 +1,7 @@
-import { Design } from '@revenge-mod/discord/design'
-import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
+import { Design } from '@valenced/discord/design'
+import { RootNavigationRef } from '@valenced/discord/modules/main_tabs_v2'
 import { RouteNames } from '../constants'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin } from '@valenced/plugins/_'
 
 const { AlertModal, AlertActionButton, Text } = Design
 
@@ -58,13 +58,13 @@ export default function PluginsFailedToStartAlert({
 
                             if (
                                 navigation.getCurrentRoute()?.name ===
-                                RouteNames.RevengePlugins
+                                RouteNames.ValencedPlugins
                             )
                                 navigation.setParams(params)
                             // React Navigation will bubble our requests to the main navigator if we're already in settings
                             else
                                 navigation.navigate('settings', {
-                                    screen: RouteNames.RevengePlugins,
+                                    screen: RouteNames.ValencedPlugins,
                                     params,
                                 })
                         }}

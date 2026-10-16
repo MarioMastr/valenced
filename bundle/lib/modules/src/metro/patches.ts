@@ -1,4 +1,4 @@
-import { onAnyModuleFirstRequired } from '@revenge-mod/modules/metro/subscriptions'
+import { onAnyModuleFirstRequired } from '@valenced/modules/metro/subscriptions'
 import { cache, cacheBlacklistedModule, Uncached } from '../caches'
 import {
     global,
@@ -6,7 +6,7 @@ import {
     metroImportDefault,
     metroRequire,
 } from './runtime'
-import type { Metro, RevengeMetro } from '../types'
+import type { Metro, ValencedMetro } from '../types'
 
 export let mInitializingId: Metro.ModuleID | undefined
 /** Uninitialized IDs (not blacklisted) */
@@ -16,7 +16,7 @@ export const mInitialized = new Set<Metro.ModuleID>()
 
 export const mDeps = new Map<Metro.ModuleID, Metro.DependencyMap>()
 
-export const mList: RevengeMetro.ModuleList = new Map()
+export const mList: ValencedMetro.ModuleList = new Map()
 
 /**
  * Metro allows a bundle to be split into segments.
@@ -61,7 +61,7 @@ const registerSegment: Metro.RegisterSegmentFn = (
  */
 export function loadModuleFromSegment(
     moduleId: Metro.ModuleID,
-): RevengeMetro.ModuleDefinition | undefined {
+): ValencedMetro.ModuleDefinition | undefined {
     const segmentId = mModuleIdToSegmentId.get(moduleId) ?? 0
     const definer = mSegmentDefiners[segmentId]
     if (!definer) return undefined
@@ -83,7 +83,7 @@ const metroDefine = (
     mDeps.set(id, dependencyMap!)
     mUninitialized.add(id)
 
-    const def: RevengeMetro.ModuleDefinition = {
+    const def: ValencedMetro.ModuleDefinition = {
         flags: 0,
         module: undefined,
         factory: () => {
@@ -106,7 +106,7 @@ const metroDefine = (
  * 1. `__METRO_GLOBAL_PREFIX__ = ""`
  * 2. `${__METRO_GLOBAL_PREFIX__}__d = function define(...) {}`
  *    - Why don't we patch it here? Because we need to know the value of `__METRO_GLOBAL_PREFIX__` first
- *    - And since Revenge runs before everything else, we need to patch in the next steps:
+ *    - And since Valenced runs before everything else, we need to patch in the next steps:
  *      - We chose to patch it in 4. because we can access all the global functions at that point.
  * 3. `__r`, `__d`, `__c` is set
  * 4. `__registerSegment` is set

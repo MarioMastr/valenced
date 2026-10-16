@@ -1,14 +1,14 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { styles } from '@revenge-mod/components/_'
-import { Design } from '@revenge-mod/discord/design'
-import { SettingListRenderer } from '@revenge-mod/discord/modules/settings/renderer'
+import { getAssetIdByName } from '@valenced/assets'
+import { styles } from '@valenced/components/_'
+import { Design } from '@valenced/discord/design'
+import { SettingListRenderer } from '@valenced/discord/modules/settings/renderer'
 import { Image, Linking, ScrollView, StyleSheet, View } from 'react-native'
-import RevengeDonate from '~assets/RevengeDonate'
+import ValencedDonate from '~assets/ValencedDonate'
 import { Setting } from '../constants'
 
 const { Button, Card, Stack, Text } = Design
 
-export default function RevengeSettingScreen() {
+export default function ValencedSettingScreen() {
     return (
         <ScrollView style={{ flex: 1 }}>
             <Stack spacing={0}>
@@ -21,13 +21,13 @@ export default function RevengeSettingScreen() {
                             type: 'list',
                             sections: [
                                 {
-                                    label: 'Revenge',
+                                    label: 'Valenced',
                                     settings: [
-                                        Setting.RevengeVersion,
+                                        Setting.ValencedVersion,
                                         Setting.LoaderVersion,
-                                        Setting.RevengeDiscord,
-                                        Setting.RevengeSourceRepository,
-                                        Setting.RevengeLicense,
+                                        Setting.ValencedDiscord,
+                                        Setting.ValencedSourceRepository,
+                                        Setting.ValencedLicense,
                                     ],
                                 },
                                 {
@@ -42,12 +42,12 @@ export default function RevengeSettingScreen() {
                                     label: 'Actions',
                                     settings: [
                                         Setting.Reload,
-                                        Setting.RevengeEnterRecoveryMode,
+                                        Setting.ValencedEnterRecoveryMode,
                                     ],
                                 },
                                 {
                                     label: 'Developer',
-                                    settings: [Setting.RevengeDeveloperMode],
+                                    settings: [Setting.ValencedDeveloperMode],
                                 },
                             ],
                         }}
@@ -100,10 +100,10 @@ function DonateCard() {
                                 variant="heading-lg/semibold"
                                 color="text-strong"
                             >
-                                Support Revenge
+                                Support Valenced
                             </Text>
                             <Text variant="text-md/medium">
-                                You can support the development of Revenge by
+                                You can support the development of Valenced by
                                 donating or contributing!
                             </Text>
                         </Stack>
@@ -133,7 +133,7 @@ function DonateCard() {
                         </Stack>
                     </Stack>
                     <Image
-                        source={RevengeDonate}
+                        source={ValencedDonate}
                         style={cardStyles.illustration}
                     />
                 </Stack>

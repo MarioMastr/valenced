@@ -1,7 +1,7 @@
-import { Design } from '@revenge-mod/discord/design'
-import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
-import { formatPluginSystemErrorPayload } from '@revenge-mod/plugins/_'
-import type { PluginSystemErrorPayload } from '@revenge-mod/plugins/_'
+import { Design } from '@valenced/discord/design'
+import { Clipboard } from '@valenced/externals/react-native-clipboard'
+import { formatPluginSystemErrorPayload } from '@valenced/plugins/_'
+import type { PluginSystemErrorPayload } from '@valenced/plugins/_'
 
 const { AlertModal, AlertActionButton, Text } = Design
 

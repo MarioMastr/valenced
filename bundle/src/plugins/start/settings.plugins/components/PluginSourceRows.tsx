@@ -1,5 +1,5 @@
-import { TableRowAssetIcon } from '@revenge-mod/components'
-import { Design } from '@revenge-mod/discord/design'
+import { TableRowAssetIcon } from '@valenced/components'
+import { Design } from '@valenced/discord/design'
 import type { PluginRef } from '../utils/repos'
 
 const { TableRow } = Design

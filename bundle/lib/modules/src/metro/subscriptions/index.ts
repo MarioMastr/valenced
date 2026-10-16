@@ -11,7 +11,7 @@ export type ModuleInitializedCallback = (
  * Registers a callback to be called when any module is initialized.
  *
  * This runs after the module factory has been executed, but before the module is considered initialized by Metro.
- * However, Revenge APIs will consider the module initialized at this point.
+ * However, Valenced APIs will consider the module initialized at this point.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *
@@ -29,7 +29,7 @@ export function onAnyModuleInitialized(callback: ModuleInitializedCallback) {
  * Registers a callback to be called when a specific module is initialized.
  *
  * This runs after the module factory has been executed, but before the module is considered initialized by Metro.
- * However, Revenge APIs will consider the module initialized at this point.
+ * However, Valenced APIs will consider the module initialized at this point.
  *
  * @see {@link initializedModuleHasBadExports} to avoid bad module exports.
  *

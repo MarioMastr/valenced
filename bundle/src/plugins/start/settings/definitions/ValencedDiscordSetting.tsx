@@ -1,10 +1,10 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
 import { Linking } from 'react-native'
 import { Setting } from '../constants'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
-const RevengeDiscordSetting: SettingsItem = {
-    parent: Setting.Revenge,
+const ValencedDiscordSetting: SettingsItem = {
+    parent: Setting.Valenced,
     IconComponent: () => <TableRowAssetIcon name="Discord" />,
     useTitle: () => 'Discord Server',
     useDescription: () => __BUILD_DISCORD_SERVER_URL__,
@@ -14,4 +14,4 @@ const RevengeDiscordSetting: SettingsItem = {
     type: 'pressable',
 }
 
-export default RevengeDiscordSetting
+export default ValencedDiscordSetting

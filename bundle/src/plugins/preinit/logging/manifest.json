@@ -1,8 +1,8 @@
 {
-  "id": "revenge.logging",
+  "id": "valenced.logging",
   "name": "Logging",
-  "description": "Logs assisting Revenge developers.",
-  "author": "Revenge",
+  "description": "Logs assisting Valenced developers.",
+  "author": "Valenced",
   "icon": "PaperIcon",
   "enabledByDefault": true,
   "build": {

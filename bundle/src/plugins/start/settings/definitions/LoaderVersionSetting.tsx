@@ -1,14 +1,14 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { getBridgeInfo } from '@revenge-mod/modules/native'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { getBridgeInfo } from '@valenced/modules/native'
 import { Setting } from '../constants'
 import { CopyableSetting } from './shared'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
 const bridgeInfo = getBridgeInfo()
 
 const LoaderVersionSetting: SettingsItem = CopyableSetting(
     {
-        parent: Setting.Revenge,
+        parent: Setting.Valenced,
         IconComponent: () => <TableRowAssetIcon name="SendMessageIcon" />,
         useTitle: () => 'Loader',
         usePredicate: () => Boolean(bridgeInfo),

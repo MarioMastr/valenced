@@ -1,9 +1,9 @@
-import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { getModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
-import { registerInternalPlugin } from '@revenge-mod/plugins/_'
-import { insteadJSX } from '@revenge-mod/react/jsx-runtime'
+import { AlertActionCreators } from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { getModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import { registerInternalPlugin } from '@valenced/plugins/_'
+import { insteadJSX } from '@valenced/react/jsx-runtime'
 import { createElement, isValidElement } from 'react'
 import { Image } from 'react-native'
 import { Badges, UsersWithBadges } from './constants'
@@ -39,7 +39,7 @@ interface ProfileBadgeRowsProps {
 }
 
 // Discord toUpperCases this during resolution, so this can't be a symbol anymore
-const DummyBadgeId = 'revenge_dummy_badge'
+const DummyBadgeId = 'valenced_dummy_badge'
 const DummyBadges = [
     { id: DummyBadgeId },
 ] as unknown as ProfileBadgeRowsProps['badges']
@@ -115,7 +115,7 @@ const injectCustomBadges: RenderPatch<ProfileBadgeRowsProps> = (
                     patchRender(ProfileBadge, patchCustomBadge, useBadgeStyles),
                     {
                         ...template.props,
-                        key: `revenge-badge-${id}`,
+                        key: `valenced-badge-${id}`,
                         id,
                         label: badge.label,
                         source: badge.icon,
@@ -186,7 +186,7 @@ function openBadgeDialog(
     badgeStyles: BadgeStyles,
 ): void {
     AlertActionCreators.openAlert(
-        `revenge-profile-badge-${id}`,
+        `valenced-profile-badge-${id}`,
         <AlertModal
             title={
                 <Stack style={styles.stack}>

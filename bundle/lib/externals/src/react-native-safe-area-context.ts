@@ -1,14 +1,11 @@
-import { lookupModule } from '@revenge-mod/modules/finders'
-import {
-    withDependencies,
-    withProps,
-} from '@revenge-mod/modules/finders/filters'
+import { lookupModule } from '@valenced/modules/finders'
+import { withDependencies, withProps } from '@valenced/modules/finders/filters'
 import {
     ReactJSXRuntimeModuleId,
     ReactModuleId,
     ReactNativeModuleId,
-} from '@revenge-mod/react'
-import { proxify } from '@revenge-mod/utils/proxy'
+} from '@valenced/react'
+import { proxify } from '@valenced/utils/proxy'
 
 const { relative, partial } = withDependencies
 
@@ -37,7 +34,7 @@ export let ReactNativeSafeAreaContext: typeof import('react-native-safe-area-con
                 withProps<typeof ReactNativeSafeAreaContext>('SafeAreaProvider')
                     .and(withSafeAreaContextModule())
                     .keyAs(
-                        'revenge.externals.ReactNativeSafeAreaContext.ReactNativeSafeAreaContext',
+                        'valenced.externals.ReactNativeSafeAreaContext.ReactNativeSafeAreaContext',
                     ),
             )
 

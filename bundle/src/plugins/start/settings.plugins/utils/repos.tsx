@@ -3,25 +3,25 @@ import {
     isPluginSystemErrorPayload,
     PluginErrorCodes,
     resyncPluginSources,
-} from '@revenge-mod/plugins/_'
+} from '@valenced/plugins/_'
 import {
     installFromRepo,
     listRepoPlugins,
     planInstall,
     refreshRepo,
-} from '@revenge-mod/plugins/_/repositories'
-import { formatVersion } from '@revenge-mod/plugins/utils'
+} from '@valenced/plugins/_/repositories'
+import { formatVersion } from '@valenced/plugins/utils'
 import { showErrorToast } from './alerts'
 import { messageOf } from './strings'
 import { describeIssue } from './updates'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin } from '@valenced/plugins/_'
 import type {
     InstallPlan,
     InstallPlanAction,
     PlanTarget,
     RepoPluginListing,
     ResolveIssue,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 
 /** Finds a plugin in a repository index. Refreshes it when `refresh` is set or nothing is cached. */
 export async function findRepoListing(

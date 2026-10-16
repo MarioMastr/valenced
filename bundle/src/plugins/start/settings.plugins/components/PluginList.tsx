@@ -1,6 +1,6 @@
-import { styles } from '@revenge-mod/components/_'
-import { Design } from '@revenge-mod/discord/design'
 import { FlashList } from '@shopify/flash-list'
+import { styles } from '@valenced/components/_'
+import { Design } from '@valenced/discord/design'
 import { useWindowDimensions } from 'react-native'
 import {
     BrowsePluginCard,
@@ -9,9 +9,9 @@ import {
     PluginCard,
 } from './PluginCard'
 import { useHidePluginTooltips } from './TooltipProvider'
-import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
-import type { RepoPluginListing } from '@revenge-mod/plugins/_/repositories'
 import type { FlashListProps } from '@shopify/flash-list'
+import type { AnyPlugin, InternalPluginMeta } from '@valenced/plugins/_'
+import type { RepoPluginListing } from '@valenced/plugins/_/repositories'
 import type { PluginRef } from '../utils/repos'
 import type { PluginCardProps, PluginInfoData } from './PluginCard'
 

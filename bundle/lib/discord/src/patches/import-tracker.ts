@@ -1,7 +1,7 @@
-import { getModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
-import { mInitializingId } from '@revenge-mod/modules/metro/patches'
-import type { Metro } from '@revenge-mod/modules/types'
+import { getModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import { mInitializingId } from '@valenced/modules/metro/patches'
+import type { Metro } from '@valenced/modules/types'
 
 export type ModuleFinishedImportingCallback = (
     id: Metro.ModuleID,

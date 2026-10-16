@@ -10,8 +10,8 @@ import {
     isPluginEnabledInActiveSlot,
     runPluginLate,
     stopPlugin,
-} from '@revenge-mod/plugins/_'
-import { noop } from '@revenge-mod/utils/callback'
+} from '@valenced/plugins/_'
+import { noop } from '@valenced/utils/callback'
 import {
     showErrorToast,
     showPluginHasDependenciesAlert,
@@ -22,7 +22,7 @@ import {
 } from './alerts'
 import { installPlugins } from './repos'
 import { messageOf } from './strings'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin } from '@valenced/plugins/_'
 
 export async function handleEnablePlugin(plugin: AnyPlugin) {
     const missing = getMissingPluginDependencies(plugin)

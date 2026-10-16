@@ -1,11 +1,11 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { TableRowAssetIcon } from '@revenge-mod/components'
+import { getAssetIdByName } from '@valenced/assets'
+import { TableRowAssetIcon } from '@valenced/components'
 import {
     ActionSheetActionCreators,
     ToastActionCreators,
-} from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
+} from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { Clipboard } from '@valenced/externals/react-native-clipboard'
 import {
     formatPluginSystemErrorPayload,
     getInternalPluginMeta,
@@ -26,16 +26,16 @@ import {
     runPluginLate,
     setUpdatesPaused,
     stopPlugin,
-} from '@revenge-mod/plugins/_'
+} from '@valenced/plugins/_'
 import {
     usePluginEnabled,
     usePluginEnabledInActiveSlot,
     usePluginFlags,
     usePluginSource,
     usePluginStatus,
-} from '@revenge-mod/plugins/_/react'
-import { formatVersion } from '@revenge-mod/plugins/utils'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+} from '@valenced/plugins/_/react'
+import { formatVersion } from '@valenced/plugins/utils'
+import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { Pressable } from 'react-native'
 import { ClickOutsideProvider } from 'react-native-click-outside'
 import {
@@ -63,7 +63,7 @@ import PluginTooltipsProvider, {
     PluginTooltip,
     usePluginTooltip,
 } from './TooltipProvider'
-import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
+import type { AnyPlugin, InternalPluginMeta } from '@valenced/plugins/_'
 
 export interface PluginOptionsActionSheetProps {
     plugin: AnyPlugin
@@ -504,7 +504,7 @@ function PluginActions({
 const CopyIcon = lookupGeneratedIconComponent('CopyIcon')!
 
 export function showCopiedToClipboardToast() {
-    ToastActionCreators.open('REVENGE_PLUGIN_SETTINGS_COPIED', {
+    ToastActionCreators.open('VALENCED_PLUGIN_SETTINGS_COPIED', {
         text: 'Copied to clipboard',
         icon: CopyIcon,
     })

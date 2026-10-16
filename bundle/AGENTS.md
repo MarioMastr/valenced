@@ -14,23 +14,23 @@ Compression never removes substance. Keep exact identifiers, commands, file path
 
 ## Project
 
-Revenge Next builds the Revenge bundle, which is Hermes bytecode that runs inside the official Discord mobile app. The bundle is not standalone. A native bootstrapper loads it.
+Valenced Next builds the Valenced bundle, which is Hermes bytecode that runs inside the official Discord mobile app. The bundle is not standalone. A native bootstrapper loads it.
 
 Sibling repositories user should specify the paths to:
 
 | Repository                | Role                                                 |
 | ------------------------- | ---------------------------------------------------- |
-| `revenge-xposed`          | Native Xposed module.                                |
-| `revenge-plugin-template` | Plugin template, index generator, release workflows. |
-| `revenge-docs`            | User and plugin author documentation.                |
+| `valenced-xposed`          | Native Xposed module.                                |
+| `valenced-plugin-template` | Plugin template, index generator, release workflows. |
+| `valenced-docs`            | User and plugin author documentation.                |
 
-Changes that cross the native bridge usually need edits in `revenge-xposed` and `revenge-docs` in the same pass.
+Changes that cross the native bridge usually need edits in `valenced-xposed` and `valenced-docs` in the same pass.
 
 ## Commands
 
 ```sh
 deno install                         # install dependencies (CI uses --frozen)
-deno run build                       # build the bundle to dist/revenge.bundle
+deno run build                       # build the bundle to dist/valenced.bundle
 deno run build --dev                 # build with debugging, slow, not for production
 deno run dev                         # rebuild on change and serve the bundle on port 4040
 deno x tsc --noEmit -p .             # typecheck
@@ -46,7 +46,7 @@ reload. Check its log for the served request to confirm the device picked up the
 
 ## Layout
 
-- `lib/*` holds the `@revenge-mod/*` packages. Each has its own `package.json` with an `exports` map. Import through the package name, never through a relative path into another package.
+- `lib/*` holds the `@valenced/*` packages. Each has its own `package.json` with an `exports` map. Import through the package name, never through a relative path into another package.
 - `src/plugins/{preinit,init,start}/` holds the bundled plugins. `src/plugins/*.ts` registers them with `import.meta.glob`, so a new directory with an `index.ts` needs no barrel edit.
 - `shims/` holds module shims. `scripts/` holds the Deno build. `types/` holds ambient types.
 - `plans/` holds design plans, named `YYYY-MM-DD-<name>-v<N>.md`. Write a plan before large or cross-cutting work, then execute it and tick the tasks.
@@ -123,13 +123,13 @@ Each one cost real debugging time. Read them before you write code in that area.
 
 - **React binds late.** `shims/react.ts` exports a binding that `waitForModules` fills asynchronously.
   Code that loads at preinit must not import `react`, and must not import any package that imports it, such as `zustand/react`.
-  An early import captures `undefined` and fails far from the cause. Start-stage UI imports `@revenge-mod/plugins/_/react` for hooks.
-  The `@revenge-mod/plugins/_` barrel must never re-export that entry.
-- **`@revenge-mod/plugins/_` is a pure barrel** over `lib/plugins/src/_internal/*`, and about 39 files import it.
+  An early import captures `undefined` and fails far from the cause. Start-stage UI imports `@valenced/plugins/_/react` for hooks.
+  The `@valenced/plugins/_` barrel must never re-export that entry.
+- **`@valenced/plugins/_` is a pure barrel** over `lib/plugins/src/_internal/*`, and about 39 files import it.
   Keep its exports exhaustive. Never import an `_internal` submodule from outside the package.
 - **Plugin flags and status live in one store.** `lib/plugins/src/_internal/store.ts` is authoritative, and `meta.status` and `meta.flags` are accessors over it.
   Do not mirror plugin state in React state or in a second map.
-- **Native plugin methods return values, not rejections.** Every `revenge.plugins.*` method resolves `{ result }` or `{ error: { code, message, stack?, details? } }`.
+- **Native plugin methods return values, not rejections.** Every `valenced.plugins.*` method resolves `{ result }` or `{ error: { code, message, stack?, details? } }`.
   Call them through `callPluginSystemMethod` in `lib/plugins/src/_internal/native.ts`. Using `callNativeMethod` and throwing in native loses the code and the message.
 
 ### Metro runtime
@@ -164,29 +164,29 @@ Each one cost real debugging time. Read them before you write code in that area.
 ### Plugin API surface
 
 - **The unscoped API is assembled across packages.** `lib/plugins/src/types.ts` declares six properties.
-  `utils`, `jsonStorage` and `components` arrive later through `declare module '@revenge-mod/plugins/types'` blocks that live in other libraries (`lib/{utils,jsonStorage,components}/src/types.ts`).
+  `utils`, `jsonStorage` and `components` arrive later through `declare module '@valenced/plugins/types'` blocks that live in other libraries (`lib/{utils,jsonStorage,components}/src/types.ts`).
   One file gives you a wrong picture of the API. Grep for the augmentation before you claim the API has some shape.
-- **`revenge` is not a global.** External plugins get it as a function parameter (`lib/plugins/src/_internal/external-plugins.ts:246-250`).
-  The ambient `const revenge` in `types/globals.consumers.ts:22-25` exists for types only. `globalThis.revenge` is undefined.
-- **Module path does not map to global path.** `@revenge-mod/externals/browserify` is `revenge.externals.Browserify`. `@revenge-mod/modules/metro/utils` and
-  `.../metro/subscriptions` both land on `revenge.modules.metro` (`lib/plugins/src/apis/modules.ts:21-24`).
-  `@revenge-mod/components/Page` maps to the module's default export, not its namespace (`lib/components/src/types.ts:2-5`). Never derive one side from the other with string rules.
+- **`valenced` is not a global.** External plugins get it as a function parameter (`lib/plugins/src/_internal/external-plugins.ts:246-250`).
+  The ambient `const valenced` in `types/globals.consumers.ts:22-25` exists for types only. `globalThis.valenced` is undefined.
+- **Module path does not map to global path.** `@valenced/externals/browserify` is `valenced.externals.Browserify`. `@valenced/modules/metro/utils` and
+  `.../metro/subscriptions` both land on `valenced.modules.metro` (`lib/plugins/src/apis/modules.ts:21-24`).
+  `@valenced/components/Page` maps to the module's default export, not its namespace (`lib/components/src/types.ts:2-5`). Never derive one side from the other with string rules.
   Read `modules.importmap.json` from the generated types package instead. `scripts/typegen/libs.ts` declares every pair, and typegen fails when one drifts.
-- **Hidden modules stay out of `modules.json` and `modules.importmap.json`.** Those files are the public contract, the first listing every declared module and the second mapping a specifier to its property path on `revenge`.
+- **Hidden modules stay out of `modules.json` and `modules.importmap.json`.** Those files are the public contract, the first listing every declared module and the second mapping a specifier to its property path on `valenced`.
   Hidden types listed there would typecheck and then fail at plugin bundle time. `partitionModules` in `scripts/typegen/helpers.ts:11` keeps them in the `.hidden` counterparts.
-- **`modules.json` and `modules.importmap.json` hold different sets.** The list covers every declared module. The map only covers modules with a property on `revenge`,
+- **`modules.json` and `modules.importmap.json` hold different sets.** The list covers every declared module. The map only covers modules with a property on `valenced`,
   so the nine `*/types` entries are absent by design. Never treat one as the index of the other.
 
 ### DevTools MCP
 
 Use it to check a claim against the running client. Every item below cost a wasted round trip.
 
-- **MCP runs in the scope of a plugin.** It has access to `revenge` global. It can also access private internals via the hidden API using `revenge.hidden`.
-  If that is undefined, ask the user to enable Developer Mode in Settings > Revenge.
+- **MCP runs in the scope of a plugin.** It has access to `valenced` global. It can also access private internals via the hidden API using `valenced.hidden`.
+  If that is undefined, ask the user to enable Developer Mode in Settings > Valenced.
 - **Patch the module exports, never the fiber's `type`.** React captured the function reference at mount, so replacing a property on some object you hold changes nothing.
-  Discord's transpiled JSX reads `exports.Foo` at render time, so patching `revenge.modules.metro.getInitializedModuleExports(id).Foo` does take effect on the next render.
+  Discord's transpiled JSX reads `exports.Foo` at render time, so patching `valenced.modules.metro.getInitializedModuleExports(id).Foo` does take effect on the next render.
   A fiber mounted before you unpatched keeps the old wrapper, so `fiber.type !== exports.Foo` is expected and is not a sign you found the wrong module.
-- **`revenge.modules.metro` has no `require`.** It exposes `getInitializedModuleExports`, `getModuleDependencies`, `isModuleInitialized`, `isModuleExportBad` and the subscription helpers.
+- **`valenced.modules.metro` has no `require`.** It exposes `getInitializedModuleExports`, `getModuleDependencies`, `isModuleInitialized`, `isModuleExportBad` and the subscription helpers.
   Use the `require_module` tool when the module may still be uninitialized.
 - **`eval` truncates nested values.** Anything past shallow depth prints as `[Array(20)]` or
   `[Object {a, b}]`, which hides the data you asked for. Return a JSON string or a joined string instead of the object.

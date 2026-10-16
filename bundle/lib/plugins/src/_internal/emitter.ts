@@ -1,4 +1,4 @@
-import { TypedEventEmitter } from '@revenge-mod/discord/common/utils'
+import { TypedEventEmitter } from '@valenced/discord/common/utils'
 import type { PluginOptions } from '../types'
 import type {
     AnyPlugin,

@@ -1,4 +1,4 @@
-import { isModuleExportBad } from '@revenge-mod/modules/metro/utils'
+import { isModuleExportBad } from '@valenced/modules/metro/utils'
 import { FilterScopes } from './constants'
 import { createFilterGenerator } from './utils'
 import type { Filter, FilterGenerator } from './utils'
@@ -39,7 +39,7 @@ export const withProps = createFilterGenerator<Parameters<WithProps>>(
 
         return false
     },
-    props => `revenge.props(${props.join(',')})`,
+    props => `valenced.props(${props.join(',')})`,
     FilterScopes.Initialized,
 ) as WithProps
 
@@ -64,7 +64,7 @@ export const withoutProps = createFilterGenerator<Parameters<WithoutProps>>(
 
         return true
     },
-    props => `revenge.withoutProps(${props.join(',')})`,
+    props => `valenced.withoutProps(${props.join(',')})`,
     FilterScopes.Initialized,
 ) as WithoutProps
 
@@ -93,7 +93,7 @@ export const withSingleProp = createFilterGenerator<Parameters<WithSingleProp>>(
 
         return false
     },
-    ([prop]) => `revenge.singleProp(${prop})`,
+    ([prop]) => `valenced.singleProp(${prop})`,
     FilterScopes.Initialized,
 ) as WithSingleProp
 
@@ -133,7 +133,7 @@ export type WithSingleProp = FilterGenerator<
  */
 export const withName = createFilterGenerator<Parameters<WithName>>(
     ([name], _, exports) => exports?.name === name,
-    ([name]) => `revenge.name(${name})`,
+    ([name]) => `valenced.name(${name})`,
     FilterScopes.Initialized,
 ) as WithName
 

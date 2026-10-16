@@ -4,11 +4,11 @@ import type {
     UnscopedInitPluginApi,
     UnscopedPluginApi,
     UnscopedPreInitPluginApi,
-} from '@revenge-mod/plugins/types'
+} from '@valenced/plugins/types'
 
 declare global {
     /**
-     * Defines an entrypoint for a Revenge JS plugin.
+     * Defines an entrypoint for a Valenced JS plugin.
      */
     export function plugin<O extends PluginApiExtensionsOptions>(
         options: PluginOptions<O>,
@@ -19,7 +19,7 @@ declare global {
      *
      * You should be using the `unscoped` property of the `PluginApi` object instead.
      */
-    export const revenge:
+    export const valenced:
         | UnscopedPreInitPluginApi
         | UnscopedInitPluginApi
         | UnscopedPluginApi

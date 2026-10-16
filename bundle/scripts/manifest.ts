@@ -3,7 +3,7 @@ import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { ReservedDependencyIds } from '../lib/plugins/src/_internal/manifest'
 import { exists, stringEnv } from './_shared'
-import type { InternalPluginManifest } from '@revenge-mod/plugins/_'
+import type { InternalPluginManifest } from '@valenced/plugins/_'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 export const PluginsDir = `${__dirname}/../src/plugins`
@@ -132,7 +132,7 @@ export async function getInternalPluginManifests(
                               // stringEnv quotes values for build defines
                               repo: JSON.parse(
                                   stringEnv(
-                                      'REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL',
+                                      'VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL',
                                   ),
                               ),
                           }

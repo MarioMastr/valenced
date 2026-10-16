@@ -1,3 +1,3 @@
-import { ReactJSXRuntime } from '@revenge-mod/react'
+import { ReactJSXRuntime } from '@valenced/react'
 
 module.exports = ReactJSXRuntime

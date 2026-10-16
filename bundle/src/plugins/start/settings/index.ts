@@ -1,23 +1,23 @@
-import { sRefresher, sSections } from '@revenge-mod/discord/_/modules/settings'
-import { onSettingsModulesLoaded } from '@revenge-mod/discord/modules/settings'
-import defer * as Renderer from '@revenge-mod/discord/modules/settings/renderer'
-import { waitForModuleWithImportedPath } from '@revenge-mod/discord/utils/modules/finders'
-import { lookupModule, waitForModules } from '@revenge-mod/modules/finders'
+import { sRefresher, sSections } from '@valenced/discord/_/modules/settings'
+import { onSettingsModulesLoaded } from '@valenced/discord/modules/settings'
+import defer * as Renderer from '@valenced/discord/modules/settings/renderer'
+import { waitForModuleWithImportedPath } from '@valenced/discord/utils/modules/finders'
+import { lookupModule, waitForModules } from '@valenced/modules/finders'
 import {
     withDependencies,
     withProps,
     withSingleProp,
-} from '@revenge-mod/modules/finders/filters'
-import { instead } from '@revenge-mod/patcher'
-import { registerInternalPlugin } from '@revenge-mod/plugins/_'
-import { React, ReactModuleId } from '@revenge-mod/react'
-import { asap, noop } from '@revenge-mod/utils/callback'
-import { getCurrentStack } from '@revenge-mod/utils/error'
-import { useReRender } from '@revenge-mod/utils/react'
+} from '@valenced/modules/finders/filters'
+import { instead } from '@valenced/patcher'
+import { registerInternalPlugin } from '@valenced/plugins/_'
+import { React, ReactModuleId } from '@valenced/react'
+import { asap, noop } from '@valenced/utils/callback'
+import { getCurrentStack } from '@valenced/utils/error'
+import { useReRender } from '@valenced/utils/react'
 import { cloneElement, useEffect } from 'react'
 import manifest from './manifest.json'
-import type { SettingsSection } from '@revenge-mod/discord/modules/settings'
-import type { AnyFunction, KeyWithType } from '@revenge-mod/utils/types'
+import type { SettingsSection } from '@valenced/discord/modules/settings'
+import type { AnyFunction, KeyWithType } from '@valenced/utils/types'
 import type {
     FC,
     MemoExoticComponent,
@@ -139,7 +139,7 @@ function remountHookHarness(el: ReactElement<{ children?: ReactNode[] }>) {
         if (index !== -1) {
             const newChildren = [...children]
             newChildren[index] = cloneElement(children[index] as ReactElement, {
-                key: `revenge.${sRefresher.navigator}`,
+                key: `valenced.${sRefresher.navigator}`,
             })
 
             return cloneElement(el, { children: newChildren })

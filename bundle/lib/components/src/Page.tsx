@@ -1,6 +1,6 @@
-import { Design } from '@revenge-mod/discord/design'
+import { Design } from '@valenced/discord/design'
 import { PageSpacing, styles } from './_internal'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import type { DiscordModules } from '@valenced/discord/types'
 
 export default function Page(props: DiscordModules.Components.StackProps) {
     return (

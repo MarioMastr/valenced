@@ -1,7 +1,7 @@
-import { styles } from '@revenge-mod/components/_'
-import { Design } from '@revenge-mod/discord/design'
+import { styles } from '@valenced/components/_'
+import { Design } from '@valenced/discord/design'
 import { View } from 'react-native'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import type { DiscordModules } from '@valenced/discord/types'
 import type { ViewProps } from 'react-native'
 
 // Makes sure no props would conflict (if it did, we should define a behavior for it)

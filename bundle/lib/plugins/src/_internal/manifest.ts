@@ -5,7 +5,7 @@ import type { InternalPluginManifest } from './types'
 // TODO: This has to be shared from native somehow
 export const ManifestFormat = 1
 
-export const ApiDependencyId = 'revenge.api'
+export const ApiDependencyId = 'valenced.api'
 export const DiscordDependencyId = 'discord'
 
 /** IDs any plugin may depend on without another plugin declaring them. */

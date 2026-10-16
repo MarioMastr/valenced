@@ -1,8 +1,8 @@
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { Clipboard } from '@revenge-mod/externals/react-native-clipboard'
-import { ReactNative } from '@revenge-mod/react'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { Clipboard } from '@valenced/externals/react-native-clipboard'
+import { ReactNative } from '@valenced/react'
+import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
 const CopyIcon = lookupGeneratedIconComponent('CopyIcon')
 
@@ -15,7 +15,7 @@ export const CopyableSetting = (
     type: 'pressable',
     onPress() {
         Clipboard.setString(description())
-        ToastActionCreators.open('REVENGE_SETTING_COPIED', {
+        ToastActionCreators.open('VALENCED_SETTING_COPIED', {
             text: 'Copied to clipboard',
             icon: CopyIcon,
         })

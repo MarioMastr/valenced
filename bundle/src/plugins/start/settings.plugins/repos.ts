@@ -2,10 +2,10 @@ import {
     listRepos,
     refreshRepo,
     setRepos,
-} from '@revenge-mod/plugins/_/repositories'
-import { noop } from '@revenge-mod/utils/callback'
+} from '@valenced/plugins/_/repositories'
+import { noop } from '@valenced/utils/callback'
 import { api } from '.'
-import type { Repo, RepoConfigEntry } from '@revenge-mod/plugins/_/repositories'
+import type { Repo, RepoConfigEntry } from '@valenced/plugins/_/repositories'
 
 export async function addDefaultRepoIfNeeded(
     refresh = false,

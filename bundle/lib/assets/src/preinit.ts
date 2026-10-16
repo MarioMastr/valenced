@@ -2,22 +2,22 @@ import {
     lookupModule,
     lookupModules,
     waitForModules,
-} from '@revenge-mod/modules/finders'
+} from '@valenced/modules/finders'
 import {
     withDependencies,
     withName,
     withProps,
-} from '@revenge-mod/modules/finders/filters'
+} from '@valenced/modules/finders/filters'
 import {
     mInitializingId,
     mUninitialized,
-} from '@revenge-mod/modules/metro/patches'
-import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { proxify } from '@revenge-mod/utils/proxy'
+} from '@valenced/modules/metro/patches'
+import { getModuleDependencies } from '@valenced/modules/metro/utils'
+import { proxify } from '@valenced/utils/proxy'
 import { executeAssetSubscriptions, resolveAssetOverride } from './_internal'
 import { cache, cacheAsset, Uncached } from './caches'
-import type { Metro } from '@revenge-mod/modules/types'
-import type { ReactNative } from '@revenge-mod/react/types'
+import type { Metro } from '@valenced/modules/types'
+import type { ReactNative } from '@valenced/react/types'
 import type { Asset, PackagerAsset } from './types'
 
 const { relative } = withDependencies

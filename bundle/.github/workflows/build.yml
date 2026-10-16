@@ -29,16 +29,16 @@ jobs:
       - name: Build development bundle
         run: deno run build --dev
         env:
-          REVENGE_DISCORD_SERVER_URL: ${{ vars.REVENGE_DISCORD_SERVER_URL }}
-          REVENGE_SOURCE_REPOSITORY_URL: ${{ vars.REVENGE_SOURCE_REPOSITORY_URL }}
-          REVENGE_LICENSE_URL: ${{ vars.REVENGE_LICENSE_URL }}
-          REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL: ${{ vars.REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL }}
+          VALENCED_DISCORD_SERVER_URL: ${{ vars.VALENCED_DISCORD_SERVER_URL }}
+          VALENCED_SOURCE_REPOSITORY_URL: ${{ vars.VALENCED_SOURCE_REPOSITORY_URL }}
+          VALENCED_LICENSE_URL: ${{ vars.VALENCED_LICENSE_URL }}
+          VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL: ${{ vars.VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL }}
 
       - name: Upload development bundle
         uses: actions/upload-artifact@v4
         with:
-          name: revenge-bundle-development
-          path: dist/revenge.bundle
+          name: valenced-bundle-development
+          path: dist/valenced.bundle
           if-no-files-found: error
 
       - name: Clear build
@@ -47,13 +47,13 @@ jobs:
       - name: Build production bundle
         run: deno run build
         env:
-          REVENGE_DISCORD_SERVER_URL: ${{ vars.REVENGE_DISCORD_SERVER_URL }}
-          REVENGE_SOURCE_REPOSITORY_URL: ${{ vars.REVENGE_SOURCE_REPOSITORY_URL }}
-          REVENGE_LICENSE_URL: ${{ vars.REVENGE_LICENSE_URL }}
-          REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL: ${{ vars.REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL }}
+          VALENCED_DISCORD_SERVER_URL: ${{ vars.VALENCED_DISCORD_SERVER_URL }}
+          VALENCED_SOURCE_REPOSITORY_URL: ${{ vars.VALENCED_SOURCE_REPOSITORY_URL }}
+          VALENCED_LICENSE_URL: ${{ vars.VALENCED_LICENSE_URL }}
+          VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL: ${{ vars.VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL }}
       - name: Upload production bundle
         uses: actions/upload-artifact@v4
         with:
-          name: revenge-bundle
-          path: dist/revenge.bundle
+          name: valenced-bundle
+          path: dist/valenced.bundle
           if-no-files-found: error

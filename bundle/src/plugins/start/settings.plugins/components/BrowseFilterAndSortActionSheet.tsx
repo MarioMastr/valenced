@@ -1,8 +1,8 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { Design } from '@revenge-mod/discord/design'
+import { getAssetIdByName } from '@valenced/assets'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { Design } from '@valenced/discord/design'
 import { useState } from 'react'
-import type { AssetId } from '@revenge-mod/assets/types'
+import type { AssetId } from '@valenced/assets/types'
 
 const {
     ActionSheet,

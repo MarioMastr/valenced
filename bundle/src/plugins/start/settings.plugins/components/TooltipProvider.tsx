@@ -1,4 +1,4 @@
-import { Design } from '@revenge-mod/discord/design'
+import { Design } from '@valenced/discord/design'
 import {
     createContext,
     useCallback,
@@ -30,7 +30,8 @@ export type PluginTooltip = (typeof PluginTooltip)[keyof typeof PluginTooltip]
 
 const Labels: Record<PluginTooltip, string> = {
     [PluginTooltip.Start]: 'Plugin must be started first',
-    [PluginTooltip.Essential]: 'Plugin needed for Revenge to function properly',
+    [PluginTooltip.Essential]:
+        'Plugin needed for Valenced to function properly',
     [PluginTooltip.PendingUpdate]:
         'Plugin has a pending update, reload to apply it',
     [PluginTooltip.ControlBlocked]:

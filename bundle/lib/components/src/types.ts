@@ -1,1 +1,1 @@
-export type PluginApiComponents = typeof import('@revenge-mod/components')
+export type PluginApiComponents = typeof import('@valenced/components')

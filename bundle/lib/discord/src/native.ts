@@ -1,5 +1,5 @@
-import { getNativeModule } from '@revenge-mod/modules/native'
-import { proxify } from '@revenge-mod/utils/proxy'
+import { getNativeModule } from '@valenced/modules/native'
+import { proxify } from '@valenced/utils/proxy'
 import type { DiscordNativeModules } from './types/native'
 
 /**

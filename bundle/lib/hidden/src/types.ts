@@ -2,13 +2,13 @@
  * The hidden API. Anything in here can change or disappear in any build.
  *
  * Everything here is internal state of the loader and its libraries.
- * It exists so you can look at what Revenge is doing at runtime.
+ * It exists so you can look at what Valenced is doing at runtime.
  *
  * Namespaces are lazy, so reading one before its library is ready may throw (e.g. Discord ones need the index module).
  */
 export interface HiddenApi {
     assets: HiddenApiAssets
-    /** `@revenge-mod/components`' shared styles. */
+    /** `@valenced/components`' shared styles. */
     components: typeof import('../../components/src/_internal')
     discord: HiddenApiDiscord
     /** Read-only conveniences built on top of the namespaces below. */
@@ -77,7 +77,7 @@ export interface HiddenApiAssets {
     internal: typeof import('../../assets/src/_internal')
 }
 
-declare module '@revenge-mod/plugins/types' {
+declare module '@valenced/plugins/types' {
     interface UnscopedPreInitPluginApi {
         hidden?: HiddenApi
     }

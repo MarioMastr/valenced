@@ -1,23 +1,23 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { AlertActionCreators } from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
 import { useEffect, useState } from 'react'
 import { ScrollView, useWindowDimensions } from 'react-native'
 import { LicenseFallbackURL } from '~/constants'
 import { Setting } from '../constants'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
-const RevengeLicenseSetting: SettingsItem = {
-    parent: Setting.Revenge,
+const ValencedLicenseSetting: SettingsItem = {
+    parent: Setting.Valenced,
     IconComponent: () => <TableRowAssetIcon name="FileIcon" />,
     useTitle: () => 'License',
     onPress: () => {
-        AlertActionCreators.openAlert('revenge-license', <LicenseAlert />)
+        AlertActionCreators.openAlert('valenced-license', <LicenseAlert />)
     },
     type: 'pressable',
 }
 
-export default RevengeLicenseSetting
+export default ValencedLicenseSetting
 
 const trimStart = (text: string) => text.replaceAll(/^ +/gm, '')
 

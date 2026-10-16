@@ -1,5 +1,5 @@
-import { Tokens } from '@revenge-mod/discord/common/tokens'
-import { Design } from '@revenge-mod/discord/design'
+import { Tokens } from '@valenced/discord/common/tokens'
+import { Design } from '@valenced/discord/design'
 import { StyleSheet } from 'react-native'
 
 export const useBadgeStyles = Design.createStyles({

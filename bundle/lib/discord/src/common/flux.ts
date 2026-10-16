@@ -1,10 +1,7 @@
-import { lookupModule } from '@revenge-mod/modules/finders'
-import {
-    withDependencies,
-    withProps,
-} from '@revenge-mod/modules/finders/filters'
+import { lookupModule } from '@valenced/modules/finders'
+import { withDependencies, withProps } from '@valenced/modules/finders/filters'
 import { ImportTrackerModuleId } from '../patches/import-tracker'
-import type { Metro } from '@revenge-mod/modules/types'
+import type { Metro } from '@valenced/modules/types'
 import type { DiscordModules } from '../types'
 
 const { relative, partial } = withDependencies

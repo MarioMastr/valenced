@@ -1,35 +1,35 @@
 import {
     registerSettingsItems,
     registerSettingsSection,
-} from '@revenge-mod/discord/modules/settings'
+} from '@valenced/discord/modules/settings'
 import { Setting } from './constants'
 import HermesVersionSetting from './definitions/HermesVersionSetting'
 import LoaderVersionSetting from './definitions/LoaderVersionSetting'
 import ReactNativeVersionSetting from './definitions/ReactNativeVersionSetting'
 import ReactVersionSetting from './definitions/ReactVersionSetting'
 import ReloadSetting from './definitions/ReloadSetting'
-import RevengeDeveloperModeSetting from './definitions/RevengeDeveloperModeSetting'
-import RevengeDiscordSetting from './definitions/RevengeDiscordSetting'
-import RevengeLicenseSetting from './definitions/RevengeLicenseSetting'
-import RevengeSetting from './definitions/RevengeSetting'
-import RevengeSourceRepositorySetting from './definitions/RevengeSourceRepositorySetting'
-import RevengeVersionSetting from './definitions/RevengeVersionSetting'
+import ValencedDeveloperModeSetting from './definitions/ValencedDeveloperModeSetting'
+import ValencedDiscordSetting from './definitions/ValencedDiscordSetting'
+import ValencedLicenseSetting from './definitions/ValencedLicenseSetting'
+import ValencedSetting from './definitions/ValencedSetting'
+import ValencedSourceRepositorySetting from './definitions/ValencedSourceRepositorySetting'
+import ValencedVersionSetting from './definitions/ValencedVersionSetting'
 
 registerSettingsItems({
-    [Setting.Revenge]: RevengeSetting,
-    [Setting.RevengeSourceRepository]: RevengeSourceRepositorySetting,
-    [Setting.RevengeLicense]: RevengeLicenseSetting,
-    [Setting.RevengeDiscord]: RevengeDiscordSetting,
+    [Setting.Valenced]: ValencedSetting,
+    [Setting.ValencedSourceRepository]: ValencedSourceRepositorySetting,
+    [Setting.ValencedLicense]: ValencedLicenseSetting,
+    [Setting.ValencedDiscord]: ValencedDiscordSetting,
     [Setting.Reload]: ReloadSetting,
-    [Setting.RevengeDeveloperMode]: RevengeDeveloperModeSetting,
-    [Setting.RevengeVersion]: RevengeVersionSetting,
+    [Setting.ValencedDeveloperMode]: ValencedDeveloperModeSetting,
+    [Setting.ValencedVersion]: ValencedVersionSetting,
     [Setting.ReactVersion]: ReactVersionSetting,
     [Setting.ReactNativeVersion]: ReactNativeVersionSetting,
     [Setting.HermesVersion]: HermesVersionSetting,
     [Setting.LoaderVersion]: LoaderVersionSetting,
 })
 
-registerSettingsSection('REVENGE', {
-    label: 'Revenge',
-    settings: [Setting.Revenge],
+registerSettingsSection('VALENCED', {
+    label: 'Valenced',
+    settings: [Setting.Valenced],
 })

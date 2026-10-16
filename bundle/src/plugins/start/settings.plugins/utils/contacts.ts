@@ -1,12 +1,12 @@
-import { ImportTrackerModuleId } from '@revenge-mod/discord/common/import-tracker'
-import { LoggerModuleId } from '@revenge-mod/discord/common/logger'
-import { withStoreName } from '@revenge-mod/discord/flux'
-import { lookupModule } from '@revenge-mod/modules/finders'
+import { ImportTrackerModuleId } from '@valenced/discord/common/import-tracker'
+import { LoggerModuleId } from '@valenced/discord/common/logger'
+import { withStoreName } from '@valenced/discord/flux'
+import { lookupModule } from '@valenced/modules/finders'
 import {
     withDependencies,
     withName,
     withProps,
-} from '@revenge-mod/modules/finders/filters'
+} from '@valenced/modules/finders/filters'
 import { Linking } from 'react-native'
 import { showErrorToast } from './alerts'
 

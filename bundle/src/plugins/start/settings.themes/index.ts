@@ -1,13 +1,13 @@
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { registerInternalPlugin } from '@revenge-mod/plugins/_'
-import { updatePlugins } from '@revenge-mod/plugins/_/repositories'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { registerInternalPlugin } from '@valenced/plugins/_'
+import { updatePlugins } from '@valenced/plugins/_/repositories'
 import apiManifest from '../../preinit/api.themes/manifest.json'
 import { messageOf } from '../settings.plugins/utils/strings'
 import manifest from './manifest.json'
 
 registerInternalPlugin(manifest, {
     start({ plugin }) {
-        ToastActionCreators.open('REVENGE_THEMES_STUB_UPDATE', {
+        ToastActionCreators.open('VALENCED_THEMES_STUB_UPDATE', {
             text: 'Downloading and installing updates for Theme plugins...',
         })
 
@@ -15,7 +15,7 @@ registerInternalPlugin(manifest, {
             .then(result => {
                 if (!result.errors.length) return
 
-                ToastActionCreators.open('REVENGE_THEMES_STUB_UPDATE_ERRORS', {
+                ToastActionCreators.open('VALENCED_THEMES_STUB_UPDATE_ERRORS', {
                     text: `Errors occurred while updating plugins: ${result.errors
                         .map(e => `${e.id}: ${messageOf(e.error)}`)
                         .join('\n')}`,

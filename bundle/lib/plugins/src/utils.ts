@@ -1,4 +1,4 @@
-import type { PluginManifest, PluginVersion } from '@revenge-mod/plugins/types'
+import type { PluginManifest, PluginVersion } from '@valenced/plugins/types'
 
 /** Formats plugin version for display. */
 export const formatVersion = (version: PluginVersion) =>

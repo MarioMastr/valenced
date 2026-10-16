@@ -1,5 +1,5 @@
-import { Design } from '@revenge-mod/discord/design'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import { Design } from '@valenced/discord/design'
+import type { AnyPlugin } from '@valenced/plugins/_'
 
 const { AlertModal, AlertActionButton, Text, TableRowGroup, TableRow } = Design
 

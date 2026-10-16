@@ -1,7 +1,7 @@
-import { NotFoundResult } from '@revenge-mod/modules/finders'
-import { onModuleInitialized } from '@revenge-mod/modules/metro/subscriptions'
-import { getInitializedModuleExports } from '@revenge-mod/modules/metro/utils'
-import { noop } from '@revenge-mod/utils/callback'
+import { NotFoundResult } from '@valenced/modules/finders'
+import { onModuleInitialized } from '@valenced/modules/metro/subscriptions'
+import { getInitializedModuleExports } from '@valenced/modules/metro/utils'
+import { noop } from '@valenced/utils/callback'
 import { mImportedPaths } from '../../patches/import-tracker'
 import { onModuleFinishedImporting } from './metro/subscriptions'
 import type {
@@ -10,8 +10,8 @@ import type {
     LookupNotFoundResult,
     WaitForModulesCallback,
     WaitForModulesUnsubscribeFunction,
-} from '@revenge-mod/modules/finders'
-import type { Metro } from '@revenge-mod/modules/types'
+} from '@valenced/modules/finders'
+import type { Metro } from '@valenced/modules/types'
 
 /**
  * Lookup an initialized module by its imported path.

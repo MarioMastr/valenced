@@ -1,10 +1,10 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
 import { Linking } from 'react-native'
 import { Setting } from '../constants'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
-const RevengeSourceRepositorySetting: SettingsItem = {
-    parent: Setting.Revenge,
+const ValencedSourceRepositorySetting: SettingsItem = {
+    parent: Setting.Valenced,
     IconComponent: () => <TableRowAssetIcon name="PaperIcon" />,
     useTitle: () => 'Source Code',
     useDescription: () => __BUILD_SOURCE_REPOSITORY_URL__,
@@ -14,4 +14,4 @@ const RevengeSourceRepositorySetting: SettingsItem = {
     type: 'pressable',
 }
 
-export default RevengeSourceRepositorySetting
+export default ValencedSourceRepositorySetting

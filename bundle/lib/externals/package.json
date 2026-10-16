@@ -1,5 +1,5 @@
 {
-  "name": "@revenge-mod/externals",
+  "name": "@valenced/externals",
   "private": true,
   "type": "module",
   "exports": {

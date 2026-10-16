@@ -1,22 +1,22 @@
-import defer * as Browserify from '@revenge-mod/externals/browserify'
-import defer * as Gorhom from '@revenge-mod/externals/gorhom'
-import defer * as ReactNativeClipboard from '@revenge-mod/externals/react-native-clipboard'
-import defer * as ReactNativeCommunity from '@revenge-mod/externals/react-native-community'
-import defer * as ReactNativeSafeAreaContext from '@revenge-mod/externals/react-native-safe-area-context'
-import defer * as ReactNavigation from '@revenge-mod/externals/react-navigation'
-import defer * as Shopify from '@revenge-mod/externals/shopify'
-import defer * as Zustand from '@revenge-mod/externals/zustand'
-import { defineLazyProperties } from '@revenge-mod/utils/object'
+import defer * as Browserify from '@valenced/externals/browserify'
+import defer * as Gorhom from '@valenced/externals/gorhom'
+import defer * as ReactNativeClipboard from '@valenced/externals/react-native-clipboard'
+import defer * as ReactNativeCommunity from '@valenced/externals/react-native-community'
+import defer * as ReactNativeSafeAreaContext from '@valenced/externals/react-native-safe-area-context'
+import defer * as ReactNavigation from '@valenced/externals/react-navigation'
+import defer * as Shopify from '@valenced/externals/shopify'
+import defer * as Zustand from '@valenced/externals/zustand'
+import { defineLazyProperties } from '@valenced/utils/object'
 
 export interface PluginApiExternals {
-    Browserify: typeof import('@revenge-mod/externals/browserify')
-    Gorhom: typeof import('@revenge-mod/externals/gorhom')
-    ReactNativeClipboard: typeof import('@revenge-mod/externals/react-native-clipboard')
-    ReactNativeCommunity: typeof import('@revenge-mod/externals/react-native-community')
-    ReactNativeSafeAreaContext: typeof import('@revenge-mod/externals/react-native-safe-area-context')
-    ReactNavigation: typeof import('@revenge-mod/externals/react-navigation')
-    Shopify: typeof import('@revenge-mod/externals/shopify')
-    Zustand: typeof import('@revenge-mod/externals/zustand')
+    Browserify: typeof import('@valenced/externals/browserify')
+    Gorhom: typeof import('@valenced/externals/gorhom')
+    ReactNativeClipboard: typeof import('@valenced/externals/react-native-clipboard')
+    ReactNativeCommunity: typeof import('@valenced/externals/react-native-community')
+    ReactNativeSafeAreaContext: typeof import('@valenced/externals/react-native-safe-area-context')
+    ReactNavigation: typeof import('@valenced/externals/react-navigation')
+    Shopify: typeof import('@valenced/externals/shopify')
+    Zustand: typeof import('@valenced/externals/zustand')
 }
 
 export const externals: PluginApiExternals = defineLazyProperties(

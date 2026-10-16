@@ -1,5 +1,5 @@
-import { AppStartPerformance } from '@revenge-mod/discord/preinit'
-import { registerInternalPlugin } from '@revenge-mod/plugins/_'
+import { AppStartPerformance } from '@valenced/discord/preinit'
+import { registerInternalPlugin } from '@valenced/plugins/_'
 import { BuildEnvironment, FullVersion } from '~/constants'
 import manifest from './manifest.json'
 
@@ -28,7 +28,7 @@ if (__DEV__) {
                 performance.now() - tsInit,
             )
             logger.log(
-                `👊 Revenge. Discord, your way. (${FullVersion} (${BuildEnvironment}))`,
+                `👊 Valenced. Discord, your way. (${FullVersion} (${BuildEnvironment}))`,
             )
         },
     })

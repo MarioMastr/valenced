@@ -1,5 +1,5 @@
 import { sAfterRunApplication, sBeforeRunApplication } from './_internal'
-import type { RunApplicationCallback } from '@revenge-mod/react/types'
+import type { RunApplicationCallback } from '@valenced/react/types'
 
 /**
  * Registers a callback to be run when a call to {@link AppRegistry.runApplication} is made.

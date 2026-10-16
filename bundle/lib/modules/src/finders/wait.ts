@@ -1,4 +1,4 @@
-import { noop } from '@revenge-mod/utils/callback'
+import { noop } from '@valenced/utils/callback'
 import { getFilterMatches } from '../caches'
 import { mInitialized } from '../metro/patches'
 import {

@@ -1,5 +1,5 @@
-import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import { ActionSheetActionCreators } from '@valenced/discord/actions'
+import type { AnyPlugin } from '@valenced/plugins/_'
 import type { BrowsePluginActionSheetProps } from '../components/BrowsePluginActionSheet'
 import type { PluginContributorsActionSheetProps } from '../components/PluginContributorsActionSheet'
 

@@ -1,12 +1,12 @@
-import { ToastActionCreators } from '@revenge-mod/discord/actions'
-import { getStore, Stores } from '@revenge-mod/discord/flux'
-import { getModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
-import { instead } from '@revenge-mod/patcher'
-import { registerInternalPlugin } from '@revenge-mod/plugins/_'
-import { lookupGeneratedIconComponent } from '@revenge-mod/utils/discord'
+import { ToastActionCreators } from '@valenced/discord/actions'
+import { getStore, Stores } from '@valenced/discord/flux'
+import { getModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import { instead } from '@valenced/patcher'
+import { registerInternalPlugin } from '@valenced/plugins/_'
+import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import manifest from './manifest.json'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import type { DiscordModules } from '@valenced/discord/types'
 
 registerInternalPlugin(manifest, {
     start({ cleanup, logger, plugin }) {
@@ -17,7 +17,7 @@ registerInternalPlugin(manifest, {
         )
 
         const showToast = () =>
-            ToastActionCreators.open('REVENGE_STAFF_SETTINGS_ACTION', {
+            ToastActionCreators.open('VALENCED_STAFF_SETTINGS_ACTION', {
                 text: 'Navigate out of Settings to apply changes',
                 icon: CircleInformationIcon,
             })

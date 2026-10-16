@@ -1,5 +1,5 @@
 import watcher from '@parcel/watcher'
-import { debounce } from '@revenge-mod/utils/callback'
+import { debounce } from '@valenced/utils/callback'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { createServer } from 'http'
@@ -13,10 +13,10 @@ const prod = process.argv.includes('--prod')
 const lanHost = process.argv.includes('--lan')
 
 const Port = 4040
-const BundlePath = './dist/revenge.bundle'
+const BundlePath = './dist/valenced.bundle'
 const BundleManifestPath = './dist/manifest.json'
 
-console.info(chalk.redBright(`\nRevenge ${chalk.white(`v${pkg.version}`)}\n`))
+console.info(chalk.redBright(`\nValenced ${chalk.white(`v${pkg.version}`)}\n`))
 
 const cwdify = (path: string) => join(process.cwd(), path)
 const Sources = [
@@ -58,7 +58,7 @@ const server = createServer(async (req, res) => {
         if (path === '/manifest.json') {
             file = BundleManifestPath
             friendlyName = 'manifest'
-        } else if (path === '/revenge.bundle') {
+        } else if (path === '/valenced.bundle') {
             file = BundlePath
             friendlyName = 'bundle'
         } else {

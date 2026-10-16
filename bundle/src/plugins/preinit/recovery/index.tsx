@@ -1,16 +1,13 @@
-import defer * as Actions from '@revenge-mod/discord/actions'
-import { onFluxEventDispatched } from '@revenge-mod/discord/flux'
-import { waitForModules } from '@revenge-mod/modules/finders'
-import { withName } from '@revenge-mod/modules/finders/filters'
-import { callNativeMethod } from '@revenge-mod/modules/native'
-import { instead } from '@revenge-mod/patcher'
-import {
-    isDefaultsOnlyBoot,
-    registerInternalPlugin,
-} from '@revenge-mod/plugins/_'
-import { onRunApplicationFinished } from '@revenge-mod/react/native'
-import { asap } from '@revenge-mod/utils/callback'
-import { getErrorStack } from '@revenge-mod/utils/error'
+import defer * as Actions from '@valenced/discord/actions'
+import { onFluxEventDispatched } from '@valenced/discord/flux'
+import { waitForModules } from '@valenced/modules/finders'
+import { withName } from '@valenced/modules/finders/filters'
+import { callNativeMethod } from '@valenced/modules/native'
+import { instead } from '@valenced/patcher'
+import { isDefaultsOnlyBoot, registerInternalPlugin } from '@valenced/plugins/_'
+import { onRunApplicationFinished } from '@valenced/react/native'
+import { asap } from '@valenced/utils/callback'
+import { getErrorStack } from '@valenced/utils/error'
 import { AppState } from 'react-native'
 import { FullVersion } from '~constants'
 import { cache as assetsCache } from '../../../../lib/assets/src/caches'
@@ -34,14 +31,14 @@ registerInternalPlugin(manifest, {
         asap(() => {
             if (isDefaultsOnlyBoot) {
                 Actions.AlertActionCreators.openAlert(
-                    'revenge-recovery',
+                    'valenced-recovery',
                     <Alerts.RecoveryModal />,
                 )
             }
 
             if (assetsCache.outdated || modulesCache.outdated) {
                 Actions.AlertActionCreators.openAlert(
-                    'revenge-loader-outdated',
+                    'valenced-loader-outdated',
                     <Alerts.LoaderOutdatedModal />,
                 )
             }
@@ -80,10 +77,10 @@ function freezeDetectionService() {
                         text += '\n\nNo erroring modules were detected.'
                     }
 
-                    callNativeMethod('revenge.alertError', [text, FullVersion])
+                    callNativeMethod('valenced.alertError', [text, FullVersion])
                 } catch (e) {
                     console.error(
-                        'Failed to call native method "revenge.alertError":',
+                        'Failed to call native method "valenced.alertError":',
                         e,
                     )
                 }

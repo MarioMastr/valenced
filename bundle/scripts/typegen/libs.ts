@@ -162,8 +162,8 @@ export function getLibraries(): LibraryModule[] {
 /**
  * Converts library exports into generated modules.
  *
- * @param exports Public exports mapped under `revenge`.
- * @param internal Internal exports mapped under `revenge.hidden`.
+ * @param exports Public exports mapped under `valenced`.
+ * @param internal Internal exports mapped under `valenced.hidden`.
  */
 function library<
     E extends Record<`.${string}`, { default?: string; types?: string }>,

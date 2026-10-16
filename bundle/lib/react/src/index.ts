@@ -1,6 +1,6 @@
-import { waitForModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
-import type { Metro } from '@revenge-mod/modules/types'
+import { waitForModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import type { Metro } from '@valenced/modules/types'
 
 export let ReactModuleId: Metro.ModuleID
 export let ReactNativeModuleId: Metro.ModuleID

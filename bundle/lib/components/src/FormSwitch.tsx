@@ -1,7 +1,7 @@
-import { FormSwitch as Switch } from '@revenge-mod/discord/design'
+import { FormSwitch as Switch } from '@valenced/discord/design'
 import { View } from 'react-native'
 import { styles } from './_internal'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import type { DiscordModules } from '@valenced/discord/types'
 
 /**
  * A switch component that is styled to match Discord's configuration

@@ -1,6 +1,6 @@
-import { registerJSMethod } from '@revenge-mod/modules/native'
-import { noop } from '@revenge-mod/utils/callback'
-import { getErrorStack } from '@revenge-mod/utils/error'
+import { registerJSMethod } from '@valenced/modules/native'
+import { noop } from '@valenced/utils/callback'
+import { getErrorStack } from '@valenced/utils/error'
 import {
     addPluginFlags,
     disablePluginInActiveSlot,
@@ -77,7 +77,7 @@ function registerInstalledPlugin(plugin: ExternalPlugin) {
 /** Registers native event listeners and imports native-discovered plugins. */
 export function registerExternalPlugins() {
     registerJSMethod(
-        'revenge.plugins.events.pluginInstallResult',
+        'valenced.plugins.events.pluginInstallResult',
         async function installedHandler(result: PluginInstallResult) {
             if (result.error !== false) {
                 pEmitter.emit('install', { error: result.error })
@@ -90,7 +90,7 @@ export function registerExternalPlugins() {
     )
 
     registerJSMethod(
-        'revenge.plugins.events.pluginUpdated',
+        'valenced.plugins.events.pluginUpdated',
         async function updatePendingHandler({
             id,
             version,
@@ -116,14 +116,14 @@ export function registerExternalPlugins() {
     )
 
     registerJSMethod(
-        'revenge.plugins.events.pluginInstallFileReady',
+        'valenced.plugins.events.pluginInstallFileReady',
         (event: PluginInstallReadyEvent) => {
             pEmitter.emit('installReady', event)
         },
     )
 
     registerJSMethod(
-        'revenge.plugins.events.dependenciesUpdated',
+        'valenced.plugins.events.dependenciesUpdated',
         (update: {
             unsatisfiedOptionalDependencies: Record<
                 PluginManifest['id'],
@@ -151,7 +151,7 @@ export function registerExternalPlugins() {
 
     registerRepositoryEvents()
 
-    const externals = callPluginSystemMethodSync('revenge.plugins.list', [])
+    const externals = callPluginSystemMethodSync('valenced.plugins.list', [])
     if (!externals) return
 
     for (const external of externals)
@@ -253,7 +253,7 @@ export async function uninstallExternalPlugin(plugin: AnyPlugin) {
         await disablePluginInActiveSlot(plugin)
 
     const { restored } = await callPluginSystemMethod(
-        'revenge.plugins.uninstall',
+        'valenced.plugins.uninstall',
         [plugin.manifest.id],
     )
 
@@ -266,7 +266,7 @@ export async function uninstallExternalPlugin(plugin: AnyPlugin) {
 
 /** Resyncs plugin source metadata from native registry. */
 export async function resyncPluginSources() {
-    const externals = await callPluginSystemMethod('revenge.plugins.list', [])
+    const externals = await callPluginSystemMethod('valenced.plugins.list', [])
     if (!externals) return
 
     for (const external of externals) {
@@ -284,24 +284,24 @@ export function confirmInstallFile(
     token: string,
     accepted: boolean,
 ): Promise<{ result: 'installed' | 'pending' | 'cancelled' }> {
-    return callPluginSystemMethod('revenge.plugins.confirmInstallFile', [
+    return callPluginSystemMethod('valenced.plugins.confirmInstallFile', [
         token,
         accepted,
     ])
 }
 
-declare module '@revenge-mod/modules/native' {
+declare module '@valenced/modules/native' {
     interface NativeMethods {
-        'revenge.plugins.list': [[], ExternalPlugin[] | null]
-        'revenge.plugins.uninstall': [
+        'valenced.plugins.list': [[], ExternalPlugin[] | null]
+        'valenced.plugins.uninstall': [
             [string],
             {
                 /** Set if a stub has to be restored. */
                 restored: ExternalPlugin | null
             },
         ]
-        'revenge.plugins.installFile': [[], null]
-        'revenge.plugins.confirmInstallFile': [
+        'valenced.plugins.installFile': [[], null]
+        'valenced.plugins.confirmInstallFile': [
             [token: string, accepted: boolean],
             { result: 'installed' | 'pending' | 'cancelled' },
         ]

@@ -1,9 +1,9 @@
-import '@revenge-mod/modules/metro/patches'
+import '@valenced/modules/metro/patches'
 
 import {
     onModuleFirstRequired,
     onModuleInitialized,
-} from '@revenge-mod/modules/metro/subscriptions'
+} from '@valenced/modules/metro/subscriptions'
 import { onError } from '~index'
 
 const IndexModuleId = 0
@@ -19,11 +19,11 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
 
         // Initialize preinit libraries
         // @as-require
-        import('@revenge-mod/react/preinit')
+        import('@valenced/react/preinit')
         // @as-require
-        import('@revenge-mod/assets/preinit')
+        import('@valenced/assets/preinit')
         // @as-require
-        import('@revenge-mod/discord/preinit')
+        import('@valenced/discord/preinit')
 
         onModuleInitialized(IndexModuleId, function onIndexInitialized() {
             if (__DEV__)
@@ -45,7 +45,7 @@ onModuleFirstRequired(IndexModuleId, function onIndexRequired() {
         // @as-require
         import('~/plugins/preinit')
         // @as-require
-        import('@revenge-mod/plugins/preinit')
+        import('@valenced/plugins/preinit')
     } catch (e) {
         onError(e)
     }

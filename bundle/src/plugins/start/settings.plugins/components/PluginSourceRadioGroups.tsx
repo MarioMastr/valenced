@@ -1,9 +1,9 @@
-import { Design } from '@revenge-mod/discord/design'
+import { Design } from '@valenced/discord/design'
 import { formatBytes } from '../utils/strings'
 import type {
     RepoPluginListing,
     VersionCandidate,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 
 const { TableRadioGroup, TableRadioRow } = Design
 

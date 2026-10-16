@@ -1,10 +1,10 @@
-# @revenge-mod/patcher
+# @valenced/patcher
 
 This is a JavaScript library that allows to monkey patch functions in a way that is easy to use and understand.
 
 It is made by [ryan-0324](https://github.com/ryan-0324) [(source uploaded on Discord)](https://discord.com/channels/1205207689832038522/1284131216156655646/1316076586981789709) and licensed under [CC0](./LICENSE).
 
-This source code is polished and adapted to work with Revenge. We do not claim any rights to this library. You may use it granted you follow the license.
+This source code is polished and adapted to work with Valenced. We do not claim any rights to this library. You may use it granted you follow the license.
 
 ## How does this work?
 
@@ -16,7 +16,7 @@ You can use them to modify the behavior of the original function, or to add new 
 Before hooks allow you to modify the arguments passed to the original function, or to perform some action before the original function is called.
 
 ```js
-import { before } from '@revenge-mod/patcher'
+import { before } from '@valenced/patcher'
 
 const obj = {
     method: (a) => console.log('Original method called with:', a)
@@ -39,7 +39,7 @@ obj.method(2)
 After hooks allow you to modify the return value of the original function, or to perform some action after the original function is called.
 
 ```js
-import { after } from '@revenge-mod/patcher'
+import { after } from '@valenced/patcher'
 
 const obj = {
     method: (a) => a * 2
@@ -62,7 +62,7 @@ console.log(obj.method(2)) // 5
 Instead hooks allow you to completely replace the original function with a new one, while still being able to call the original function if needed.
 
 ```js
-import { instead } from '@revenge-mod/patcher'
+import { instead } from '@valenced/patcher'
 
 const obj = {
     method: (a) => {
@@ -94,7 +94,7 @@ console.log(obj.method('test')) // 'new value'
 You can combine multiple hooks on the same function.
 
 ```js
-import { before, after, instead } from '@revenge-mod/patcher'
+import { before, after, instead } from '@valenced/patcher'
 
 const obj = {
     method: (a) => a * 2
@@ -137,7 +137,7 @@ Stacking multiple hooks of same type will execute them in a specific order:
 Using multiple `before` hooks will execute them in **reverse order** (LIFO - Last In, First Out):
 
 ```js
-import { before } from '@revenge-mod/patcher'
+import { before } from '@valenced/patcher'
 
 const obj = {
     method: (a) => console.log('Original method called with:', a)
@@ -163,7 +163,7 @@ obj.method(2)
 Multiple `after` hooks execute in **normal order** (FIFO - First In, First Out):
 
 ```js
-import { after } from '@revenge-mod/patcher'
+import { after } from '@valenced/patcher'
 
 const obj = {
     method: (a) => a * 2
@@ -189,7 +189,7 @@ console.log(obj.method(2)) // 7
 Multiple `instead` hooks will only execute the **last one added**. To chain them, you must call the original function:
 
 ```js
-import { instead } from '@revenge-mod/patcher'
+import { instead } from '@valenced/patcher'
 
 const obj = {
     method: (a) => `original-${a}`
@@ -218,7 +218,7 @@ console.log(obj.method('test')) // 'second-first-original-test'
 Each hook returns an unpatch function that removes the hook:
 
 ```js
-import { before } from '@revenge-mod/patcher'
+import { before } from '@valenced/patcher'
 
 const obj = {
     method: (a) => console.log('Original method called with:', a)
@@ -248,7 +248,7 @@ Unpatch functions are safe to call multiple times and won't throw errors.
 All hooks support an optional priority parameter to control execution order. Higher priority hooks execute before lower priority hooks.
 
 ```js
-import { before, after, instead, HookPriority } from '@revenge-mod/patcher'
+import { before, after, instead, HookPriority } from '@valenced/patcher'
 
 const obj = {
     method: (a) => a
@@ -318,7 +318,7 @@ You can also use custom numeric values for fine-grained control.
 You can also patch constructor functions:
 
 ```js
-import { before } from '@revenge-mod/patcher'
+import { before } from '@valenced/patcher'
 
 class MyClass {
     constructor(value) {

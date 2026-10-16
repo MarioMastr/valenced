@@ -1,5 +1,5 @@
-import { ReactNativeSafeAreaContext } from '@revenge-mod/externals/react-native-safe-area-context'
-import { noop } from '@revenge-mod/utils/callback'
+import { ReactNativeSafeAreaContext } from '@valenced/externals/react-native-safe-area-context'
+import { noop } from '@valenced/utils/callback'
 import { useCallback, useRef, useState } from 'react'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
 import type { LayoutChangeEvent } from 'react-native'

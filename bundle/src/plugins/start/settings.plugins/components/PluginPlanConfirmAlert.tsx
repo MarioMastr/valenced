@@ -1,8 +1,8 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { AlertActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { listRepoPlugins, listRepos } from '@revenge-mod/plugins/_/repositories'
-import { noop } from '@revenge-mod/utils/callback'
+import { getAssetIdByName } from '@valenced/assets'
+import { AlertActionCreators } from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { listRepoPlugins, listRepos } from '@valenced/plugins/_/repositories'
+import { noop } from '@valenced/utils/callback'
 import {
     createContext,
     useCallback,
@@ -32,7 +32,7 @@ import type {
     InstallPlanAction,
     PlanTarget,
     RepoPluginListing,
-} from '@revenge-mod/plugins/_/repositories'
+} from '@valenced/plugins/_/repositories'
 import type { PluginInstallConfirmItem } from './PluginInstallConfirmAlert'
 import type { VersionConstraints } from './PluginSourceRadioGroups'
 

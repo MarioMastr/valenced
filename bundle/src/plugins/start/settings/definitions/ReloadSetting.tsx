@@ -1,10 +1,10 @@
-import TableRowAssetIcon from '@revenge-mod/components/TableRowAssetIcon'
-import { reloadApp } from '@revenge-mod/modules/native/app'
+import TableRowAssetIcon from '@valenced/components/TableRowAssetIcon'
+import { reloadApp } from '@valenced/modules/native/app'
 import { Setting } from '../constants'
-import type { SettingsItem } from '@revenge-mod/discord/modules/settings'
+import type { SettingsItem } from '@valenced/discord/modules/settings'
 
 const ReloadSetting: SettingsItem = {
-    parent: Setting.Revenge,
+    parent: Setting.Valenced,
     IconComponent: () => <TableRowAssetIcon name="RetryIcon" />,
     useTitle: () => 'Reload App',
     onPress: () => {

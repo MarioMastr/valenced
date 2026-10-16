@@ -1,6 +1,6 @@
-import { Design } from '@revenge-mod/discord/design'
-import { RootNavigationRef } from '@revenge-mod/discord/modules/main_tabs_v2'
-import { getBridgeInfo } from '@revenge-mod/modules/native'
+import { Design } from '@valenced/discord/design'
+import { RootNavigationRef } from '@valenced/discord/modules/main_tabs_v2'
+import { getBridgeInfo } from '@valenced/modules/native'
 import { RouteNames } from '~plugins/start/settings.plugins/constants'
 
 export function RecoveryModal() {
@@ -20,7 +20,7 @@ export function RecoveryModal() {
                         onPress={() => {
                             // React Navigation will bubble our requests to the main navigator if we're already in settings
                             navigation.navigate('settings', {
-                                screen: RouteNames.RevengePlugins,
+                                screen: RouteNames.ValencedPlugins,
                             })
                         }}
                     />

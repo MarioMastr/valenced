@@ -1,9 +1,6 @@
-import { lookupModule } from '@revenge-mod/modules/finders'
-import {
-    withDependencies,
-    withProps,
-} from '@revenge-mod/modules/finders/filters'
-import type { DiscordModules } from '@revenge-mod/discord/types'
+import { lookupModule } from '@valenced/modules/finders'
+import { withDependencies, withProps } from '@valenced/modules/finders/filters'
+import type { DiscordModules } from '@valenced/discord/types'
 
 const { partial, relative } = withDependencies
 
@@ -17,5 +14,5 @@ export const [Constants, ConstantsModuleId] = lookupModule(
                 ]),
             ),
         )
-        .keyAs('revenge.discord.common.Constants'),
+        .keyAs('valenced.discord.common.Constants'),
 )

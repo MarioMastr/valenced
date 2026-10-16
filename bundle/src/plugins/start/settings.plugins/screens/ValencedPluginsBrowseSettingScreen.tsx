@@ -1,24 +1,24 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { styles } from '@revenge-mod/components/_'
-import Page from '@revenge-mod/components/Page'
-import SearchInput from '@revenge-mod/components/SearchInput'
-import { ActionSheetActionCreators } from '@revenge-mod/discord/actions'
-import { Design } from '@revenge-mod/discord/design'
-import { getInternalPluginMeta, pEmitter, pList } from '@revenge-mod/plugins/_'
+import { getAssetIdByName } from '@valenced/assets'
+import { styles } from '@valenced/components/_'
+import Page from '@valenced/components/Page'
+import SearchInput from '@valenced/components/SearchInput'
+import { ActionSheetActionCreators } from '@valenced/discord/actions'
+import { Design } from '@valenced/discord/design'
+import { getInternalPluginMeta, pEmitter, pList } from '@valenced/plugins/_'
 import {
     listRepoPlugins,
     listRepos,
     refreshAllRepos,
-} from '@revenge-mod/plugins/_/repositories'
-import { debounce, noop } from '@revenge-mod/utils/callback'
+} from '@valenced/plugins/_/repositories'
+import { debounce, noop } from '@valenced/utils/callback'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { belongsOnPage, usePluginClaimsVersion } from '../claims'
 import { BrowsePluginMasonryFlashList } from '../components/PluginList'
 import PluginTooltipsProvider from '../components/TooltipProvider'
 import { installPluginRef, pickChannel, versionOfChannel } from '../utils/repos'
-import type { AnyPlugin, InternalPluginMeta } from '@revenge-mod/plugins/_'
-import type { RepoPluginListing } from '@revenge-mod/plugins/_/repositories'
+import type { AnyPlugin, InternalPluginMeta } from '@valenced/plugins/_'
+import type { RepoPluginListing } from '@valenced/plugins/_/repositories'
 import type { BrowsePageProps, PluginMatchInfo } from '../api'
 import type { BrowseSortKey } from '../components/BrowseFilterAndSortActionSheet'
 import type { BrowseEntry } from '../components/PluginList'
@@ -30,7 +30,7 @@ const FiltersHorizontalIcon = getAssetIdByName('FiltersHorizontalIcon', 'png')!
 
 const SearchDebounceTime = 100
 
-export default function RevengePluginsBrowseSettingScreen() {
+export default function ValencedPluginsBrowseSettingScreen() {
     return <BrowsePage />
 }
 

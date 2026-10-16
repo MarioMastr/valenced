@@ -1,5 +1,5 @@
-import { TypedEventEmitter } from '@revenge-mod/discord/common/utils'
-import { registerJSMethod } from '@revenge-mod/modules/native'
+import { TypedEventEmitter } from '@valenced/discord/common/utils'
+import { registerJSMethod } from '@valenced/modules/native'
 import { callPluginSystemMethod } from './native'
 import type { PluginSource } from '.'
 
@@ -31,14 +31,14 @@ export const repoEvents = new TypedEventEmitter<{
 
 export function registerRepositoryEvents() {
     registerJSMethod(
-        'revenge.plugins.events.downloadProgress',
+        'valenced.plugins.events.downloadProgress',
         (event: DownloadProgressEvent) => {
             repoEvents.emit('downloadProgress', event)
         },
     )
 
     registerJSMethod(
-        'revenge.plugins.events.repoStateUpdate',
+        'valenced.plugins.events.repoStateUpdate',
         (event: RepoStateEvent) => {
             repoEvents.emit('repoState', event)
         },
@@ -63,15 +63,15 @@ export interface RepoConfigEntry {
 }
 
 export function listRepos(): Promise<Repo[]> {
-    return callPluginSystemMethod('revenge.plugins.repos.list', [])
+    return callPluginSystemMethod('valenced.plugins.repos.list', [])
 }
 
 export function setRepos(config: RepoConfigEntry[]): Promise<null> {
-    return callPluginSystemMethod('revenge.plugins.repos.set', [config])
+    return callPluginSystemMethod('valenced.plugins.repos.set', [config])
 }
 
 export function refreshRepo(url: string): Promise<Repo> {
-    return callPluginSystemMethod('revenge.plugins.repos.refresh', [url])
+    return callPluginSystemMethod('valenced.plugins.repos.refresh', [url])
 }
 
 /** Refreshes enabled user repositories in parallel, collecting per-repository errors. */
@@ -245,7 +245,7 @@ export interface PluginUpdate {
 
 /** Lists plugins for repository from cached index. */
 export function listRepoPlugins(url: string): Promise<RepoPluginListing[]> {
-    return callPluginSystemMethod('revenge.plugins.repos.listPlugins', [url])
+    return callPluginSystemMethod('valenced.plugins.repos.listPlugins', [url])
 }
 
 /** Rules for resolving plugins. */
@@ -278,7 +278,7 @@ export function planInstall(
     id: string,
     options?: PlanOptions,
 ): Promise<InstallPlan> {
-    return callPluginSystemMethod('revenge.plugins.planInstall', [
+    return callPluginSystemMethod('valenced.plugins.planInstall', [
         id,
         options ?? null,
     ])
@@ -289,7 +289,7 @@ export function setPluginHeld(
     id: string,
     held: boolean,
 ): Promise<PluginSource> {
-    return callPluginSystemMethod('revenge.plugins.setHeld', [id, held])
+    return callPluginSystemMethod('valenced.plugins.setHeld', [id, held])
 }
 
 /** Executes an install plan, downloading and applying artifacts to disk. */
@@ -298,12 +298,12 @@ export function installFromRepo(plan: InstallPlan): Promise<{
     pending: string[]
     skipped: string[]
 }> {
-    return callPluginSystemMethod('revenge.plugins.install', [plan])
+    return callPluginSystemMethod('valenced.plugins.install', [plan])
 }
 
 /** Lists updates across enabled repositories from cached indexes. */
 export function listUpdates(): Promise<PluginUpdate[]> {
-    return callPluginSystemMethod('revenge.plugins.listUpdates', [])
+    return callPluginSystemMethod('valenced.plugins.listUpdates', [])
 }
 
 /** Returns issues of {@link update} that break installed plugins, ignoring breaks fixed by {@link selected} updates. */
@@ -374,24 +374,24 @@ export async function updateAllPlugins() {
     return updatePlugins(selectSafeUpdates(await listUpdates()))
 }
 
-declare module '@revenge-mod/modules/native' {
+declare module '@valenced/modules/native' {
     interface NativeMethods {
-        'revenge.plugins.repos.list': [[], Repo[]]
-        'revenge.plugins.repos.set': [[config: RepoConfigEntry[]], null]
-        'revenge.plugins.repos.refresh': [[url: string], Repo]
-        'revenge.plugins.repos.listPlugins': [
+        'valenced.plugins.repos.list': [[], Repo[]]
+        'valenced.plugins.repos.set': [[config: RepoConfigEntry[]], null]
+        'valenced.plugins.repos.refresh': [[url: string], Repo]
+        'valenced.plugins.repos.listPlugins': [
             [url: string],
             RepoPluginListing[],
         ]
-        'revenge.plugins.listUpdates': [[], PluginUpdate[]]
-        'revenge.plugins.planInstall': [
+        'valenced.plugins.listUpdates': [[], PluginUpdate[]]
+        'valenced.plugins.planInstall': [
             [id: string, options: PlanOptions | null],
             InstallPlan,
         ]
-        'revenge.plugins.install': [
+        'valenced.plugins.install': [
             [plan: InstallPlan],
             { installed: string[]; pending: string[]; skipped: string[] },
         ]
-        'revenge.plugins.setHeld': [[id: string, held: boolean], PluginSource]
+        'valenced.plugins.setHeld': [[id: string, held: boolean], PluginSource]
     }
 }

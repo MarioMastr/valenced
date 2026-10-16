@@ -1,5 +1,5 @@
-import { Design } from '@revenge-mod/discord/design'
-import type { Repo } from '@revenge-mod/plugins/_/repositories'
+import { Design } from '@valenced/discord/design'
+import type { Repo } from '@valenced/plugins/_/repositories'
 
 const { AlertModal, AlertActionButton, Text } = Design
 

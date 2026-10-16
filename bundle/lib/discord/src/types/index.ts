@@ -1,6 +1,6 @@
 import type { StackScreenProps } from '@react-navigation/stack'
-import type { ReactNavigationParamList } from '@revenge-mod/externals/react-navigation'
-import type { AnyFunction, AnyObject } from '@revenge-mod/utils/types'
+import type { ReactNavigationParamList } from '@valenced/externals/react-navigation'
+import type { AnyFunction, AnyObject } from '@valenced/utils/types'
 import type {
     ComponentProps,
     ComponentType,

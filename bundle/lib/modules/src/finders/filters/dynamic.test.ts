@@ -25,7 +25,7 @@ const metroUtils = {
 
 // dynamic.ts imports the relative path, utils.ts imports the package specifier
 vi.mock('../../metro/utils', () => metroUtils)
-vi.mock('@revenge-mod/modules/metro/utils', () => metroUtils)
+vi.mock('@valenced/modules/metro/utils', () => metroUtils)
 
 // Filter entries are deprecated, and resolved to a module ID when the filter is built
 const mLookups = new Map<string, number>()
@@ -334,7 +334,7 @@ describe('withDependencies', () => {
                         ImportTracker,
                     ]),
                 ).key,
-            ).toBe('revenge.deps(o[19,21,709,^1,^2,2])')
+            ).toBe('valenced.deps(o[19,21,709,^1,^2,2])')
         })
 
         test('a range key differs from an exact pin key', () => {
@@ -347,7 +347,7 @@ describe('withDependencies', () => {
                     relative.within(2, 3),
                     ImportTracker,
                 ]).key,
-            ).toBe('revenge.deps([,,[27,2],^1,^2..3,2])')
+            ).toBe('valenced.deps([,,[27,2],^1,^2..3,2])')
 
             expect(withDependencies([relative.within(2, 2)]).key).not.toBe(
                 withDependencies([relative(2)]).key,
@@ -356,19 +356,19 @@ describe('withDependencies', () => {
 
         test('every modifier is part of the key', () => {
             expect(withDependencies(partial([4])).key).toBe(
-                'revenge.deps(p[4])',
+                'valenced.deps(p[4])',
             )
             expect(withDependencies(unordered([4])).key).toBe(
-                'revenge.deps(u[4])',
+                'valenced.deps(u[4])',
             )
-            expect(withDependencies(last([4])).key).toBe('revenge.deps(s*[4])')
+            expect(withDependencies(last([4])).key).toBe('valenced.deps(s*[4])')
             expect(withDependencies(skip(2, [4])).key).toBe(
-                'revenge.deps(s2[4])',
+                'valenced.deps(s2[4])',
             )
             expect(withDependencies(atLeast(3, [4])).key).toBe(
-                'revenge.deps(p>3[4])',
+                'valenced.deps(p>3[4])',
             )
-            expect(withDependencies([4]).key).toBe('revenge.deps([4])')
+            expect(withDependencies([4]).key).toBe('valenced.deps([4])')
         })
     })
 

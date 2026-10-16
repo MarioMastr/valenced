@@ -1,13 +1,13 @@
-import { waitForModules } from '@revenge-mod/modules/finders'
-import { withProps } from '@revenge-mod/modules/finders/filters'
-import { getModuleDependencies } from '@revenge-mod/modules/metro/utils'
-import { instead } from '@revenge-mod/patcher'
+import { waitForModules } from '@valenced/modules/finders'
+import { withProps } from '@valenced/modules/finders/filters'
+import { getModuleDependencies } from '@valenced/modules/metro/utils'
+import { instead } from '@valenced/patcher'
 import {
     isPluginStartedLate,
     registerInternalPlugin,
-} from '@revenge-mod/plugins/_'
-import { noop } from '@revenge-mod/utils/callback'
-import { getCurrentStack } from '@revenge-mod/utils/error'
+} from '@valenced/plugins/_'
+import { noop } from '@valenced/utils/callback'
+import { getCurrentStack } from '@valenced/utils/error'
 import manifest from './manifest.json'
 
 const cachedOnly = {

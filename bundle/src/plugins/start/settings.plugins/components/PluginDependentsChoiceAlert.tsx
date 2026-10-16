@@ -1,11 +1,11 @@
-import Checkbox from '@revenge-mod/components/Checkbox'
-import { Design } from '@revenge-mod/discord/design'
+import Checkbox from '@valenced/components/Checkbox'
+import { Design } from '@valenced/discord/design'
 import { useCallback, useMemo, useState } from 'react'
 import { View } from 'react-native'
 import { useAlertBodyHeight } from '../utils/dialogs'
 import { PLUGIN_CARD_ESTIMATED_SIZE } from './PluginCard'
 import { PluginFlashList, pluginCardDataOf } from './PluginList'
-import type { AnyPlugin } from '@revenge-mod/plugins/_'
+import type { AnyPlugin } from '@valenced/plugins/_'
 import type { PluginCardData, PluginCardExtras } from './PluginList'
 
 const { AlertModal, AlertActionButton } = Design

@@ -1,6 +1,6 @@
-import { getAssetIdByName } from '@revenge-mod/assets'
-import { Tokens } from '@revenge-mod/discord/common/tokens'
-import { Design } from '@revenge-mod/discord/design'
+import { getAssetIdByName } from '@valenced/assets'
+import { Tokens } from '@valenced/discord/common/tokens'
+import { Design } from '@valenced/discord/design'
 import { Image, Pressable } from 'react-native'
 
 const { Text } = Design

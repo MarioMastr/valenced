@@ -1,4 +1,4 @@
-import type { RunApplicationCallback } from '@revenge-mod/react/types'
+import type { RunApplicationCallback } from '@valenced/react/types'
 
 export const sBeforeRunApplication = new Set<RunApplicationCallback>()
 export const sAfterRunApplication = new Set<RunApplicationCallback>()

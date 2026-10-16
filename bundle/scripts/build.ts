@@ -70,12 +70,12 @@ export default async function build(dev = Dev, log = true) {
         transform: {
             define: {
                 __BUILD_DISCORD_SERVER_URL__: stringEnv(
-                    'REVENGE_DISCORD_SERVER_URL',
+                    'VALENCED_DISCORD_SERVER_URL',
                 ),
                 __BUILD_SOURCE_REPOSITORY_URL__: stringEnv(
-                    'REVENGE_SOURCE_REPOSITORY_URL',
+                    'VALENCED_SOURCE_REPOSITORY_URL',
                 ),
-                __BUILD_LICENSE_URL__: stringEnv('REVENGE_LICENSE_URL'),
+                __BUILD_LICENSE_URL__: stringEnv('VALENCED_LICENSE_URL'),
                 __BUILD_VERSION__: JSON.stringify(pkg.version),
                 __BUILD_COMMIT__: JSON.stringify(COMMIT),
                 __BUILD_BRANCH__: JSON.stringify(
@@ -85,29 +85,29 @@ export default async function build(dev = Dev, log = true) {
                 ),
                 __DEV__: String(dev),
                 __BUILD_DEFAULT_PLUGIN_REPOSITORY_URL__: stringEnv(
-                    'REVENGE_DEFAULT_PLUGIN_REPOSITORY_URL',
+                    'VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL',
                     undefined,
                     false,
                 ),
 
                 __BUILD_DONATE_URL__: stringEnv(
-                    'REVENGE_DONATE_URL',
+                    'VALENCED_DONATE_URL',
                     undefined,
                     false,
                 ),
 
                 // See types/build.d.ts for what these flags do
                 __BUILD_FLAG_DEBUG_MODULE_LOOKUPS__: String(
-                    boolEnv('REVENGE_DEBUG_MODULE_LOOKUPS', dev),
+                    boolEnv('VALENCED_DEBUG_MODULE_LOOKUPS', dev),
                 ),
                 __BUILD_FLAG_DEBUG_MODULE_WAITS__: String(
-                    boolEnv('REVENGE_DEBUG_MODULE_WAITS', dev),
+                    boolEnv('VALENCED_DEBUG_MODULE_WAITS', dev),
                 ),
                 __BUILD_FLAG_DEBUG_LAZY_VALUES__: String(
-                    boolEnv('REVENGE_DEBUG_LAZY_VALUES', false),
+                    boolEnv('VALENCED_DEBUG_LAZY_VALUES', false),
                 ),
                 __BUILD_FLAG_LOG_PROMISE_REJECTIONS__: String(
-                    boolEnv('REVENGE_LOG_PROMISE_REJECTIONS', dev),
+                    boolEnv('VALENCED_LOG_PROMISE_REJECTIONS', dev),
                 ),
             },
         },
@@ -180,10 +180,10 @@ export default async function build(dev = Dev, log = true) {
         esModule: false,
         minifyInternalExports: true,
         hoistTransitiveImports: false,
-        file: 'dist/revenge.js',
+        file: 'dist/valenced.js',
         format: 'iife',
         keepNames: true,
-        postFooter: `//# sourceURL=Revenge`,
+        postFooter: `//# sourceURL=Valenced`,
         topLevelVar: true,
     })
 
@@ -225,7 +225,7 @@ async function generateAssets() {
         promises.push(
             writeFile(
                 path2,
-                `import{registerAsset}from'@revenge-mod/assets';import uri from${uriPath};const ${name}=registerAsset({name:'${name}',type:${type},uri});export { ${name} as default }`,
+                `import{registerAsset}from'@valenced/assets';import uri from${uriPath};const ${name}=registerAsset({name:'${name}',type:${type},uri});export { ${name} as default }`,
             ),
         )
     }

@@ -1,5 +1,5 @@
 import { pUnscopedApi } from '../apis'
-import type { AnyFunction } from '@revenge-mod/utils/types'
+import type { AnyFunction } from '@valenced/utils/types'
 import type {
     PluginLifecycles,
     PluginOptions,
@@ -23,9 +23,9 @@ export function createOptionsFactory(
 
     return () => {
         const opts = new Function(
-            'revenge',
+            'valenced',
             'plugin',
-            `return ${script}\n//# sourceURL=Revenge:Plugin:${id}`,
+            `return ${script}\n//# sourceURL=Valenced:Plugin:${id}`,
         )(
             pUnscopedApi,
             // See types.consumers.ts
