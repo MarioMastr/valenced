@@ -66,9 +66,9 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: >-
           ./gradlew
-          :app:assembleDebug
-          :app:assembleRelease
-          :app:testDebugUnitTest
+          :android:assembleDebug
+          :android:assembleRelease
+          :android:testDebugUnitTest
           :api:publishToMavenLocal
 
       - name: Upload test reports
@@ -83,5 +83,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: apks
-          path: app/build/outputs/apk/*/*.apk
+          path: android/build/outputs/apk/*/*.apk
           if-no-files-found: error

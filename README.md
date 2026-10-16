@@ -58,13 +58,13 @@ You'll need a JDK (25 recommended) and the Android SDK. Once you have those, fol
 
 ```sh
 # Build the debug module APK
-./gradlew :app:assembleDebug
+./gradlew :android:assembleDebug
 
 # Build the release module APK
-./gradlew :app:assembleRelease
+./gradlew :android:assembleRelease
 ```
 
-<sub>APKs are generated at `app/build/outputs/apk/`.</sub>
+<sub>APKs are generated at `android/build/outputs/apk/`.</sub>
 
 ```sh
 # Publish the plugin API to your local Maven repository (for plugin development)

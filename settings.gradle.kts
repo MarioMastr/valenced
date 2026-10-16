@@ -15,7 +15,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "ValencedXposed"
-include(":app")
+include(":android")
 include(":api")
 include(":core")
 include(":ios")

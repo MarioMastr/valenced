@@ -55,15 +55,15 @@ jobs:
           sed -i -E \
             -e "s/^(\s*versionCode = ).*/\1$VERSION_CODE/" \
             -e "s/^(\s*versionName = ).*/\1\"$VERSION_NAME\"/" \
-            app/build.gradle.kts
-          git diff app/build.gradle.kts
+            android/build.gradle.kts
+          git diff android/build.gradle.kts
 
-          if git diff --quiet app/build.gradle.kts; then
+          if git diff --quiet android/build.gradle.kts; then
             echo "Version unchanged."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore: bump version to $VERSION_NAME ($VERSION_CODE)" app/build.gradle.kts
+            git commit -m "chore: bump version to $VERSION_NAME ($VERSION_CODE)" android/build.gradle.kts
             git push
           fi
 
@@ -94,13 +94,13 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew :app:assembleDebug :app:assembleRelease
+        run: ./gradlew :android:assembleDebug :android:assembleRelease
 
       - name: Collect APKs
         run: |
           mkdir dist
-          mv app/build/outputs/apk/debug/app-debug.apk dist/app-debug.apk
-          mv app/build/outputs/apk/release/app-release.apk dist/app-release.apk
+          mv android/build/outputs/apk/debug/android-debug.apk dist/app-debug.apk
+          mv android/build/outputs/apk/release/android-release.apk dist/app-release.apk
           ls -l dist
 
       - name: Attest build provenance
