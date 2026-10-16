@@ -3,11 +3,11 @@
 #import "Utils.h"
 #import "Logger.h"
 
+// Release builds only run the shipped bundle, so the updater exists in debug builds only.
+#ifdef DEBUG
+
 static const NSTimeInterval UpdaterTimeout = 10.0;
 static const NSTimeInterval UpdaterTimeoutCached = 5.0;
-
-static NSString * const UpdaterDefaultBundleURL =
-    @"https://github.com/Valenced/valenced-bundle/releases/download/latest/valenced.bundle";
 
 @implementation LoaderConfig
 
@@ -106,7 +106,7 @@ static NSString * const UpdaterDefaultBundleURL =
     if (self.config.customLoadUrlEnabled && self.config.customLoadUrl) {
         return self.config.customLoadUrl;
     }
-    return [NSURL URLWithString:UpdaterDefaultBundleURL];
+    return nil;
 }
 
 - (void)resetLoaderConfig {
@@ -250,3 +250,5 @@ static NSString * const UpdaterDefaultBundleURL =
 }
 
 @end
+
+#endif

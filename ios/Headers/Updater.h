@@ -16,7 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) LoaderConfig *config;
 
 - (void)initConfig;
-- (NSURL *)resolveDownloadURL;
+/// The custom URL from loader.json, or nil when unset. Debug builds only.
+- (nullable NSURL *)resolveDownloadURL;
 - (void)resetLoaderConfig;
 - (NSURL *)bundleFile;
 - (NSURL *)etagFile;

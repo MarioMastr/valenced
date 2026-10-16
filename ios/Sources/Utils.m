@@ -96,7 +96,8 @@ void showRecoveryAlert(UIViewController *presenter) {
         reloadApp(presenter);
     }]];
 
-    [alert addAction:[UIAlertAction actionWithTitle:@"Delete Script" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+#ifdef DEBUG
+    [alert addAction:[UIAlertAction actionWithTitle:@"Delete Downloaded Bundle" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 
         NSURL *bundleFile = [[getValencedDirectory() URLByAppendingPathComponent:CACHE_DIR]
                              URLByAppendingPathComponent:MAIN_SCRIPT_FILE];
@@ -110,6 +111,7 @@ void showRecoveryAlert(UIViewController *presenter) {
         [[NSFileManager defaultManager] removeItemAtURL:configFile error:nil];
         reloadApp(presenter);
     }]];
+#endif
 
     [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
 

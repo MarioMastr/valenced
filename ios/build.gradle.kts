@@ -13,6 +13,12 @@ val coreFrameworkDir = rootProject.layout.projectDirectory
 val coreStaticLib = rootProject.layout.projectDirectory
     .file("core/build/bin/iosArm64/debugStatic/libValencedCore.a")
 
+/** The release JS bundle from `:bundle`, shipped next to the tweak. */
+val bundleScope = configurations.dependencyScope("releaseBundle")
+dependencies.add(bundleScope.name, dependencies.project(":bundle", "releaseBundle"))
+val bundleFiles = configurations.resolvable("releaseBundleFiles") { extendsFrom(bundleScope.get()) }
+val bundleDir: FileCollection = files(bundleFiles)
+
 val packageTweak = tasks.register<Exec>("packageTweak") {
     group = "build"
     description = "Builds the ValencedTweak deb with Theos."
@@ -20,6 +26,8 @@ val packageTweak = tasks.register<Exec>("packageTweak") {
     workingDir = layout.projectDirectory.asFile
     commandLine("make", "package")
     environment("THEOS", theosDir.get())
+    inputs.files(bundleDir)
+    doFirst { environment("VALENCED_BUNDLE_DIR", bundleDir.singleFile.absolutePath) }
     if (isMacHost) {
         dependsOn(":core:linkDebugFrameworkIosArm64")
         environment("VALENCED_CORE_FW", coreFrameworkDir.asFile.absolutePath)

@@ -21,6 +21,7 @@ static jsi::Runtime *gRuntime = NULL;
 static NSTimeInterval shakeStartTime = 0;
 static BOOL           isShaking      = NO;
 
+#ifdef DEBUG
 static void executePreloads(jsi::Runtime &runtime, NSURL *valencedDir)
 {
     NSURL *preloadsDirectory = [valencedDir URLByAppendingPathComponent:PRELOADS_DIR];
@@ -45,8 +46,10 @@ static void executePreloads(jsi::Runtime &runtime, NSURL *valencedDir)
         }
     }
 }
+#endif
 
-static NSData *loadFallbackBundle(void)
+// The bundle shipped next to the tweak, built by the :bundle Gradle project.
+static NSData *loadShippedBundle(void)
 {
     NSArray<NSBundle *> *bundles = @[
         [NSBundle bundleForClass:[PluginLoader class]],
@@ -65,7 +68,7 @@ static NSData *loadFallbackBundle(void)
         }
     }
     Dl_info info;
-    if (dladdr((void *)&loadFallbackBundle, &info) && info.dli_fname) {
+    if (dladdr((void *)&loadShippedBundle, &info) && info.dli_fname) {
         NSString *dylibPath = [NSString stringWithUTF8String:info.dli_fname];
         NSString *dir = [dylibPath stringByDeletingLastPathComponent];
         NSString *p = [dir stringByAppendingPathComponent:@"valenced.bundle"];
@@ -86,8 +89,11 @@ static NSData *loadFallbackBundle(void)
     SetJsiInstance(instance);
     gRuntime = &runtime;
 
+#ifdef DEBUG
+    // Debug builds can load a development bundle from the custom URL in loader.json.
     Updater *updater = [Updater sharedUpdater];
     [updater initConfig];
+#endif
 
     @try {
         injectPreBundle(runtime);
@@ -100,39 +106,35 @@ static NSData *loadFallbackBundle(void)
         ValencedLog(@"loadPlugins exception: %@ %@", e.name, e.reason);
     }
 
-    NSURL *valencedDir = getValencedDirectory();
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSURL *bundleFileURL = [updater bundleFile];
-    BOOL hasCache = [fm fileExistsAtPath:bundleFileURL.path];
-    if (!hasCache) {
-        ValencedLog(@"No cached bundle, fetching synchronously (10s timeout)...");
+#ifdef DEBUG
+    NSURL *devBundleURL = nil;
+    if ([updater resolveDownloadURL]) {
+        ValencedLog(@"Fetching development bundle...");
         [updater downloadScriptUserInitiated:NO showDialog:NO];
-    } else {
-        ValencedLog(@"Cached bundle exists, checking for update (5s timeout)...");
-        [updater downloadScriptUserInitiated:NO showDialog:NO];
+        devBundleURL = [updater bundleFile];
     }
+#endif
 
     %orig;
 
     @try {
-        executePreloads(runtime, valencedDir);
-
-        NSData *bundle = [NSData dataWithContentsOfURL:bundleFileURL];
-        if (bundle && bundle.length > 0)
-        {
-            ValencedLog(@"Loaded bundle from disk (%lu bytes)", (unsigned long)bundle.length);
-            [JSI evaluate:bundle tag:@"valenced:bundle" runtime:runtime];
+        NSData *bundle = nil;
+        NSString *tag = @"valenced:bundle";
+#ifdef DEBUG
+        executePreloads(runtime, getValencedDirectory());
+        if (devBundleURL) {
+            bundle = [NSData dataWithContentsOfURL:devBundleURL];
+            tag = @"valenced:bundle:dev";
         }
-        else
-        {
-            ValencedLog(@"No cached bundle after download, trying fallback");
-            NSData *fallback = loadFallbackBundle();
-            if (fallback && fallback.length > 0) {
-                ValencedLog(@"Loaded fallback bundle (%lu bytes)", (unsigned long)fallback.length);
-                [JSI evaluate:fallback tag:@"valenced:bundle:fallback" runtime:runtime];
-            } else {
-                ValencedLog(@"No bundle available at all");
-            }
+        if (bundle.length == 0) tag = @"valenced:bundle";
+#endif
+        if (bundle.length == 0) bundle = loadShippedBundle();
+
+        if (bundle.length > 0) {
+            ValencedLog(@"Loading %@ (%lu bytes)", tag, (unsigned long)bundle.length);
+            [JSI evaluate:bundle tag:tag runtime:runtime];
+        } else {
+            ValencedLog(@"No bundle available at all");
         }
     } @catch (NSException *e) {
         ValencedLog(@"sync injection exception: %@ %@", e.name, e.reason);
