@@ -25,13 +25,25 @@ export function getNativeModule<T>(name: string): T | null {
     throw new Error(`Unable to access native module: ${name}`)
 }
 
-const Bridge = getNativeModule<{
-    getBBox(handle: number, options: object): object
-}>('RNSVGRenderableModule')!
+const nativeSyncCall = (payload: object) => {
+    const bridge = (globalThis as any)[Symbol.for('valenced.bridge.call.sync')]
+    if (bridge) return bridge(payload)
 
-const BridgePromise = getNativeModule<{
-    readAsDataURL(map: object): Promise<any>
-}>('FileReaderModule')!
+    const Bridge = getNativeModule<{
+        getBBox(handle: number, options: object): object
+    }>('RNSVGRenderableModule')!
+    return Bridge.getBBox(0, payload)
+}
+
+const nativeAsyncCall = (payload: object) => {
+    const bridgeAsync = (globalThis as any)[Symbol.for('valenced.bridge.call.async')]
+    if (bridgeAsync) return bridgeAsync(payload)
+
+    const BridgePromise = getNativeModule<{
+        readAsDataURL(map: object): Promise<any>
+    }>('FileReaderModule')!
+    return BridgePromise.readAsDataURL(payload)
+}
 
 function makePayload(name: string, args: any[]): object {
     return {
@@ -54,12 +66,12 @@ export async function callNativeMethod<N extends MethodName>(
     args: MethodArgs<N>,
 ): Promise<MethodResult<N>> {
     try {
-        const result = await BridgePromise.readAsDataURL(
-            makePayload(name, args),
-        )
+        const result = await nativeAsyncCall(makePayload(name, args))
 
-        if ('error' in result) throw result.error
-        if ('result' in result) return result.result as MethodResult<N>
+        if (result && typeof result === 'object') {
+            if ('error' in result) throw result.error
+            if ('result' in result) return result.result as MethodResult<N>
+        }
 
         throw 'The module did not return a valid result. The native hook must have failed.'
     } catch (error) {
@@ -81,7 +93,7 @@ export function callNativeMethodSync<N extends MethodName>(
     args: MethodArgs<N>,
 ): MethodResult<N> {
     try {
-        const result = Bridge.getBBox(0, makePayload(name, args))
+        const result = nativeSyncCall(makePayload(name, args))
 
         if ('error' in result) throw result.error
         if ('result' in result) return result.result as MethodResult<N>

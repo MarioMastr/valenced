@@ -33,5 +33,5 @@ include $(THEOS_MAKE_PATH)/tweak.mk
 after-stage::
 	$(ECHO_NOTHING)find $(THEOS_STAGING_DIR) -name ".DS_Store" -delete$(ECHO_END)
 ifneq ($(VALENCED_BUNDLE_DIR),)
-	$(ECHO_NOTHING)cp $(VALENCED_BUNDLE_DIR)/valenced.bundle $(THEOS_STAGING_DIR)$(THEOS_PACKAGE_INSTALL_PREFIX)/Library/MobileSubstrate/DynamicLibraries/$(ECHO_END)
+	$(ECHO_NOTHING)cp $(VALENCED_BUNDLE_DIR)/valenced.bundle $(THEOS_STAGING_DIR)/Library/MobileSubstrate/DynamicLibraries/$(ECHO_END)
 endif

@@ -23,7 +23,7 @@ import {
 import { noop } from '@valenced/utils/callback'
 import { lookupGeneratedIconComponent } from '@valenced/utils/discord'
 import { useCallback, useEffect, useReducer, useState } from 'react'
-import { Image, ScrollView, View } from 'react-native'
+import { Image, ScrollView, Platform, View } from 'react-native'
 import { useStore } from 'zustand/react'
 import { api } from '..'
 import { PluginIcon } from '../components/PluginIcon'
@@ -423,7 +423,7 @@ export default function ValencedPluginsAdvancedSettingScreen() {
                         ) : null}
                     </TableRowGroup>
                     <TableRowGroup hasIcons title="Advanced">
-                        <TableRow
+                        {Platform.OS !== "ios" ? <TableRow
                             icon={<TableRowAssetIcon name="DownloadIcon" />}
                             label="Install from file"
                             onPress={() =>
@@ -437,7 +437,7 @@ export default function ValencedPluginsAdvancedSettingScreen() {
                                     ),
                                 )
                             }
-                        />
+                        /> : <></>}
                         <TableRow
                             icon={<TableRowAssetIcon name="GlobeEarthIcon" />}
                             label="Restore default repository"

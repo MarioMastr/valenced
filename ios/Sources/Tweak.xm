@@ -51,13 +51,14 @@ static void executePreloads(jsi::Runtime &runtime, NSURL *valencedDir)
 // The bundle shipped next to the tweak, built by the :bundle Gradle project.
 static NSData *loadShippedBundle(void)
 {
-    NSArray<NSBundle *> *bundles = @[
-        [NSBundle bundleForClass:[PluginLoader class]],
-        [NSBundle mainBundle],
-        [NSBundle bundleWithIdentifier:@"app.valenced.tweak"],
-    ];
+    NSMutableArray<NSBundle *> *bundles = [NSMutableArray array];
+    NSBundle *classBundle = [NSBundle bundleForClass:[PluginLoader class]];
+    if (classBundle) [bundles addObject:classBundle];
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    if (mainBundle) [bundles addObject:mainBundle];
+    NSBundle *identifierBundle = [NSBundle bundleWithIdentifier:@"app.valenced.tweak"];
+    if (identifierBundle) [bundles addObject:identifierBundle];
     for (NSBundle *b in bundles) {
-        if (!b) continue;
         NSString *path = [b pathForResource:@"valenced" ofType:@"bundle"];
         if (path) {
             NSData *d = [NSData dataWithContentsOfFile:path];
