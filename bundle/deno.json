@@ -4,7 +4,7 @@
   "permissions": {
     "build": {
       "read": true,
-      "write": ["./dist"],
+      "write": ["./dist", "./build"],
       "net": true,
       "env": true,
       "sys": true,

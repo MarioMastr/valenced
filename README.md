@@ -28,7 +28,7 @@
 
 # ValencedXposed
 
-**Discord, your way.** ValencedXposed is an Xposed module that loads [Valenced](https://github.com/Valenced/valenced-bundle) into Discord Android.
+**Discord, your way.** ValencedXposed is an Xposed module that loads [Valenced](bundle) into Discord Android.
 
 ValencedXposed is the root installation method for Valenced. It bootstraps the Valenced bundle inside Discord's process, manages the plugin system, and bridges JavaScript with the Android platform.
 
@@ -39,7 +39,7 @@ and provides native capabilities to it: plugin loading, file system access, and 
 
 ## 💪 Features
 
-- **📦 Bundle loading**: Bootstraps the Valenced bundle inside Discord
+- **📦 Bundle loading**: Ships the Valenced bundle and bootstraps it inside Discord, without downloading code
 - **🔌 Native plugins**: Install, update, and run plugins with native (Kotlin/JVM) and JavaScript parts
 - **🎨 Themes, fonts & system colors**: Native support for appearance customization
 - **🛡️ Tracking blockers**: Blocks crash reporting and deep-link tracking
@@ -54,7 +54,7 @@ Grab the latest module APK from the [Releases](https://github.com/Valenced/valen
 
 ## 👷 Development
 
-You'll need a JDK (25 recommended) and the Android SDK. Once you have those, follow these steps:
+You'll need a JDK (25 recommended), the Android SDK, and the [Deno](https://deno.com/) version in `bundle/.dvmrc` to build the [bundle](bundle). Once you have those, follow these steps:
 
 ```sh
 # Build the debug module APK

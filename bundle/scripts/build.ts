@@ -1,6 +1,13 @@
 import dotenv from 'dotenv'
 
-dotenv.config({ quiet: true })
+// Reproducible builds only read the committed build.env, never local overrides.
+const Reproducible = process.argv.includes('--reproducible')
+
+// dotenv keeps the first value it reads, so .env overrides build.env.
+dotenv.config({
+    path: Reproducible ? ['build.env'] : ['.env', 'build.env'],
+    quiet: true,
+})
 
 import chalk from 'chalk'
 import { execSync } from 'child_process'
@@ -29,6 +36,8 @@ const AssetsDir = `${__dirname}/../src/assets`
 const GeneratedAssetsDir = `${__dirname}/../dist/assets/generated`
 const Dev =
     process.argv.includes('--dev') || process.env.NODE_ENV === 'development'
+const OutDirArg = process.argv.indexOf('--out')
+const OutDir = OutDirArg === -1 ? 'dist' : process.argv[OutDirArg + 1]!
 
 // If this file is being run directly, build the project
 if (import.meta.main) build()
@@ -47,10 +56,10 @@ export default async function build(dev = Dev, log = true) {
     if (log) console.info(chalk.cyanBright('\u{1F5BB} Assets generated'))
     if (log) console.info(chalk.gray('\u{1F5CE} Compiling JS...'))
 
-    const COMMIT = execSync('git rev-parse HEAD')
+    // The last commit touching the bundle, so unrelated commits don't change the output.
+    const COMMIT = execSync('git log -1 --format=%h --abbrev=7 -- .')
         .toString()
         .trim()
-        .substring(0, 7)
 
     const bundle = await rolldown({
         input: 'src/index.ts',
@@ -78,11 +87,6 @@ export default async function build(dev = Dev, log = true) {
                 __BUILD_LICENSE_URL__: stringEnv('VALENCED_LICENSE_URL'),
                 __BUILD_VERSION__: JSON.stringify(pkg.version),
                 __BUILD_COMMIT__: JSON.stringify(COMMIT),
-                __BUILD_BRANCH__: JSON.stringify(
-                    execSync('git rev-parse --abbrev-ref HEAD')
-                        .toString()
-                        .trim(),
-                ),
                 __DEV__: String(dev),
                 __BUILD_DEFAULT_PLUGIN_REPOSITORY_URL__: stringEnv(
                     'VALENCED_DEFAULT_PLUGIN_REPOSITORY_URL',
@@ -180,7 +184,7 @@ export default async function build(dev = Dev, log = true) {
         esModule: false,
         minifyInternalExports: true,
         hoistTransitiveImports: false,
-        file: 'dist/valenced.js',
+        file: `${OutDir}/valenced.js`,
         format: 'iife',
         keepNames: true,
         postFooter: `//# sourceURL=Valenced`,
@@ -199,7 +203,7 @@ export default async function build(dev = Dev, log = true) {
         await getInternalPluginManifests(PluginsDir, dev),
     )
 
-    await writeFile('./dist/manifest.json', JSON.stringify(manifest))
+    await writeFile(`${OutDir}/manifest.json`, JSON.stringify(manifest))
 
     if (log)
         console.info(chalk.cyanBright('\u{1F5BB} Internal manifests emitted'))

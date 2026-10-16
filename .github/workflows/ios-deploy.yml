@@ -114,6 +114,12 @@ jobs:
           path: ~/.konan
           key: ${{ runner.os }}-konan
 
+      - name: Setup Deno
+        if: env.DEB_DOWNLOADED == 'false'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version-file: bundle/.dvmrc
+
       - name: Build packages
         if: env.DEB_DOWNLOADED == 'false'
         run: ./gradlew :ios:packageTweak

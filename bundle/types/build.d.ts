@@ -8,7 +8,6 @@ declare global {
     const __BUILD_DEFAULT_PLUGIN_REPOSITORY_URL__: string | undefined
     const __BUILD_LICENSE_URL__: string
     const __BUILD_COMMIT__: string
-    const __BUILD_BRANCH__: string
     const __BUILD_VERSION__: string
 
     /**

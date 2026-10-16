@@ -34,7 +34,7 @@ Valenced aims to be a lightweight and lightning-fast client modification for Dis
 
 ## ❓ About
 
-This repository releases Hermes Bytecode to be executed on official Discord Android clients. The bytecode is not standalone and is meant to be used with official bootstrappers listed in the [⬇️ Download](#️-download) section.
+This directory builds the Valenced bundle: Hermes bytecode that runs inside official Discord clients. The bundle is not standalone. The Android and iOS loaders in this repository ship it, so it isn't released on its own.
 
 ## 💪 Features
 
@@ -44,45 +44,9 @@ This repository releases Hermes Bytecode to be executed on official Discord Andr
 
 ## ⬇️ Download
 
-These are the official Valenced ways to install Valenced:
+Install a loader from this repository's [Releases](https://github.com/Valenced/valenced-xposed/releases/latest). The bundle comes with it.
 
-- **📵 Non-root**: [Valenced Manager](https://github.com/Valenced/valenced-manager/releases/latest)
-- **🩹 Root with Xposed**: [ValencedXposed](https://github.com/Valenced/valenced-xposed/releases/latest)
-
-Using the installation methods above will currently install [Valenced Classic](https://github.com/Valenced/valenced-bundle). You'll need to update from Valenced Classic to Valenced Next manually.
-
-### ⬆️ Updating to Valenced Next
-
-> **It is recommended to do a separate installation of Valenced before updating to Valenced Next.**  
-> Valenced Next does not offer an easy way to downgrade to Valenced Classic.
-
-To update to Valenced Next from Valenced Classic, follow these steps:
-
-1. Download the latest release asset from [Valenced Next's Actions tab](https://github.com/Valenced/valenced-xposed/actions/workflows/build.yml).
-2. Extract the built bundle and host a local HTTP server that serves the `valenced.bundle` file.
-3. In Valenced Classic, go to **Settings** > **Valenced**, and toggle on **Developer Settings**.
-4. Navigate back, and head into the **Developer** section.
-5. Edit the **Load from custom URL** field to point to the URL of the `valenced.bundle` file you hosted.
-6. Restart Discord, and you should be running Valenced Next!
-
-### 🔄️ Updating builds
-
-Valenced Next is updated regularly with new features and bug fixes. To update to the latest build, follow these steps:
-
-1. Host a HTTP server that points to a new `valenced.bundle` file.
-2. Head to **Settings** > **Developer** (under the **Valenced** section).
-3. Tap on the **Evaluate JavaScript** option.
-4. Paste and evaluate the following snippet. Make sure to modify the URL to point to your newly hosted `valenced.bundle` file:
-
-    ```js
-    var VALENCED_UPDATE_URL = "<URL here, keep the quotes>";
-    valenced.discord.native.FileModule.writeFile("documents", "pyoncord/loader.json", JSON.stringify({"customLoadUrl":{"enabled":true,"url":VALENCED_UPDATE_URL}}), "utf8");
-    "URL updated, please reload Valenced"
-    ```
-
-5. Restart Discord.
-
-## 👷 Developing with Valenced Next
+## 👷 Developing
 
 You'll need to have [Deno](https://deno.land/) installed. Once you have Deno, follow these steps:
 
@@ -94,10 +58,10 @@ deno install
 ---
 
 ```sh
-# Build Valenced Next
+# Build the bundle
 deno run build
 
-# Build Valenced Next with debugging enabled (slow, don't use in production)
+# Build with debugging enabled (slow, don't use in production)
 deno run build --dev
 ```
 
@@ -109,7 +73,24 @@ deno run dev
 deno run dev --prod
 ```
 
-<sub>Builds are generated at `dist/valenced.bundle`.</sub>
+<sub>Builds are generated at `dist/valenced.bundle`. URLs come from `build.env`, and `.env` overrides them locally.</sub>
+
+Gradle builds the bundle into the loaders (`./gradlew :android:assembleDebug` from the repository root). Debug loaders ship the development build. Gradle requires the Deno version in `.dvmrc` and ignores `.env`, so its builds are reproducible.
+
+### 🔄️ Testing with a loader
+
+Debug builds of the loaders can load the bundle from the development server instead of the one they ship. Release builds never load anything else.
+
+1. Start the development server with `deno run dev --lan`.
+2. In Discord, go to **Settings** > **Developer** (under the **Valenced** section) and tap **Evaluate JavaScript**.
+3. Paste and evaluate the following snippet, with your computer's address:
+
+    ```js
+    var HOST = "http://<address>:4040";
+    valenced.discord.native.FileModule.writeFile("documents", "valenced/loader.json", JSON.stringify({ customLoadUrl: { enabled: true, url: HOST + "/valenced.bundle", manifestUrl: HOST + "/manifest.json" } }), "utf8");
+    ```
+
+4. Restart Discord. To go back to the shipped bundle, use **Reset Loader Config** in the recovery options.
 
 ### 📝 Generating types
 

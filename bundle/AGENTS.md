@@ -14,17 +14,25 @@ Compression never removes substance. Keep exact identifiers, commands, file path
 
 ## Project
 
-Valenced Next builds the Valenced bundle, which is Hermes bytecode that runs inside the official Discord mobile app. The bundle is not standalone. A native bootstrapper loads it.
+`bundle/` builds the Valenced bundle, which is Hermes bytecode that runs inside the official Discord mobile app. The bundle is not standalone. The loaders in this repository ship it:
+
+| Directory  | Role                                                       |
+| ---------- | ---------------------------------------------------------- |
+| `android/` | Xposed module. Ships the bundle as an APK asset.           |
+| `ios/`     | Theos tweak. Ships the bundle next to the dylib.           |
+| `core/`    | Kotlin Multiplatform plugin system shared by both loaders. |
+| `api/`     | API for native plugins.                                    |
+
+Gradle builds this directory as the `:bundle` project with the Deno version pinned in `.dvmrc`. Release loaders only ever run the shipped bundle.
 
 Sibling repositories user should specify the paths to:
 
-| Repository                | Role                                                 |
-| ------------------------- | ---------------------------------------------------- |
-| `valenced-xposed`          | Native Xposed module.                                |
+| Repository                 | Role                                                 |
+| -------------------------- | ---------------------------------------------------- |
 | `valenced-plugin-template` | Plugin template, index generator, release workflows. |
 | `valenced-docs`            | User and plugin author documentation.                |
 
-Changes that cross the native bridge usually need edits in `valenced-xposed` and `valenced-docs` in the same pass.
+Changes that cross the native bridge usually need edits in `android/`, `ios/` and `valenced-docs` in the same pass.
 
 ## Commands
 
