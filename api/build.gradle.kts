@@ -36,7 +36,8 @@ android {
 dependencies {
     api(project(":core"))
 
-    compileOnly(libs.xposed.api)
+    api(libs.xposed.api)
+    api(libs.dexkit)
     compileOnly(libs.kotlinx.coroutines.android)
 }
 
