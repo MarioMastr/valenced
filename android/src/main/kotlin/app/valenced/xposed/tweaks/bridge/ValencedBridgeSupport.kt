@@ -1,6 +1,6 @@
 package app.valenced.xposed.tweaks.bridge
 
-import de.robv.android.xposed.XposedHelpers.findAndHookConstructor
+import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.getStaticObjectField
 import app.valenced.Logger
 import app.valenced.bridge.ValencedBridge
@@ -257,15 +257,9 @@ val valencedBridgeSupport by tweak {
         }
 
     // Native -> JS
-    findAndHookConstructor(
+    // Hook every constructor, since R8 renames or drops some of the parameter types.
+    hookAllConstructors(
         reactInstanceClass,
-        "com.facebook.react.runtime.BridgelessReactContext",
-        "com.facebook.react.runtime.ReactHostDelegate",
-        "com.facebook.react.fabric.ComponentFactory",
-        "com.facebook.react.devsupport.interfaces.DevSupportManager",
-        "com.facebook.react.bridge.queue.QueueThreadExceptionHandler",
-        Boolean::class.javaPrimitiveType,
-        "com.facebook.react.runtime.ReactHostInspectorTarget",
         methodHook {
             after {
                 log.i("Captured ReactInstance for ValencedBridge")

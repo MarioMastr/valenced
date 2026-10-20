@@ -4,7 +4,7 @@ import android.app.AlertDialog
 import app.valenced.plugins.API_VERSION
 import app.valenced.plugins.PluginManifest
 import app.valenced.xposed.hook
-import app.valenced.xposed.method
+import app.valenced.xposed.tweaks.DiscordBundleUpdater
 
 private val manifest = PluginManifest(
     id = "valenced.discord.prevent-ota-updates",
@@ -41,22 +41,23 @@ internal val preventOtaUpdatesPlugin =
                 return@start
             }
 
-            val function0Class = classLoader.loadClass("kotlin.jvm.functions.Function0")
-            val bundleUpdaterClass = classLoader.loadClass("com.discord.bundle_updater.BundleUpdater")
+            val updater = DiscordBundleUpdater(classLoader)
 
-            bundleUpdaterClass.method("checkForUpdate", Int::class.javaPrimitiveType, function0Class).hook {
+            updater.checkForUpdate?.hook {
                 before {
                     log.i("OTA update check prevented")
                     result = null
                 }
             }
+                ?: errors.tryEmit(ClassNotFoundException("Unable to find Discord's OTA update check, so updates will still download"))
 
-            bundleUpdaterClass.method("getBundle").hook {
+            updater.getBundle?.hook {
                 after {
                     if (result != null) log.i("Prevented OTA update from running")
                     result = null
                 }
             }
+                ?: errors.tryEmit(NoSuchFieldException("Unable to find Discord's OTA bundle getter, so OTA updates will still run"))
         }
 
         stop {

@@ -2,7 +2,6 @@ package app.valenced.xposed
 
 object ValencedConstants {
     const val TARGET_PACKAGE = "com.discord"
-    const val TARGET_ACTIVITY = "$TARGET_PACKAGE.react_activities.ReactActivity"
 
     const val FILES_DIR = "files/valenced"
     const val CACHE_DIR = "cache/valenced"
