@@ -85,6 +85,7 @@ private class HostScopeImpl(
     override val classLoader: ClassLoader,
 ) : HostScope {
     override val bridge: ValencedBridge get() = ValencedBridgeRegistry
+    override val dexFinder: DexFinder get() = DexFinder
     override fun withAppContext(block: (Context) -> Unit) = app.valenced.xposed.tweaks.base.withAppContext(block)
     override fun withAppActivity(block: (Activity) -> Unit) =
         app.valenced.xposed.tweaks.base.withAppActivity(block)

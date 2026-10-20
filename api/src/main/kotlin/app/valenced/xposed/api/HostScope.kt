@@ -7,7 +7,7 @@ import app.valenced.bridge.ValencedBridge
 
 /**
  * Runtime surface every extension runs against. Carries the basics ([appInfo], [classLoader], [modulePath]),
- * the JS <-> native [bridge], and lifecycle hooks for grabbing the app's [Context] / [Activity].
+ * the JS <-> native [bridge], the [dexFinder], and lifecycle hooks for grabbing the app's [Context] / [Activity].
  *
  * A plugin receives one via [app.valenced.plugins.PluginScope], which extends this.
  */
@@ -23,6 +23,9 @@ interface HostScope {
 
     /** The JS <-> native bridge. Register methods and call JS through it. */
     val bridge: ValencedBridge
+
+    /** Finds obfuscated classes and members of the target app. In a plugin, lookup keys are scoped to the plugin. */
+    val dexFinder: DexFinder
 
     /**
      * Run [block] with the target app's [Context]. Fires immediately if a [Context] is already captured;

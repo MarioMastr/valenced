@@ -10,6 +10,8 @@ import app.valenced.plugins.PluginScope
 import app.valenced.plugins.PluginStatesStore
 import app.valenced.plugins.PluginSystemError
 import app.valenced.plugins.pluginLog
+import app.valenced.xposed.ScopedDexFinder
+import app.valenced.xposed.api.DexFinder
 import app.valenced.xposed.api.HostScope
 import app.valenced.xposed.api.callJSMethod
 import app.valenced.xposed.tweaks.plugins.internal.InternalPluginFlags
@@ -37,6 +39,8 @@ internal class PluginScopeImpl(
 ) : PluginScope, HostScope by tweakScope {
     override val log: Logger = logger("plugin:${plugin.manifest.id}")
     override val manifest = plugin.manifest
+
+    override val dexFinder: DexFinder = ScopedDexFinder("plugin:${manifest.id}@${manifest.version}:")
 
     override val pluginDir: File by lazy {
         File(externalPluginsRoot(appInfo.dataDir), manifest.id)
