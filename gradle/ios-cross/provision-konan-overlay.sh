@@ -61,6 +61,61 @@ if [[ -z "$LLVM_VERSION" ]]; then
 fi
 LLVM_VERSION="${LLVM_VERSION:-21}"
 
+konan_property() {
+  grep -E "^$1 *=" "$BASE/konan/konan.properties" \
+    | head -n1 | cut -d= -f2- | sed 's/^ *//; s/ *$//'
+}
+
+KONAN_LLVM_HOME="${KONAN_LLVM_HOME:-}"
+if [[ -z "$KONAN_LLVM_HOME" && -z "${LLVM_HOME:-}" ]]; then
+  deps_url="$(konan_property dependenciesUrl)"
+  deps_url="${deps_url:-https://download.jetbrains.com/kotlin/native}"
+  llvm_dist="$(konan_property 'llvm\.linux_x64\.user')"
+  llvm_dist="${llvm_dist:-llvm-$LLVM_VERSION-x86_64-linux-essentials}"
+  llvm_path="$(konan_property "$llvm_dist\\.default")"
+  llvm_path="${llvm_path#remote:public:}"
+  llvm_path="${llvm_path:-resources/llvm/$LLVM_VERSION-x86_64-linux}"
+
+  llvm_cache="$CACHE_DIR/llvm/$llvm_dist"
+  if [[ ! -x "$llvm_cache/bin/clang++" ]]; then
+    mkdir -p "$CACHE_DIR/llvm"
+    tmp="$(mktemp -d "$CACHE_DIR/llvm/.llvm.XXXXXX")"
+    url="$deps_url/$llvm_path/$llvm_dist.tar.gz"
+    info "downloading Kotlin/Native LLVM $LLVM_VERSION (one-time, cached)"
+    info "  $url"
+    if ! curl -fL --retry 3 --retry-delay 2 -o - "$url" \
+      | tar -xzf - -C "$tmp" --strip-components=1; then
+      rm -rf "$tmp"
+      die "failed to download the Kotlin/Native LLVM toolchain from $url"
+    fi
+    if [[ ! -x "$tmp/bin/clang++" ]]; then
+      rm -rf "$tmp"
+      die "downloaded Kotlin/Native LLVM archive is missing bin/clang++"
+    fi
+    rm -rf "$llvm_cache"
+    mv "$tmp" "$llvm_cache"
+  fi
+  info "Kotlin/Native LLVM: $llvm_cache"
+  KONAN_LLVM_HOME="$llvm_cache"
+fi
+
+llvm_home_bin() {
+  local dir
+  for dir in \
+    "${KONAN_LLVM_HOME:+$KONAN_LLVM_HOME/bin}" \
+    "${LLVM_HOME:+$LLVM_HOME/bin}" \
+    "/usr/lib/llvm$LLVM_VERSION/bin" \
+    "/usr/lib/llvm-$LLVM_VERSION/bin" \
+    "/usr/local/opt/llvm@$LLVM_VERSION/bin" \
+    "/opt/homebrew/opt/llvm@$LLVM_VERSION/bin"; do
+    if [[ -n "$dir" && -x "$dir/$1" ]]; then
+      printf '%s' "$dir/$1"
+      return 0
+    fi
+  done
+  return 1
+}
+
 resolve_tool() {
   local p
   p="$(command -v "$1" 2>/dev/null || true)"
@@ -74,6 +129,11 @@ resolve_optional() {
 
 resolve_versioned() {
   local p
+  p="$(llvm_home_bin "$1" || true)"
+  if [[ -n "$p" ]]; then
+    printf '%s' "$p"
+    return 0
+  fi
   p="$(command -v "$1-$LLVM_VERSION" 2>/dev/null || true)"
   if [[ -n "$p" ]]; then
     printf '%s' "$p"
@@ -84,6 +144,11 @@ resolve_versioned() {
 
 resolve_optional_versioned() {
   local p
+  p="$(llvm_home_bin "$1" || true)"
+  if [[ -n "$p" ]]; then
+    printf '%s' "$p"
+    return 0
+  fi
   p="$(command -v "$1-$LLVM_VERSION" 2>/dev/null || true)"
   if [[ -n "$p" ]]; then
     printf '%s' "$p"
@@ -103,14 +168,16 @@ LLVM_LIBTOOL_DARWIN="$(resolve_optional_versioned llvm-libtool-darwin)"
 LLVM_LIPO="$(resolve_optional_versioned llvm-lipo)"
 LLVM_INSTALL_NAME_TOOL="$(resolve_optional_versioned llvm-install-name-tool)"
 
-LD64=""
-for candidate in "ld64.lld-$LLVM_VERSION" ld64.lld ld.lld; do
-  found_tool="$(command -v "$candidate" 2>/dev/null || true)"
-  if [[ -n "$found_tool" ]]; then
-    LD64="$found_tool"
-    break
-  fi
-done
+LD64="$(llvm_home_bin ld64.lld || true)"
+if [[ -z "$LD64" ]]; then
+  for candidate in "ld64.lld-$LLVM_VERSION" ld64.lld ld.lld; do
+    found_tool="$(command -v "$candidate" 2>/dev/null || true)"
+    if [[ -n "$found_tool" ]]; then
+      LD64="$found_tool"
+      break
+    fi
+  done
+fi
 [[ -n "$LD64" ]] || die "required tool 'ld64.lld' not found on PATH (need an LLVM Mach-O linker)"
 
 RESOURCE_DIR="$("$CLANG" -print-resource-dir 2>/dev/null || true)"
@@ -118,7 +185,7 @@ RESOURCE_DIR="$("$CLANG" -print-resource-dir 2>/dev/null || true)"
 
 CLANG_MAJOR="$("$CLANG" --version 2>/dev/null | grep -oE '[0-9]+' | head -n1 || true)"
 if [[ -n "$CLANG_MAJOR" && "$CLANG_MAJOR" != "$LLVM_VERSION" ]]; then
-  info "warning: system clang major ($CLANG_MAJOR) differs from Kotlin/Native LLVM ($LLVM_VERSION); linking usually still works, but prefer clang-$LLVM_VERSION when available"
+  die "clang $CLANG_MAJOR ($CLANG) does not match Kotlin/Native's LLVM $LLVM_VERSION; set LLVM_HOME or KONAN_LLVM_HOME to the exact toolchain, or unset it so this script downloads the one Kotlin/Native declares"
 fi
 
 info "base distribution : $BASE"

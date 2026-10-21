@@ -1,5 +1,5 @@
 TARGET := iphone:clang:latest:14.0
-SDK = iPhoneOS14.5
+SDK = iPhoneOS16.5
 ARCHS = arm64
 INSTALL_TARGET_PROCESSES = Discord
 THEOS_PACKAGE_SCHEME = rootless
