@@ -103,9 +103,9 @@ val pluginInstallMethods by tweak {
      *
      * Resolves an install against cached indexes and returns a plan for JS to confirm and pass to `install`.
      *
-     * `options = { repos?: string[], targets?: { [id]: { repo?, version?, channel? } }, skipMissingOptionals?: boolean }`:
+     * `options = { repos?: string[], targets?: { [id]: { repo?, version?, channel?, compatible? } }, skipMissingOptionals?: boolean }`:
      * - `repos` only considers those repositories, for every plugin.
-     * - `targets` overrides default resolution rules.
+     * - `targets` overrides default resolution rules. A `channel` is strict unless `compatible` is set.
      * - `skipMissingOptionals` skips untargeted optional dependencies that aren't installed.
      */
     pluginSystemAsyncMethod("valenced.plugins.planInstall") { args ->
@@ -125,6 +125,7 @@ val pluginInstallMethods by tweak {
                 repo = target["repo"] as? String,
                 version = target["version"] as? String,
                 channel = target["channel"] as? String,
+                compatible = target["compatible"] == true,
             )
         }
         val filteredRepos = (options?.get("repos") as? List<*>)?.map {
@@ -162,6 +163,7 @@ val pluginInstallMethods by tweak {
                     "channel" to action.channel,
                     "hold" to action.hold,
                     "replaces" to action.replaces?.toString(),
+                    "channelVersion" to action.channelVersion?.toString(),
                     "dependents" to action.dependents.map { (dependent, how) ->
                         mapOf("id" to dependent, "optional" to how.optional, "range" to how.range.toString())
                     },
@@ -304,6 +306,7 @@ val pluginInstallMethods by tweak {
                 "installed" to update.installed.toString(),
                 "available" to update.available.toString(),
                 "channel" to update.channel,
+                "channelVersion" to update.channelVersion?.toString(),
                 "repo" to update.repo,
                 "size" to update.size,
                 "includes" to update.includes.map { action ->
