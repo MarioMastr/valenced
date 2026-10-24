@@ -1,4 +1,4 @@
-name: iOS Build Validation
+name: "iOS: Build"
 
 on:
   pull_request:

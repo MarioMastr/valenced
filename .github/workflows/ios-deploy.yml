@@ -1,4 +1,4 @@
-name: Deploy iOS Build
+name: "iOS: Deploy Build"
 run-name: ${{ github.event.inputs.release == 'true' && 'Release' || 'Build' }} for ${{ github.event.inputs.ipa_url }}
 
 on:

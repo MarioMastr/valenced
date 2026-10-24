@@ -1,4 +1,4 @@
-name: Publish API
+name: "Android: Publish API"
 
 on:
   push:

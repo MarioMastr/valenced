@@ -1,4 +1,4 @@
-name: Remote iOS IPA Update
+name: "iOS: Remote IPA Update"
 
 on:
   repository_dispatch:
