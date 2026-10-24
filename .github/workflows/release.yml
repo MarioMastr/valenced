@@ -147,23 +147,38 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew :android:assembleDebug :android:assembleRelease
 
-      - name: Collect APKs
+      - name: Collect artifacts
         run: |
           mkdir dist
+          # Android
           mv android/build/outputs/apk/debug/android-debug.apk dist/app-debug.apk
           mv android/build/outputs/apk/release/android-release.apk dist/app-release.apk
+          # Bundle
+          mv bundle/build/release/valenced.bundle dist/valenced.bundle
+          mv bundle/build/release/valenced.js dist/valenced.js
+          mv bundle/build/release/manifest.json dist/manifest.json
           ls -l dist
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@v4
         with:
-          subject-path: dist/*.apk
+          subject-path: dist/*
 
       - name: Upload APKs
         uses: actions/upload-artifact@v7
         with:
           name: release-apks
           path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-bundle
+          path: 
+          | dist/valenced.bundle
+          | dist/valenced.js
+          | dist/manifest.json
           if-no-files-found: error
 
       - name: Create release
@@ -178,7 +193,7 @@ jobs:
             --target "$(git rev-parse HEAD)" \
             --title "$VERSION_NAME" \
             --generate-notes \
-            dist/app-debug.apk dist/app-release.apk
+            dist/app-debug.apk dist/app-release.apk dist/valenced.bundle dist/valenced.js dist/manifest.json
 
       - name: Publish types
         run: git -C "$RUNNER_TEMP/types" push origin HEAD "refs/tags/$VERSION_NAME"
