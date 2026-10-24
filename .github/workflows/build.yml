@@ -93,3 +93,10 @@ jobs:
           name: apks
           path: android/build/outputs/apk/*/*.apk
           if-no-files-found: error
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundle
+          path: bundle/build/bundle/**/*
+          if-no-files-found: error
