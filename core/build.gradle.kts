@@ -165,9 +165,21 @@ if (appleTargets && !isMacHost) {
     }.configureEach { enabled = false }
 }
 
+// Forks publish to their own repository's packages.
+val githubRepository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("Valenced/valenced")
+
 publishing {
     publications.withType<MavenPublication>().configureEach {
         groupId = "app.valenced"
         version = libs.versions.apiVersion.get()
+    }
+
+    repositories {
+        // Credentials come from the `GitHubPackagesUsername` and `GitHubPackagesPassword` Gradle properties.
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/$githubRepository")
+            credentials(PasswordCredentials::class)
+        }
     }
 }
