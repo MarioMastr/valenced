@@ -66,4 +66,4 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_GitHubPackagesUsername: ${{ github.actor }}
           ORG_GRADLE_PROJECT_GitHubPackagesPassword: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :api:publishReleasePublicationToGitHubPackagesRepository
+        run: ./gradlew :android:api:publishReleasePublicationToGitHubPackagesRepository

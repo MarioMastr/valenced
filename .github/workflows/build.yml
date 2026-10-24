@@ -77,7 +77,7 @@ jobs:
           :android:assembleRelease
           :android:testDebugUnitTest
           :bundle:testBundle
-          :api:publishToMavenLocal
+          :android:api:publishToMavenLocal
 
       - name: Upload test reports
         if: failure()

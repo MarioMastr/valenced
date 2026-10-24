@@ -61,7 +61,7 @@ val generateCoreConstants = tasks.register("generateCoreConstants") {
             """
             package app.valenced.core
 
-            /** The published `:api` version, mirrored from `gradle/libs.versions.toml`. */
+            /** The published `:android:api` version, mirrored from `gradle/libs.versions.toml`. */
             internal const val API_VERSION_STRING: String = "$apiVersion"
             """.trimIndent() + "\n"
         )

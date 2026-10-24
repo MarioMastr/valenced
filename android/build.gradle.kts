@@ -73,7 +73,7 @@ android {
 dependencies {
     compileOnly(libs.xposed.api)
 
-    implementation(project(":api"))
+    implementation(project(":android:api"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.serialization.json)
