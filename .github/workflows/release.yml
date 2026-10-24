@@ -154,9 +154,9 @@ jobs:
           mv android/build/outputs/apk/debug/android-debug.apk dist/app-debug.apk
           mv android/build/outputs/apk/release/android-release.apk dist/app-release.apk
           # Bundle
-          mv bundle/build/release/valenced.bundle dist/valenced.bundle
-          mv bundle/build/release/valenced.js dist/valenced.js
-          mv bundle/build/release/manifest.json dist/manifest.json
+          mv bundle/build/bundle/release/valenced.bundle dist/valenced.bundle
+          mv bundle/build/bundle/release/valenced.js dist/valenced.js
+          mv bundle/build/bundle/release/manifest.json dist/manifest.json
           ls -l dist
 
       - name: Attest build provenance
