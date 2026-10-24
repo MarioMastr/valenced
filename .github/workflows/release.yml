@@ -143,7 +143,7 @@ jobs:
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/signing-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_ALIAS: ${{ vars.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew :android:assembleDebug :android:assembleRelease
 
