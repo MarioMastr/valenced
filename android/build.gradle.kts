@@ -17,7 +17,7 @@ android {
         applicationId = "app.valenced.xposed"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1000
+        versionCode = 10000
         versionName = "1.0.0"
     }
 
