@@ -12,7 +12,6 @@ import {
     isPluginPendingReload,
     isPluginPendingUpdate,
     isPluginStarted,
-    isPluginStartedLate,
     isPluginStopped,
 } from '@valenced/plugins/_'
 import {
@@ -155,10 +154,7 @@ export const PluginInfoStatusIcon = memo(function PluginInfoStatusIcon({
         {
             key: 'stopped',
             text: 'This plugin is stopped.',
-            condition:
-                isPluginEnabled(plugin) &&
-                !isPluginStartedLate(plugin) &&
-                isPluginStopped(plugin),
+            condition: isPluginEnabled(plugin) && isPluginStopped(plugin),
             source: getAssetIdByName('HandRequestSpeakIcon')!,
             extraStyles: [styles_.iconWarning],
         },
@@ -452,6 +448,9 @@ export const InstalledPluginCard = memo(function InstalledPluginCard({
                             }}
                         >
                             <IconButton
+                                // Remount since Discord's IconButton doesn't seem to set its appearance reliably
+                                // Sometimes it appears disabled even though it's clickable
+                                key={started ? 'started' : 'stopped'}
                                 ref={settingsRef}
                                 size="sm"
                                 variant="secondary"
@@ -549,6 +548,7 @@ export const BrowsePluginCard = memo(function BrowsePluginCard({
                         install(entry.repoUrl, {
                             type: 'channel',
                             channel: entry.channel,
+                            compatible: true,
                         })
                     }
                     onLongPress={showSheet}
