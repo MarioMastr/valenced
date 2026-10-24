@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       versionName:
-        description: Version name (e.g. 1.7.0)
+        description: Version name (e.g. 1.0.0), also used as the release tag
         required: true
         type: string
       versionCode:
-        description: Version code (e.g. 1700), also used as the release tag
+        description: Version code (e.g. 1000)
         required: true
         type: number
 
@@ -185,11 +185,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "$VERSION_CODE" >/dev/null 2>&1; then
-            echo "::error::Release $VERSION_CODE already exists."
+          if gh release view "$VERSION_NAME" >/dev/null 2>&1; then
+            echo "::error::Release $VERSION_NAME already exists."
             exit 1
           fi
-          gh release create "$VERSION_CODE" \
+          gh release create "$VERSION_NAME" \
             --target "$(git rev-parse HEAD)" \
             --title "$VERSION_NAME" \
             --generate-notes \
