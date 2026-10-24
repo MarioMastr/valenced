@@ -2,7 +2,7 @@ name: "Android: Publish API"
 
 on:
   push:
-    tags: ['api@*']
+    tags: ['android-api@*']
   workflow_dispatch:
 
 concurrency:
@@ -46,8 +46,8 @@ jobs:
           TAG: ${{ github.ref_name }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          if [ "$TAG" != "api@$VERSION" ]; then
-            echo "::error::Tag $TAG does not match apiVersion $VERSION (expected api@$VERSION)"
+          if [ "$TAG" != "android-api@$VERSION" ]; then
+            echo "::error::Tag $TAG does not match apiVersion $VERSION (expected android-api@$VERSION)"
             exit 1
           fi
 
