@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Valenced Android"
+rootProject.name = "Valenced"
 include(":android")
 include(":android:api")
 include(":bundle")
