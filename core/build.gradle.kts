@@ -78,7 +78,7 @@ if (appleTargets && !isMacHost) {
     val konanVersion = libs.versions.kotlin.get()
 
     val overlayDir = rootProject.layout.projectDirectory.dir(".konan-overlay")
-    val runtimeCacheDir = File(gradle.gradleUserHomeDir, "caches/valenced-xposed")
+    val runtimeCacheDir = File(gradle.gradleUserHomeDir, "caches/valenced")
 
     val theosDir = providers.environmentVariable("THEOS")
         .orElse(providers.systemProperty("user.home").map { "$it/theos" })

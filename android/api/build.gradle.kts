@@ -42,7 +42,7 @@ dependencies {
 }
 
 // Forks publish to their own repository's packages.
-val githubRepository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("Valenced/valenced-xposed")
+val githubRepository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("Valenced/valenced")
 
 publishing {
     publications {

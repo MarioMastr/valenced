@@ -1,50 +1,11 @@
-<p align="center">
-  <picture>
-    <source
-      width="512px"
-      media="(prefers-color-scheme: dark)"
-      srcset="assets/wordmark/wordmark+slogan-dark.svg"
-    >
-    <img
-      width="512px"
-      src="assets/wordmark/wordmark+slogan-light.svg"
-    >
-  </picture>
-  <br>
-   <a href="https://discord.com/invite/ddcQf3s2Uq">
-       <picture>
-           <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
-           <img height="32px" src="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
-       </picture>
-   </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="https://github.com/Valenced">
-       <picture>
-           <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/dMMmCrW/Git-Hub-Mark.png" />
-           <img height="32px" src="https://i.ibb.co/9wV3HGF/Git-Hub-Mark-Light.png" />
-       </picture>
-   </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   </a>
-</p>
+# ❓ About
 
-# Valenced
-
-**Discord, your way.** Valenced is a client modification for Discord Android.
-
-Valenced aims to be a lightweight and lightning-fast client modification for Discord Android, while being user-friendly and developer-first. It provides a powerful framework, allowing developers to make add-ons with ease. The sky is the limit!
-
-## ❓ About
-
-This directory builds the Valenced bundle: Hermes bytecode that runs inside official Discord clients. The bundle is not standalone. The Android and iOS loaders in this repository ship it, so it isn't released on its own.
-
-## 💪 Features
-
-- **🔌 Plugins**: Extend Discord with custom features
-- **🎨 Themes & Fonts**: Customize Discord's appearance to your liking
-- **🧪 Experiments**: Try out Discord's new features before they're rolled out
+This directory contains the Valenced bundle: Hermes bytecode that runs inside official Discord clients.
+The bundle is not standalone. It requires the Android and iOS loaders in this repository.
 
 ## ⬇️ Download
 
-Install a loader from this repository's [Releases](https://github.com/Valenced/valenced-xposed/releases/latest). The bundle comes with it.
+Install a loader from this repository's [Releases](https://github.com/Valenced/valenced/releases/latest). The bundle is already built into the loader.
 
 ## 👷 Developing
 
@@ -79,7 +40,7 @@ Gradle builds the bundle into the loaders (`./gradlew :android:assembleDebug` fr
 
 ### 🔄️ Testing with a loader
 
-Debug builds of the loaders can load the bundle from the development server instead of the one they ship. Release builds never load anything else.
+**Only debug builds** of the loaders can load the bundle from the development server instead of the one they built with.
 
 1. Start the development server with `deno run dev --lan`.
 2. In Discord, go to **Settings** > **Developer** (under the **Valenced** section) and tap **Evaluate JavaScript**.

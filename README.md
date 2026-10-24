@@ -1,97 +1,45 @@
 <p align="center">
-  <picture>
-    <source
-      width="512px"
-      media="(prefers-color-scheme: dark)"
-      srcset="assets/wordmark/wordmark+slogan-dark.svg"
-    >
     <img
-      width="512px"
-      src="assets/wordmark/wordmark+slogan-light.svg"
+        width="128px"
+        src="assets/logo.svg"
     >
-  </picture>
-  <br>
-   <a href="https://discord.com/invite/ddcQf3s2Uq">
-       <picture>
-           <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
-           <img height="32px" src="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
-       </picture>
-   </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   <a href="https://github.com/Valenced">
-       <picture>
-           <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/dMMmCrW/Git-Hub-Mark.png" />
-           <img height="32px" src="https://i.ibb.co/9wV3HGF/Git-Hub-Mark-Light.png" />
-       </picture>
-   </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   </a>
+    <h1 align="center">Valenced</h1>
+    <p align="center"><strong>Supercharge your Discord experience.</strong> A client modification for Discord mobile.</p>
+    <br>
+    <div align="center">
+        <a href="https://discord.com/invite/dtBTQHYSx4">
+            <picture>
+                <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
+                <img height="32px" src="https://user-images.githubusercontent.com/13122796/178032563-d4e084b7-244e-4358-af50-26bde6dd4996.png" />
+            </picture>
+        </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="https://github.com/Valenced">
+            <picture>
+                <source height="32px" media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/dMMmCrW/Git-Hub-Mark.png" />
+                <img height="32px" src="https://i.ibb.co/9wV3HGF/Git-Hub-Mark-Light.png" />
+            </picture>
+        </a>
+    </div>
 </p>
-
-# ValencedXposed
-
-**Discord, your way.** ValencedXposed is an Xposed module that loads [Valenced](bundle) into Discord Android.
-
-ValencedXposed is the root installation method for Valenced. It bootstraps the Valenced bundle inside Discord's process, manages the plugin system, and bridges JavaScript with the Android platform.
 
 ## ❓ About
 
-This repository builds the Xposed module (the loader) for Valenced. The module injects into official Discord Android clients via the Xposed Framework, loads the Valenced Hermes bytecode bundle,
-and provides native capabilities to it: plugin loading, file system access, and more.
+Valenced is a client modification for Discord mobile. This repository is a monorepo that builds Valenced.
 
-## 💪 Features
+## ✨ Features
 
-- **📦 Bundle loading**: Ships the Valenced bundle and bootstraps it inside Discord, without downloading code
-- **🔌 Native plugins**: Install, update, and run plugins with native (Kotlin/JVM) and JavaScript parts
-- **🎨 Themes, fonts & system colors**: Native support for appearance customization
-- **🛡️ Tracking blockers**: Blocks crash reporting and deep-link tracking
+- **🔌 Plugins**: Extend Discord with custom features
+- **🎨 Themes, fonts, icons & emojis**: Customize Discord's appearance to your liking
+- **🧪 Experiments**: Try out Discord's new features before they're rolled out
 
-## ⬇️ Download
+## 👷 Codebase
 
-Grab the latest module APK from the [Releases](https://github.com/Valenced/valenced-xposed/releases/latest) page and install it on a device with the Xposed Framework (e.g. [Vector](https://github.com/JingMatrix/Vector)):
+Valenced uses TypeScript and Kotlin Multiplatform to share code between platforms. The codebase is split into four modules:
 
-1. Install the module APK (Android 7.0+).
-2. Enable the module for Discord in your Xposed manager.
-3. Restart Discord, and you should be running Valenced!
-
-## 👷 Development
-
-You'll need a JDK (25 recommended), the Android SDK, and the [Deno](https://deno.com/) version in `bundle/.dvmrc` to build the [bundle](bundle). Once you have those, follow these steps:
-
-```sh
-# Build the debug module APK
-./gradlew :android:assembleDebug
-
-# Build the release module APK
-./gradlew :android:assembleRelease
-```
-
-<sub>APKs are generated at `android/build/outputs/apk/`.</sub>
-
-```sh
-# Publish the plugin API to your local Maven repository (for plugin development)
-./gradlew :api:publishToMavenLocal
-```
-
-<sub>Native plugins link against the `app.valenced:api` artifact.</sub>
-
-The API is also published to [GitHub Packages](https://github.com/Valenced/valenced-xposed/packages). GitHub Packages requires authentication even for public packages, so use a [personal access token](https://github.com/settings/tokens) with the `read:packages` scope:
-
-```kotlin
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/Valenced/valenced-xposed")
-        credentials {
-            username = providers.gradleProperty("gpr.user").orNull
-            password = providers.gradleProperty("gpr.key").orNull
-        }
-    }
-}
-
-dependencies {
-    compileOnly("app.valenced:api:<version>")
-}
-```
-
-<sub>To publish a new version, bump `apiVersion` in `gradle/libs.versions.toml`, then push an `api@<version>` tag or run the **Publish API** workflow.</sub>
+- **[bundle](bundle)**: Hermes bytecode that runs inside official Discord clients. It requires the loaders to run, and is built into them in each release.
+- **[core](core)**: Shared Kotlin Multiplatform codebase for the loaders, containing the plugin system, and other shared code.
+- **[android](android)**: Android loader and native plugin API, which is an Xposed module loading the Valenced bundle into Discord.
+- **[ios](ios)**: iOS loader, which is a tweak loading the Valenced bundle into Discord.
 
 ## 📄 License
 

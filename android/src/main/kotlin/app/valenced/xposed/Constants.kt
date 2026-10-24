@@ -9,11 +9,11 @@ object ValencedConstants {
     const val BUNDLE_MANIFEST_FILE = "manifest.json"
     const val PRELOADS_DIR = "preloads"
 
-    const val LOADER_NAME = "ValencedXposed"
+    const val LOADER_NAME = "ValencedAndroid"
     val LOADER_VERSION
         get() = BuildConfig.VERSION_NAME
     val USER_AGENT
-        get() = "ValencedXposed/$LOADER_VERSION"
+        get() = "ValencedAndroid/$LOADER_VERSION"
 
     /**
      * Hermes bundle shipped inside this APK's `assets/` directory, built by the `:bundle` project.

@@ -1,6 +1,6 @@
 Package: app.valenced.tweak
 Name: ValencedTweak
-Version: 0.1.0
+Version: 1.0.0
 Architecture: iphoneos-arm
 Description: A tweak to inject Valenced into Discord
 Maintainer: cocobo1
