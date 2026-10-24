@@ -22,6 +22,8 @@ permissions:
 env:
   # Keep in sync with `javaVersion` in gradle/libs.versions.toml.
   JAVA_VERSION: 25
+  # Repository receiving the generated `@valenced/types` package.
+  TYPES_REPO: Valenced/valenced-types
 
 jobs:
   release:
@@ -95,6 +97,48 @@ jobs:
           fi
           echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/signing-key.jks"
 
+      # Committed and tagged locally here, pushed only after the release exists
+      - name: Prepare types
+        env:
+          TYPES_PUSH_TOKEN: ${{ secrets.TYPES_PUSH_TOKEN }}
+        run: |
+          if [ -z "$TYPES_PUSH_TOKEN" ]; then
+            echo "::error::The TYPES_PUSH_TOKEN secret is required to publish types."
+            exit 1
+          fi
+
+          (
+            cd bundle
+            deno install --frozen
+            deno run types
+            cp LICENSE ../.github/types-package/README.md dist/types/
+            jq --arg v "$VERSION_NAME" '.version = $v' dist/types/package.json > "$RUNNER_TEMP/package.json"
+            mv "$RUNNER_TEMP/package.json" dist/types/package.json
+          )
+
+          checkout="$RUNNER_TEMP/types"
+          git clone --depth 1 "https://x-access-token:$TYPES_PUSH_TOKEN@github.com/$TYPES_REPO.git" "$checkout"
+          if git -C "$checkout" ls-remote --exit-code --tags origin "refs/tags/$VERSION_NAME" >/dev/null; then
+            echo "::error::Tag $VERSION_NAME already exists in $TYPES_REPO."
+            exit 1
+          fi
+          # Keep .git, replace everything else
+          find "$checkout" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r bundle/dist/types/. "$checkout"/
+
+          cd "$checkout"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Types already up to date."
+          else
+            git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "chore: update to $VERSION_NAME" \
+              -m "From $GITHUB_REPOSITORY@$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
+          fi
+          # Tag every release, even without changes, so each version is installable
+          git tag "$VERSION_NAME"
+
       - name: Build APKs
         env:
           KEYSTORE_FILE: ${{ runner.temp }}/signing-key.jks
@@ -135,3 +179,6 @@ jobs:
             --title "$VERSION_NAME" \
             --generate-notes \
             dist/app-debug.apk dist/app-release.apk
+
+      - name: Publish types
+        run: git -C "$RUNNER_TEMP/types" push origin HEAD "refs/tags/$VERSION_NAME"
