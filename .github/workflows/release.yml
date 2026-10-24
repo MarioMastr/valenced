@@ -175,10 +175,10 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: release-bundle
-          path: 
-          | dist/valenced.bundle
-          | dist/valenced.js
-          | dist/manifest.json
+          path: |
+            dist/valenced.bundle
+            dist/valenced.js
+            dist/manifest.json
           if-no-files-found: error
 
       - name: Create release
