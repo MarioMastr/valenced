@@ -48,6 +48,17 @@ jobs:
           cache: true
           cache-hash: ${{ hashFiles('bundle/deno.lock') }}
 
+      # Use a temp key here instead.
+      - name: Install the Reseam CLI and a bundle signing key
+        run: |
+          mkdir -p "$RUNNER_TEMP/reseam"
+          version=$(sed -n 's/.*id("app.reseam.workspace") version "\(.*\)".*/\1/p' android/patches/settings.gradle.kts)
+          curl -fsSL -o "$RUNNER_TEMP/reseam/reseam" "https://cdn.reseam.app/engine/v$version/reseam-linux-x64"
+          chmod +x "$RUNNER_TEMP/reseam/reseam"
+          "$RUNNER_TEMP/reseam/reseam" bundle keygen --out "$RUNNER_TEMP/reseam/bundle-signing.key"
+          echo "RESEAM_BIN=$RUNNER_TEMP/reseam/reseam" >> "$GITHUB_ENV"
+          echo "RESEAM_BUNDLE_KEY=$RUNNER_TEMP/reseam/bundle-signing.key" >> "$GITHUB_ENV"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
@@ -78,6 +89,7 @@ jobs:
           :android:testDebugUnitTest
           :bundle:testBundle
           :android:api:publishToMavenLocal
+          :android-patches:bundle
 
       - name: Upload test reports
         if: failure()
@@ -99,4 +111,11 @@ jobs:
         with:
           name: bundle
           path: bundle/build/bundle/**/*
+          if-no-files-found: error
+
+      - name: Upload patch bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: patches
+          path: android/patches/build/reseam/valenced.reseam
           if-no-files-found: error

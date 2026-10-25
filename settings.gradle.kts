@@ -21,6 +21,14 @@ include(":bundle")
 include(":core")
 include(":ios")
 
+val ANDROID_PATCHES_BUILD_NAME = "android-patches"
+
+val wantsPatches = gradle.startParameter.taskNames.any { it.startsWith(":$ANDROID_PATCHES_BUILD_NAME") }
+val hasReseam = System.getenv("RESEAM_BIN")?.isNotBlank() == true ||
+    System.getenv("PATH").orEmpty().split(File.pathSeparator).any { File(it, "reseam").canExecute() }
+
+if (wantsPatches || hasReseam) includeBuild("android/patches") { name = ANDROID_PATCHES_BUILD_NAME }
+
 // cursed system for ios on linux
 if (!System.getProperty("os.name").equals("Mac OS X", ignoreCase = true)) {
     val wantsIos = gradle.startParameter.taskNames.any { task ->

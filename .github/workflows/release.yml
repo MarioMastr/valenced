@@ -97,6 +97,22 @@ jobs:
           fi
           echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/signing-key.jks"
 
+      - name: Install the Reseam CLI and bundle signing key
+        env:
+          PATCHES_SIGNING_KEY: ${{ secrets.PATCHES_SIGNING_KEY }}
+        run: |
+          if [ -z "$PATCHES_SIGNING_KEY" ]; then
+            echo "::error::The PATCHES_SIGNING_KEY secret is required for releases."
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/reseam"
+          version=$(sed -n 's/.*id("app.reseam.workspace") version "\(.*\)".*/\1/p' android/patches/settings.gradle.kts)
+          curl -fsSL -o "$RUNNER_TEMP/reseam/reseam" "https://cdn.reseam.app/engine/v$version/reseam-linux-x64"
+          chmod +x "$RUNNER_TEMP/reseam/reseam"
+          echo "$PATCHES_SIGNING_KEY" | base64 -d > "$RUNNER_TEMP/reseam/bundle-signing.key"
+          echo "RESEAM_BIN=$RUNNER_TEMP/reseam/reseam" >> "$GITHUB_ENV"
+          echo "RESEAM_BUNDLE_KEY=$RUNNER_TEMP/reseam/bundle-signing.key" >> "$GITHUB_ENV"
+
       # Committed and tagged locally here, pushed only after the release exists
       - name: Prepare types
         env:
@@ -139,13 +155,14 @@ jobs:
           # Tag every release, even without changes, so each version is installable
           git tag "$VERSION_NAME"
 
-      - name: Build APKs
+      - name: Build APKs and patch bundle
         env:
+          RESEAM_RELEASE_VERSION: ${{ inputs.versionName }}
           KEYSTORE_FILE: ${{ runner.temp }}/signing-key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ vars.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew :android:assembleDebug :android:assembleRelease
+        run: ./gradlew :android:assembleDebug :android:assembleRelease :android-patches:bundle
 
       - name: Collect artifacts
         run: |
@@ -153,10 +170,13 @@ jobs:
           # Android
           mv android/build/outputs/apk/debug/android-debug.apk dist/app-debug.apk
           mv android/build/outputs/apk/release/android-release.apk dist/app-release.apk
+          # Android patches
+          mv android/patches/build/reseam/valenced.reseam dist/valenced.reseam
           # Bundle
           mv bundle/build/bundle/release/valenced.bundle dist/valenced.bundle
           mv bundle/build/bundle/release/valenced.js dist/valenced.js
           mv bundle/build/bundle/release/manifest.json dist/manifest.json
+          "$RESEAM_BIN" bundle list dist/valenced.reseam
           ls -l dist
 
       - name: Attest build provenance
@@ -169,6 +189,13 @@ jobs:
         with:
           name: release-apks
           path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Upload patch bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-patches
+          path: dist/valenced.reseam
           if-no-files-found: error
 
       - name: Upload bundle
@@ -193,7 +220,8 @@ jobs:
             --target "$(git rev-parse HEAD)" \
             --title "$VERSION_NAME" \
             --generate-notes \
-            dist/app-debug.apk dist/app-release.apk dist/valenced.bundle dist/valenced.js dist/manifest.json
+            dist/app-debug.apk dist/app-release.apk dist/valenced.reseam \
+            dist/valenced.bundle dist/valenced.js dist/manifest.json
 
       - name: Publish types
         run: git -C "$RUNNER_TEMP/types" push origin HEAD "refs/tags/$VERSION_NAME"
