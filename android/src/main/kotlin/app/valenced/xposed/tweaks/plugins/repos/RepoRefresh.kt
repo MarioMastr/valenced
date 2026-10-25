@@ -11,9 +11,6 @@ import app.valenced.xposed.httpClient
 
 private const val REFRESH_TIMEOUT = 10_000L
 
-/** Name of the index document under the repository root URL. */
-private const val INDEX_PATH = "index.json"
-
 /**
  * Refreshes one repository's cached index for a single source. A failed fetch or invalid index won't modify the cache.
  *
@@ -27,7 +24,7 @@ internal suspend fun refreshRepo(url: String): RepoIndex {
     )
 
     val result = httpClient.getWithETag(
-        url = url.trimEnd('/') + "/" + INDEX_PATH,
+        url = url.trimEnd('/'),
         etag = RepoStore.cachedETag(url),
         timeoutMillis = REFRESH_TIMEOUT,
     )

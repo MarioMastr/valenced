@@ -26,7 +26,6 @@ extern NSString * const SOURCES_FILE;
 extern NSString * const REPO_CACHE_DIR;
 extern NSString * const REPO_INDEX_FILE;
 extern NSString * const REPO_ETAG_FILE;
-extern NSString * const REPO_INDEX_PATH;
 // Android: DEX jar		iOS: dylib
 extern NSString * const PLUGIN_BINARY_FILE;
 

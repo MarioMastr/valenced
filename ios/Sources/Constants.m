@@ -18,7 +18,6 @@ NSString * const SOURCES_FILE = @"sources.json";
 NSString * const REPO_CACHE_DIR = @"cache";
 NSString * const REPO_INDEX_FILE = @"index.json";
 NSString * const REPO_ETAG_FILE = @"etag";
-NSString * const REPO_INDEX_PATH = @"index.json";
 NSString * const PLUGIN_BINARY_FILE = @"plugin.dylib";
 
 NSString * const INTERNAL_REPO_URL = @"valenced://internal";

@@ -9,8 +9,6 @@
 
 static const NSTimeInterval kRefreshTimeout = 10.0;
 
-static NSString * const kIndexPath = REPO_INDEX_PATH;
-
 typedef NS_ENUM(NSInteger, ETagFetchKind) {
     ETagFetchKindFetched,
     ETagFetchKindNotModified,
@@ -72,9 +70,8 @@ NSString * _Nullable RefreshRepo(NSString *url, RepoIndex * _Nullable * _Nullabl
     }
     if (!known) return [NSString stringWithFormat:@"Unknown repository: '%@'", url];
 
-    NSString *trimmed = url;
-    while ([trimmed hasSuffix:@"/"]) trimmed = [trimmed substringToIndex:trimmed.length - 1];
-    NSString *indexUrl = [trimmed stringByAppendingPathComponent:kIndexPath];
+    NSString *indexUrl = url;
+    while ([indexUrl hasSuffix:@"/"]) indexUrl = [indexUrl substringToIndex:indexUrl.length - 1];
     NSURL *indexFile = [[RepoStore sharedStore] cachedIndexFileForURL:url];
     NSURL *etagFile = [[RepoStore sharedStore] cachedETagFileForURL:url];
 
