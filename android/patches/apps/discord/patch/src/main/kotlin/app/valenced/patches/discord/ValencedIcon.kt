@@ -5,10 +5,15 @@ package app.valenced.patches.discord
 
 import app.reseam.patch.patch
 
-/** Discord's launcher icons in the Stable build, both adaptive icons over a channel colour. */
-private val LAUNCHER_ICONS = listOf("ic_logo_square", "ic_logo_round")
+/** Discord's launcher icons, both adaptive icons over a channel colour. */
+private val LAUNCHER_ICONS = listOf(
+    "ic_logo_square", "ic_logo_round",
+    "ic_logo_square_beta", "ic_logo_round_beta",
+    "ic_logo_square_canary", "ic_logo_round_canary"
+)
 
 private const val BACKGROUND = "valenced_icon_background"
+private const val FOREGROUND = "valenced_icon_foreground"
 
 val valencedIcon = patch("Valenced icon") {
     description("Puts Discord's launcher icon on Valenced's cyan.")
@@ -16,7 +21,11 @@ val valencedIcon = patch("Valenced icon") {
 
     execute {
         resources.addColor(BACKGROUND, "#FF37EBFF")
+        resources.addColor(FOREGROUND, "#FF000000")
         for (icon in LAUNCHER_ICONS) {
+            // Some icons may not exist due to resource shrinking
+            if (!resources.exists("mipmap", icon)) continue
+
             // The adaptive icon is the anydpi-v26 configuration; the density ones are plain PNGs.
             val adaptive = resources.paths("mipmap", icon).filter { it.endsWith(".xml") }
             check(adaptive.isNotEmpty()) { "mipmap/$icon has no adaptive icon" }
@@ -24,6 +33,16 @@ val valencedIcon = patch("Valenced icon") {
                 files.editXml(path) {
                     val background = findByTag("background").singleOrNull() ?: error("$path has no background layer")
                     background["android:drawable"] = "@color/$BACKGROUND"
+
+                    // The foreground is a PNG mipmap shared with the rest of the app, so tint an inline
+                    // copy rather than the mipmap itself. A layer without android:drawable inflates its child.
+                    val foreground = findByTag("foreground").singleOrNull() ?: error("$path has no foreground layer")
+                    val drawable = foreground["android:drawable"] ?: error("$path has no foreground drawable")
+                    foreground.removeAttribute("android:drawable")
+                    foreground.appendChild(createElement("bitmap").apply {
+                        this["android:src"] = drawable
+                        this["android:tint"] = "@color/$FOREGROUND"
+                    })
                 }
             }
         }
