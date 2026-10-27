@@ -67,8 +67,5 @@ registerInternalPlugin(manifest, {
                     )
                 }
             })
-            .finally(() => {
-                plugin.disable()
-            })
     },
 })
