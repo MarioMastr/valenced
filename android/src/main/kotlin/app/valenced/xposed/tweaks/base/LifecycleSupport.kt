@@ -116,22 +116,35 @@ private fun launcherActivityName(ctx: Context): String {
     return info.targetActivity ?: info.name
 }
 
-private fun drainContextSubscribers(ctx: Context) {
+// Subscribers are removed before they run, so one throwing must not skip the rest.
+private fun Tweak.drainContextSubscribers(ctx: Context) {
     val pending = synchronized(subscriberLock) {
         val copy = contextSubscribers.toList()
         contextSubscribers.clear()
         copy
     }
-    for (s in pending) s(ctx)
+    for (s in pending) {
+        try {
+            s(ctx)
+        } catch (e: Throwable) {
+            log.e("Context subscriber threw", e)
+        }
+    }
 }
 
-private fun drainActivitySubscribers(act: Activity) {
+private fun Tweak.drainActivitySubscribers(act: Activity) {
     val pending = synchronized(subscriberLock) {
         val copy = activitySubscribers.toList()
         activitySubscribers.clear()
         copy
     }
-    for (s in pending) s(act)
+    for (s in pending) {
+        try {
+            s(act)
+        } catch (e: Throwable) {
+            log.e("Activity subscriber threw", e)
+        }
+    }
 }
 
 /** Tweak or plugin code should use [app.valenced.xposed.api.HostScope.withAppContext] instead. */
