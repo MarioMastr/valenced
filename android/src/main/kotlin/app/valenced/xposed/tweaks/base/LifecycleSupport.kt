@@ -1,6 +1,7 @@
 package app.valenced.xposed.tweaks.base
 
 import android.app.Activity
+import android.app.AndroidAppHelper
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
@@ -23,6 +24,8 @@ private val subscriberLock = Any()
 private val contextSubscribers = mutableListOf<(Context) -> Unit>()
 private val activitySubscribers = mutableListOf<(Activity) -> Unit>()
 
+private val activityHooked = AtomicBoolean(false)
+
 /**
  * Captures [Context] (from `ContextWrapper.attachBaseContext`) and [Activity] (from the launcher activity's `onCreate`),
  * so other tweaks can use [withAppContext]/[withAppActivity] to await them.
@@ -30,16 +33,34 @@ private val activitySubscribers = mutableListOf<(Activity) -> Unit>()
  * The launcher activity is resolved from the package manager, since its class name isn't stable across Discord versions.
  */
 val lifecycleSupport by tweak {
-    val activityHooked = AtomicBoolean(false)
-
     ContextWrapper::class.java.method("attachBaseContext", Context::class.java).hook {
-        after {
-            val ctx = args[0] as Context
-            if (activityHooked.compareAndSet(false, true)) hookLauncherActivity(ctx)
+        after { onContext(args[0] as Context) }
+    }
+}
 
-            contextRef = WeakReference(ctx)
-            log.i("Got Context")
-            drainContextSubscribers(ctx)
+/** Tries to capture the [Context] anyway if the attachBaseContext hook never fired. */
+fun Tweak.ensureAppContext(callsite: String) {
+    if (contextRef.get() != null) return
+    val app = AndroidAppHelper.currentApplication()
+    if (app == null) {
+        log.w("No Application available at $callsite, cannot capture Context")
+        return
+    }
+
+    log.w("No Context captured at $callsite, falling back to the current Application")
+    onContext(app)
+}
+
+private fun Tweak.onContext(ctx: Context) {
+    contextRef = WeakReference(ctx)
+    log.i("Got Context")
+    drainContextSubscribers(ctx)
+
+    if (activityHooked.compareAndSet(false, true)) {
+        try {
+            hookLauncherActivity(ctx)
+        } catch (e: Throwable) {
+            log.e("Failed to hook the launcher activity", e)
         }
     }
 }
