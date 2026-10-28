@@ -142,8 +142,6 @@ fun HookScope.runInjectors(
     loadScriptFromAssets: Method,
     loadScriptFromFile: Method,
 ) {
-    tweak.ensureAppContext("runInjectors")
-
     val scope = InjectorScope(tweak, this, loadScriptFromAssets, loadScriptFromFile)
     for (injector in injectors) {
         try {

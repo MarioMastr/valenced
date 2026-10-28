@@ -1,9 +1,8 @@
 package app.valenced.xposed.tweaks.base
 
 import android.app.Activity
-import android.app.AndroidAppHelper
+import android.app.Application
 import android.content.Context
-import android.content.ContextWrapper
 import android.os.Bundle
 import app.valenced.xposed.Tweak
 import app.valenced.xposed.hook
@@ -27,28 +26,22 @@ private val activitySubscribers = mutableListOf<(Activity) -> Unit>()
 private val activityHooked = AtomicBoolean(false)
 
 /**
- * Captures [Context] (from `ContextWrapper.attachBaseContext`) and [Activity] (from the launcher activity's `onCreate`),
- * so other tweaks can use [withAppContext]/[withAppActivity] to await them.
+ * Captures [Context] (from the host Application's `attachBaseContext`) and [Activity] (from the launcher activity's
+ * `onCreate`), so other tweaks can use [withAppContext]/[withAppActivity] to await them.
  *
  * The launcher activity is resolved from the package manager, since its class name isn't stable across Discord versions.
  */
 val lifecycleSupport by tweak {
-    ContextWrapper::class.java.method("attachBaseContext", Context::class.java).hook {
-        after { onContext(args[0] as Context) }
-    }
-}
+    // Since we updated LSPatch, dexopt now compiles the host's code, inlining ContextWrapper.attachBaseContext into its super calls, so the hook never fires.
+    // We need to hook the host's own override, since the framework reaches it through a virtual call, so it won't be inlined.
+    val appClass = appInfo.className?.let { classLoader.loadClass(it) } ?: Application::class.java
+    val attachBaseContext = generateSequence(appClass) { it.superclass }
+        .firstNotNullOf { runCatching { it.method("attachBaseContext", Context::class.java) }.getOrNull() }
 
-/** Tries to capture the [Context] anyway if the attachBaseContext hook never fired. */
-fun Tweak.ensureAppContext(callsite: String) {
-    if (contextRef.get() != null) return
-    val app = AndroidAppHelper.currentApplication()
-    if (app == null) {
-        log.w("No Application available at $callsite, cannot capture Context")
-        return
+    log.d("Hooking ${attachBaseContext.declaringClass.name}.attachBaseContext")
+    attachBaseContext.hook {
+        after { onContext(thisObject as Context) }
     }
-
-    log.w("No Context captured at $callsite, falling back to the current Application")
-    onContext(app)
 }
 
 private fun Tweak.onContext(ctx: Context) {
